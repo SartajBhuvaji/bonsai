@@ -34,7 +34,12 @@ publishes a GitHub release. Nothing to do by hand.
 
 Put user-visible changes under `## [Unreleased]` in `CHANGELOG.md` as part of your PR.
 
-Dependabot PRs arrive labelled `patch`, set in `.github/dependabot.yml`. Change
-it by hand on the PR if an upgrade deserves more. Do not let Dependabot pick the
-label itself: it labels by the dependency's semver bump, so a major upgrade of an
+Dependabot watches GitHub Actions only, quarterly, grouped into a single PR. It
+does not watch pip. The Python dependencies are `>=` floors with no lockfile, so
+bumping them does not change what gets installed. Upgrade those by hand when
+there is a reason to.
+
+Its PRs arrive labelled `patch`, set in `.github/dependabot.yml`. Raise it by
+hand on the PR if an upgrade deserves more. Do not let Dependabot pick the label
+itself: it labels by the dependency's semver bump, so a major upgrade of an
 action would release a major version of this package.

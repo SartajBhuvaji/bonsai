@@ -5,6 +5,12 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Dependabot now watches GitHub Actions only, quarterly, grouped into one PR.
+  The pip ecosystem is gone: the dependencies here are `>=` floors with no
+  lockfile, so bumping them changed nothing about what actually gets installed.
+
 ## [0.2.10] - 2026-09-13
 
 ## [0.2.9] - 2026-09-13
