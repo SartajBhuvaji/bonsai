@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-09-13
+
 ## [0.2.2] - 2026-09-13
 
 ### Fixed
