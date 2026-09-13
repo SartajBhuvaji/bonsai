@@ -52,6 +52,7 @@ publishes a GitHub release. See [CONTRIBUTING.md](CONTRIBUTING.md).
 src/bonsai/     the package
 tests/          pytest suite
 docs/           documentation
+docs/papers/    reference PDFs, pinned to the version we worked from
 .github/        CI, release automation, Dependabot
 tox.ini         lint, type and test environments
 ```

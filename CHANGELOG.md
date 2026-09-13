@@ -5,6 +5,11 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `docs/papers/`, with the Minitron paper (arXiv 2408.11796 v3) and an index
+  recording the version, retrieval date and checksum of each PDF.
+
 ## [0.2.0] - 2026-09-13
 
 ### Added

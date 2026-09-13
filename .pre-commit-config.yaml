@@ -3,6 +3,8 @@ repos:
     rev: v5.0.0
     hooks:
       - id: check-added-large-files
+        # Reference PDFs in docs/papers run to a couple of MB.
+        args: [--maxkb=5120]
       - id: check-merge-conflict
       - id: check-toml
       - id: check-yaml
