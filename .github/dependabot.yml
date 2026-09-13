@@ -1,19 +1,29 @@
 version: 2
 
-# The explicit labels matter. Without them Dependabot applies major/minor/patch
-# to match the dependency's own semver bump, and those are the same label names
-# the release workflow reads to version bonsai. A major bump of an action would
-# have cut a major release of this package. Pinning the set turns that off and
-# gives every Dependabot PR the label the PR label check wants.
+# Actions only, and rarely.
+#
+# The pip ecosystem is deliberately absent. Every Python dependency here is a
+# `>=` floor with no lockfile, so `ruff>=0.6` already installs whatever is
+# current. Raising the floor changes nothing about what gets installed, it only
+# forbids older versions, and `dependencies = []` means there is no runtime
+# surface to protect either. Those updates were pure churn: six PRs and six
+# releases in one afternoon, none of which changed a single installed version.
+#
+# Actions are different. They are pinned to a major (`@v7`) so they really do go
+# stale, and GitHub eventually retires runner images out from under them.
+# Quarterly and grouped is enough to catch that: one PR, one release, four times
+# a year.
+#
+# The explicit labels stop Dependabot applying major/minor/patch to match the
+# dependency's own semver bump. Those names are what release.yml reads, so a
+# major action upgrade would otherwise cut a major release of this package.
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: monthly
-    labels: ["dependencies", "patch"]
-
-  - package-ecosystem: pip
-    directory: /
-    schedule:
-      interval: monthly
+      interval: quarterly
+    groups:
+      actions:
+        patterns:
+          - "*"
     labels: ["dependencies", "patch"]
