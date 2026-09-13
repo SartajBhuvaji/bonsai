@@ -1,11 +1,19 @@
 version: 2
+
+# The explicit labels matter. Without them Dependabot applies major/minor/patch
+# to match the dependency's own semver bump, and those are the same label names
+# the release workflow reads to version bonsai. A major bump of an action would
+# have cut a major release of this package. Pinning the set turns that off and
+# gives every Dependabot PR the label the PR label check wants.
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    labels: ["dependencies", "patch"]
 
   - package-ecosystem: pip
     directory: /
     schedule:
       interval: monthly
+    labels: ["dependencies", "patch"]
