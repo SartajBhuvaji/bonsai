@@ -33,3 +33,8 @@ moves the `Unreleased` changelog entries under the new version, tags `vX.Y.Z` an
 publishes a GitHub release. Nothing to do by hand.
 
 Put user-visible changes under `## [Unreleased]` in `CHANGELOG.md` as part of your PR.
+
+Dependabot PRs arrive labelled `patch`, set in `.github/dependabot.yml`. Change
+it by hand on the PR if an upgrade deserves more. Do not let Dependabot pick the
+label itself: it labels by the dependency's semver bump, so a major upgrade of an
+action would release a major version of this package.

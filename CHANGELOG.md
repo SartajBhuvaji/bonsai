@@ -5,6 +5,12 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Dependabot no longer applies its own `major`/`minor`/`patch` labels, which
+  collided with the release labels and would have versioned bonsai off a
+  dependency's semver bump. Its PRs are now labelled `dependencies` and `patch`.
+
 ## [0.2.1] - 2026-09-13
 
 ### Added
