@@ -1,6 +1,6 @@
 [project]
 name = "bonsai"
-version = "0.2.6"
+version = "0.2.7"
 description = "A Python library"
 readme = "README.md"
 license = { text = "MIT" }
