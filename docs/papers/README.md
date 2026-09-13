@@ -4,7 +4,34 @@ Reference PDFs, committed so the version we worked from stays pinned. arXiv
 papers get revised and the numbers move between versions, so the arXiv ID alone
 is not enough to reproduce a claim.
 
-Files are named `<arxiv-id>-<short-name>.pdf`.
+Files are named `<arxiv-id>-<short-name>.pdf`. Listed oldest first, which is also
+the order to read them in.
+
+## 2407.14679 — Compact Language Models via Pruning and Knowledge Distillation
+
+[`2407.14679-compact-lms-pruning-distillation.pdf`](2407.14679-compact-lms-pruning-distillation.pdf)
+
+Muralidharan, Sreenivas, Joshi, Chochowski, Patwary, Shoeybi, Catanzaro, Kautz,
+Molchanov. NVIDIA. NeurIPS 2024.
+
+| | |
+| --- | --- |
+| Version | v2, dated 2024-11-04 |
+| Pages | 21 |
+| arXiv | https://arxiv.org/abs/2407.14679 |
+| PDF source | https://arxiv.org/pdf/2407.14679v2 |
+| Retrieved | 2026-09-13 |
+| sha256 | `907ff63b48fa8a7e87895b2f5584e315cb1d24ac9664166e224114fd9e3a4915` |
+
+The original Minitron paper. Prune an existing LLM along depth, width, attention
+and MLP axes, then retrain with distillation on under 3% of the original data.
+Works through each axis empirically, how to combine them, which distillation
+setup to use, and how to search for the compressed architecture, and turns that
+into a set of compression best practices.
+
+Applied to Nemotron-4 15B to get 8B and 4B models: up to 40x fewer training
+tokens per model than training from scratch, 1.8x total compute saving across the
+family, and up to 16% better MMLU than the from-scratch equivalents.
 
 ## 2408.11796 — LLM Pruning and Distillation in Practice: The Minitron Approach
 
@@ -23,19 +50,18 @@ Korzekwa, Olabiyi, Aithal, Catanzaro. NVIDIA.
 | Retrieved | 2026-09-12 |
 | sha256 | `cbd33b05d941146cc86e4a5e83ec35a433388419165b80c1f534ad868cde7024` |
 
-What it covers: structured pruning plus knowledge distillation to compress
-Mistral NeMo 12B to 8B and Llama 3.1 8B to 4B, without access to the original
-pretraining data. Introduces a teacher correction step, a light fine-tune of the
-teacher on the target data distribution, before distillation. Compares depth
-pruning against joint hidden/attention/MLP width pruning on the LM Evaluation
-Harness.
-
-This is the paper bonsai works from.
+The follow-up, applying the same recipe to models whose pretraining data is not
+available: Mistral NeMo 12B to 8B and Llama 3.1 8B to 4B. Adds teacher
+correction, a light fine-tune of the teacher on the target data distribution
+before distillation. Compares depth pruning against joint hidden/attention/MLP
+width pruning on the LM Evaluation Harness.
 
 ## Checking a file
 
 ```bash
+cd docs/papers
 sha256sum -c <<'SUMS'
+907ff63b48fa8a7e87895b2f5584e315cb1d24ac9664166e224114fd9e3a4915  2407.14679-compact-lms-pruning-distillation.pdf
 cbd33b05d941146cc86e4a5e83ec35a433388419165b80c1f534ad868cde7024  2408.11796-minitron-approach.pdf
 SUMS
 ```
