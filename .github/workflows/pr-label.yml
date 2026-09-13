@@ -1,0 +1,39 @@
+name: PR label
+
+# Every PR needs exactly one of patch / minor / major. The release workflow reads
+# that label to decide the version bump, so a PR without one cannot be released.
+#
+# This is its own workflow rather than a job in ci.yml because it has to rerun on
+# labeled/unlabeled, and there is no reason to rerun the test matrix for that.
+
+on:
+  pull_request:
+    types: [opened, reopened, labeled, unlabeled, synchronize]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-label-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  label:
+    name: Exactly one version label
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check
+        env:
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          python - <<'PY'
+          import json, os
+
+          found = sorted(set(json.loads(os.environ["LABELS"])) & {"patch", "minor", "major"})
+          if len(found) == 1:
+              print(f"{found[0]}")
+              raise SystemExit(0)
+          if not found:
+              raise SystemExit("add one of: patch, minor, major")
+          raise SystemExit(f"more than one version label: {found}")
+          PY
