@@ -1,0 +1,127 @@
+name: Release
+
+# Runs once, when a PR merges into main. The PR's label decides the bump:
+# major > minor > patch. CI blocks a PR that does not carry exactly one of them,
+# so by the time this runs the label is there.
+#
+# The push below uses GITHUB_TOKEN, which deliberately does not retrigger
+# workflows. That is what stops the release commit from starting another release.
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Pick the bump from the PR label
+        id: bump
+        env:
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+
+          labels = set(json.loads(os.environ["LABELS"]))
+          for level in ("major", "minor", "patch"):
+              if level in labels:
+                  print(f"level={level}")
+                  break
+          else:
+              raise SystemExit(f"no version label on the PR; found {sorted(labels)}")
+          PY
+
+      - name: Bump the version
+        id: version
+        env:
+          LEVEL: ${{ steps.bump.outputs.level }}
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import os, pathlib, re
+
+          level = os.environ["LEVEL"]
+          path = pathlib.Path("pyproject.toml")
+          text = path.read_text()
+
+          match = re.search(r'(?m)^version = "(\d+)\.(\d+)\.(\d+)"$', text)
+          if match is None:
+              raise SystemExit("no version = \"X.Y.Z\" line in pyproject.toml")
+
+          major, minor, patch = (int(g) for g in match.groups())
+          if level == "major":
+              major, minor, patch = major + 1, 0, 0
+          elif level == "minor":
+              minor, patch = minor + 1, 0
+          else:
+              patch += 1
+
+          new = f"{major}.{minor}.{patch}"
+          path.write_text(f'{text[: match.start()]}version = "{new}"{text[match.end() :]}')
+          print(f"previous={'.'.join(match.groups())}")
+          print(f"current={new}")
+          PY
+
+      - name: Open a new Unreleased section in the changelog
+        env:
+          VERSION: ${{ steps.version.outputs.current }}
+        run: |
+          python - <<'PY'
+          import datetime, os, pathlib
+
+          version = os.environ["VERSION"]
+          today = datetime.date.today().isoformat()
+          path = pathlib.Path("CHANGELOG.md")
+          text = path.read_text()
+          if "## [Unreleased]" in text:
+              text = text.replace(
+                  "## [Unreleased]",
+                  f"## [Unreleased]\n\n## [{version}] - {today}",
+                  1,
+              )
+              path.write_text(text)
+          PY
+
+      - name: Commit and tag
+        env:
+          VERSION: ${{ steps.version.outputs.current }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pyproject.toml CHANGELOG.md
+          git commit -m "Release v${VERSION}"
+          git tag -a "v${VERSION}" -m "v${VERSION}"
+          git push origin main
+          git push origin "v${VERSION}"
+
+      # --generate-notes builds the notes from the commits since the previous
+      # tag, so there is nothing to pass for the range.
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.current }}
+        run: |
+          gh release create "v${VERSION}" \
+            --title "v${VERSION}" \
+            --generate-notes \
+            --verify-tag

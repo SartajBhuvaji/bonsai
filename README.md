@@ -39,13 +39,21 @@ tox          # every supported interpreter (3.11, 3.12, 3.13)
 CI never rewrites files. `tox -e lint` reports formatting problems, `tox -e fmt`
 fixes them.
 
+## Releases
+
+Versioning is driven by PR labels. Every PR carries exactly one of `patch`,
+`minor` or `major`, and CI fails until it does. On merge, the release workflow
+bumps the version in `pyproject.toml`, updates `CHANGELOG.md`, tags `vX.Y.Z` and
+publishes a GitHub release. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Layout
 
 ```
 src/bonsai/     the package
 tests/          pytest suite
 docs/           documentation
-.github/        CI and Dependabot
+.github/        CI, release automation, Dependabot
+tox.ini         lint, type and test environments
 ```
 
 ## License
