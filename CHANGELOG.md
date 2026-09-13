@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.11] - 2026-09-13
+
 ### Changed
 
 - Dependabot now watches GitHub Actions only, quarterly, grouped into one PR.
