@@ -72,6 +72,26 @@ jobs:
       - name: Tests
         run: tox -e py
 
+  notebooks:
+    name: Notebooks keep their outputs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install tox
+        run: pip install tox
+
+      # Some of these need a rented GPU to reproduce, so CI cannot re-run
+      # them. What it can check is that nobody committed a notebook with its
+      # outputs stripped, or one that no longer parses.
+      - name: Check
+        run: tox -e notebooks
+
   build:
     name: Build distributions
     runs-on: ubuntu-latest

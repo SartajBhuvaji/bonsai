@@ -5,6 +5,28 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `bonsai.config`: TOML-loaded experiment configuration (model / data /
+  compute), plus `configs/qwen3-30b-a3b.toml`.
+- `bonsai.tracking`: local run tracking under `runs/` -- metrics as
+  JSON-lines, config snapshots, no external service.
+- `bonsai.architecture`: inspects a Qwen3-MoE model's parameter breakdown by
+  pruning axis (attention / router / experts / embedding) from `config.json`
+  alone, via a `meta`-device model build. No weights downloaded.
+- `bonsai.viz`: a two-panel architecture diagram (whole-model stack, one
+  decoder layer expanded with its residual connections and expert grid),
+  drawn entirely from an `ArchitectureSummary` -- no hardcoded model numbers.
+- `notebooks/`: explainer notebooks alongside the code they call, with the
+  convention documented in `notebooks/README.md`. First one,
+  `00_model_architecture.ipynb`, walks Qwen3-30B-A3B-Base's real architecture,
+  diagrams it, and states the pruning targets for each axis, including the
+  expert axis neither Minitron paper covers.
+- `tools/check_notebooks.py` and a `notebooks` tox/CI job: committed notebooks
+  must keep their execution outputs.
+- Runtime dependencies: `transformers`, `huggingface-hub`, `torch`. A
+  `notebook` extra (`jupyter`, `nbconvert`, `ipykernel`, `matplotlib`).
+
 ## [0.2.13] - 2026-09-14
 
 ## [0.2.12] - 2026-09-13

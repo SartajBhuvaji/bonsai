@@ -18,6 +18,22 @@ dist/
 uv.lock
 .tox/
 
+# local experiment tracking (bonsai.tracking.new_run) -- these are run
+# outputs, not source, and can get large once real training starts
+runs/
+
+# model weights and checkpoints -- never committed, always re-downloaded or
+# re-produced
+models/
+*.safetensors
+*.gguf
+*.bin
+*.pt
+*.ckpt
+
+# Jupyter's autosave directory; the committed notebook is the real copy
+.ipynb_checkpoints/
+
 # tooling caches
 .ruff_cache/
 .pytest_cache/

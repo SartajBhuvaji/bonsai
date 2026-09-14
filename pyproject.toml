@@ -1,7 +1,7 @@
 [project]
 name = "bonsai"
 version = "0.2.13"
-description = "A Python library"
+description = "Pruning and distilling a Mixture-of-Experts model into a smaller, TypeScript-specialized one"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
@@ -15,7 +15,11 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Typing :: Typed",
 ]
-dependencies = []
+dependencies = [
+    "transformers>=5.15",
+    "huggingface-hub>=0.26",
+    "torch>=2.4",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -25,6 +29,14 @@ dev = [
     "pytest-cov>=7.1.0",
     "pre-commit>=4.6.2",
     "tox>=4.61.4",
+]
+# For running and rendering the notebooks under notebooks/ -- see
+# notebooks/README.md for what belongs in a notebook vs. in src/bonsai/.
+notebook = [
+    "jupyter>=1.0",
+    "nbconvert>=7.0",
+    "ipykernel>=6.0",
+    "matplotlib>=3.8",
 ]
 
 [build-system]

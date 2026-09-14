@@ -12,8 +12,15 @@ make install
 make check
 ```
 
-`make check` runs `tox -e lint,type,py`, which is what CI runs. `make fmt` fixes
-formatting and the autofixable lint findings.
+`make check` runs `tox -e lint,type,py,notebooks`, which is what CI runs.
+`make fmt` fixes formatting and the autofixable lint findings.
+
+## Notebooks
+
+If your change adds a notebook under `notebooks/`, see
+[notebooks/README.md](notebooks/README.md) first: logic belongs in
+`src/bonsai/`, the notebook calls it. Commit the notebook with its outputs
+intact -- `tox -e notebooks` fails a notebook whose outputs were stripped.
 
 ## Pull requests
 
