@@ -54,6 +54,10 @@ class ArchitectureSummary:
     num_experts: int
     experts_per_token: int
     hidden_size: int
+    num_attention_heads: int
+    num_key_value_heads: int
+    head_dim: int
+    moe_intermediate_size: int
     embedding: int
     lm_head: int
     layers: tuple[LayerParams, ...]
@@ -136,12 +140,21 @@ def summarize(repo_id: str, revision: str = "main") -> ArchitectureSummary:
         for idx, layer in enumerate(base.layers)
     )
 
+    # Qwen3MoeAttention.__init__ falls back to this same computation when
+    # config.head_dim isn't set; mirrored here rather than assumed present,
+    # since not every Qwen3-MoE config sets it explicitly (this one does).
+    head_dim = getattr(config, "head_dim", None) or config.hidden_size // config.num_attention_heads
+
     return ArchitectureSummary(
         repo_id=repo_id,
         num_layers=len(layers),
         num_experts=config.num_experts,
         experts_per_token=config.num_experts_per_tok,
         hidden_size=config.hidden_size,
+        num_attention_heads=config.num_attention_heads,
+        num_key_value_heads=config.num_key_value_heads,
+        head_dim=head_dim,
+        moe_intermediate_size=config.moe_intermediate_size,
         embedding=_count_params(base.embed_tokens),
         lm_head=0 if config.tie_word_embeddings else _count_params(model.lm_head),
         layers=layers,

@@ -74,3 +74,12 @@ def test_untied_embeddings_have_separate_lm_head(tmp_path: Path) -> None:
 
     assert summary.lm_head > 0
     assert summary.lm_head == summary.embedding  # same shape, untied weights
+
+
+def test_attention_and_moe_shape_fields(tmp_path: Path) -> None:
+    summary = summarize(save_tiny_config(tmp_path))
+
+    assert summary.num_attention_heads == 4
+    assert summary.num_key_value_heads == 2
+    assert summary.head_dim == 4  # TINY_CONFIG sets no head_dim: 16 // 4 falls back
+    assert summary.moe_intermediate_size == 8
