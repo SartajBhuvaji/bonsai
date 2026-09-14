@@ -51,6 +51,25 @@ Where a step produces something worth looking at, it gets a notebook under
 [notebooks/README.md](notebooks/README.md) for the convention: logic lives in
 `src/bonsai/`, notebooks call it and keep only the one-time or visual code.
 
+## Compute
+
+Everything past baseline eval needs a rented GPU (see `plan.md`'s sizing table).
+Lambda Cloud, on demand:
+
+```bash
+cp .env.example .env                       # LAMBDA_API_KEY, HF_TOKEN
+./tools/launch_lambda.sh                    # verifies the SSH key actually registered
+ssh -i ~/.ssh/lambda_bonsai ubuntu@<ip>
+git clone git@github.com:SartajBhuvaji/bonsai.git && cd bonsai
+./tools/setup_instance.sh                   # venv, deps, confirms GPU + Qwen3-MoE import
+./tools/gpu_env.sh                          # provenance block for whatever ran there
+./tools/launch_lambda.sh terminate <id>     # tear down when done
+```
+
+`launch_lambda.sh capacity` lists instance types with available capacity and
+their price; override `INSTANCE_TYPE` once past the cheapest-instance smoke
+test the provisioning path is proven against first.
+
 ## Releases
 
 Versioning is driven by PR labels. Every PR carries exactly one of `patch`,
@@ -66,6 +85,7 @@ src/bonsai/architecture/  model inspection and diagramming (no pruning logic yet
 notebooks/                explainer notebooks -- see notebooks/README.md
 configs/                  TOML configs loaded by bonsai.config
 tests/                    pytest suite
+tools/                    provisioning and CI-check scripts, not part of the package
 docs/                     documentation
 docs/papers/              reference PDFs, pinned to the version we worked from
 .github/                  CI, release automation, Dependabot
