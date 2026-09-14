@@ -5,6 +5,13 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `plan.md`: the roadmap for pruning and distilling an MoE model
+  (Qwen3-30B-A3B-Base) into a TypeScript-specialized Minitron, phased into
+  small steps. `.env.example` for the Hugging Face and Lambda Cloud
+  credentials the later steps need.
+
 ## [0.2.12] - 2026-09-13
 
 ### Added

@@ -1,6 +1,8 @@
 # bonsai
 
-<!-- TODO: one line on what this does. -->
+Pruning and distilling a Mixture-of-Experts model into a smaller,
+TypeScript-specialized one, following NVIDIA's Minitron recipe. See
+[plan.md](plan.md) for the roadmap and the papers it's built from.
 
 ## Requirements
 

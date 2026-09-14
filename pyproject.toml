@@ -1,7 +1,7 @@
 [project]
 name = "bonsai"
 version = "0.2.12"
-description = "A Python library"
+description = "Pruning and distilling a Mixture-of-Experts model into a smaller, TypeScript-specialized one"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
