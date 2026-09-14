@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-09-14
+
 ### Changed
 
 - `bonsai.architecture` and `bonsai.viz` are now `bonsai.architecture` (a
