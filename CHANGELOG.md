@@ -5,6 +5,13 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- `bonsai.architecture` and `bonsai.viz` are now `bonsai.architecture` (a
+  package) and `bonsai.architecture.viz`, grouping the model-inspection code
+  together and out of `src/bonsai/`'s top level. `from bonsai.architecture
+  import summarize` is unaffected.
+
 ## [0.3.0] - 2026-09-14
 
 ### Added

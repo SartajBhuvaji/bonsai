@@ -61,14 +61,15 @@ publishes a GitHub release. See [CONTRIBUTING.md](CONTRIBUTING.md).
 ## Layout
 
 ```
-src/bonsai/     the package: config loading, experiment tracking, model inspection
-notebooks/      explainer notebooks -- see notebooks/README.md
-configs/        TOML configs loaded by bonsai.config
-tests/          pytest suite
-docs/           documentation
-docs/papers/    reference PDFs, pinned to the version we worked from
-.github/        CI, release automation, Dependabot
-tox.ini         lint, type, test and notebook-check environments
+src/bonsai/               the package: config loading, experiment tracking
+src/bonsai/architecture/  model inspection and diagramming (no pruning logic yet)
+notebooks/                explainer notebooks -- see notebooks/README.md
+configs/                  TOML configs loaded by bonsai.config
+tests/                    pytest suite
+docs/                     documentation
+docs/papers/              reference PDFs, pinned to the version we worked from
+.github/                  CI, release automation, Dependabot
+tox.ini                   lint, type, test and notebook-check environments
 ```
 
 ## License
