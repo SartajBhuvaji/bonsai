@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-14
+
 ### Added
 
 - `bonsai.data`: pulls, splits, and tokenizes the TypeScript
