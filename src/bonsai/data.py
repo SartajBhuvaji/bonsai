@@ -33,7 +33,9 @@ def list_shards(dataset_id: str, data_dir: str, *, token: str | None = None) -> 
     return _filter_shards(files, data_dir)
 
 
-def make_split(base: DataConfig, shards: tuple[str, ...], *, calibration_shard_count: int = 1) -> DataConfig:
+def make_split(
+    base: DataConfig, shards: tuple[str, ...], *, calibration_shard_count: int = 1
+) -> DataConfig:
     """Reserve the first `calibration_shard_count` shards for calibration, the rest for retraining.
 
     Shard-level partitioning, not a row-level random split: two shards never

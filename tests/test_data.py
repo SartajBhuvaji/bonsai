@@ -45,10 +45,17 @@ def base_config() -> DataConfig:
 
 
 def tiny_tokenizer() -> PreTrainedTokenizerFast:
-    vocab = {word: i for i, word in enumerate(["[UNK]", "const", "x", "=", "1", ";", "function", "(", ")"])}
+    vocab = {
+        word: i
+        for i, word in enumerate(["[UNK]", "const", "x", "=", "1", ";", "function", "(", ")"])
+    }
     tokenizer = Tokenizer(WordLevel(vocab=vocab, unk_token="[UNK]"))
     tokenizer.pre_tokenizer = Whitespace()
-    return PreTrainedTokenizerFast(tokenizer_object=tokenizer, unk_token="[UNK]")
+    # PreTrainedTokenizerFast.__init__ calls into an untyped tokenizers-backend
+    # helper internally; transformers' own stubs don't cover it.
+    return PreTrainedTokenizerFast(  # type: ignore[no-untyped-call]
+        tokenizer_object=tokenizer, unk_token="[UNK]"
+    )
 
 
 # --- shard filtering ---------------------------------------------------
@@ -73,7 +80,9 @@ def test_filter_shards_keeps_only_matching_prefix_and_suffix() -> None:
 def test_hub_urls_build_hf_scheme_paths() -> None:
     urls = _hub_urls("bigcode/the-stack-dedup", ("data/typescript/data-00000-of-00071.parquet",))
 
-    assert urls == ["hf://datasets/bigcode/the-stack-dedup/data/typescript/data-00000-of-00071.parquet"]
+    assert urls == [
+        "hf://datasets/bigcode/the-stack-dedup/data/typescript/data-00000-of-00071.parquet"
+    ]
 
 
 # --- split ---------------------------------------------------------------
@@ -152,7 +161,9 @@ def test_load_samples_shard_limit_caps_which_shards_open(monkeypatch: pytest.Mon
 
     load_samples(data, "retraining", n=5, shard_limit=1)
 
-    assert captured == ["hf://datasets/bigcode/the-stack-dedup/data/typescript/data-00001-of-00071.parquet"]
+    assert captured == [
+        "hf://datasets/bigcode/the-stack-dedup/data/typescript/data-00001-of-00071.parquet"
+    ]
 
 
 # --- tokenization ------------------------------------------------------
