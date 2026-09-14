@@ -19,6 +19,7 @@ dependencies = [
     "transformers>=5.15",
     "huggingface-hub>=0.26",
     "torch>=2.4",
+    "datasets>=3.0",
 ]
 
 [project.optional-dependencies]
@@ -92,3 +93,8 @@ files = ["src", "tests"]
 strict = true
 warn_unreachable = true
 pretty = true
+
+[[tool.mypy.overrides]]
+# datasets ships no py.typed marker / stubs as of the version this project pins.
+module = "datasets.*"
+ignore_missing_imports = true

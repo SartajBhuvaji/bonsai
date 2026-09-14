@@ -5,6 +5,19 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `bonsai.data`: pulls, splits, and tokenizes the TypeScript
+  calibration/retraining data from `bigcode/the-stack-dedup` (plan.md step
+  1.1). `make_split` reserves whole parquet shards for calibration so the two
+  pools are disjoint by construction; `load_samples`, `tokenize_samples`, and
+  `verify_disjoint` (a `hexsha`-keyed leak check) round out the pipeline.
+  `configs/qwen3-30b-a3b.toml` now pins the real split: shard 0 of 71 for
+  calibration, the rest for retraining.
+- `notebooks/01_calibration_data.ipynb`: pulls real calibration and
+  retraining samples through the pinned split, plots the token-length
+  distribution, and confirms disjointness empirically.
+
 ## [0.4.0] - 2026-09-14
 
 ### Added
