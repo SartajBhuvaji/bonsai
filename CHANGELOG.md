@@ -5,6 +5,15 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `tools/launch_lambda.sh`, `tools/setup_instance.sh`, `tools/gpu_env.sh`:
+  Lambda Cloud provisioning, adapted from `unfuse`'s own tooling -- launch a
+  GPU instance with SSH-key-registration verification (Lambda silently issues
+  its own keypair if this is skipped), prepare the environment and confirm
+  GPU visibility plus a `Qwen3MoeForCausalLM` import, and capture the
+  machine's provenance for whatever ran there.
+
 ## [0.3.1] - 2026-09-14
 
 ### Changed
