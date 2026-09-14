@@ -4,3 +4,8 @@
 *.yml  text eol=lf
 *.md   text eol=lf
 *.pdf  binary
+
+# Notebooks are JSON but diff better as text, and GitHub should not count
+# them as the project's language -- they're documentation that happens to
+# execute, and ruff/tools/check_notebooks.py are what actually validate them.
+*.ipynb text linguist-documentation

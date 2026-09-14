@@ -1,0 +1,20 @@
+# Default configuration for the Qwen3-30B-A3B-Base pruning/distillation
+# experiment. Loaded via bonsai.config.load_config.
+
+name = "qwen3-30b-a3b"
+
+[model]
+repo_id = "Qwen/Qwen3-30B-A3B-Base"
+revision = "main"
+
+[data]
+dataset_id = "bigcode/the-stack-dedup"
+data_dir = "data/typescript"
+calibration_samples = 1024
+# Shard lists are filled in by step 1.1 once the split is decided; left empty
+# here rather than guessed.
+calibration_shards = []
+retraining_shards = []
+
+[compute]
+provider = "lambda"
