@@ -15,7 +15,7 @@ matplotlib.use("Agg")  # no display in CI
 from transformers.models.qwen3_moe.configuration_qwen3_moe import Qwen3MoeConfig
 
 from bonsai.architecture import ArchitectureSummary, summarize
-from bonsai.viz import plot_architecture
+from bonsai.architecture.viz import plot_architecture
 
 
 def summary_for(tmp_path: Path, **overrides: Any) -> ArchitectureSummary:
