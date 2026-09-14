@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-14
+
 ### Added
 
 - `tools/launch_lambda.sh`, `tools/setup_instance.sh`, `tools/gpu_env.sh`:
