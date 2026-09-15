@@ -117,3 +117,11 @@ ignore_missing_imports = true
 # "not installed here" the same way.
 module = "bigcode_eval.*"
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# In the type env (no eval extra), the above makes GeneralMultiPLE resolve
+# to Any, and strict's disallow_subclassing_any then rejects `class
+# MbppMultiPLE(GeneralMultiPLE)` outright. Scoped to this one module rather
+# than dropped project-wide.
+module = "bonsai.eval"
+disallow_subclassing_any = false
