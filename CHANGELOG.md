@@ -5,6 +5,15 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `bonsai.eval.general_knowledge`: runs MMLU (5-shot), ARC-Challenge
+  (25-shot) and Winogrande (5-shot) against a HF model via
+  `lm_eval.simple_evaluate`. Shot counts are pinned explicitly -- none of the
+  three tasks' own harness configs set one, which would otherwise silently
+  fall back to 0-shot and make the numbers incomparable to the papers'
+  tables plan.md wants them checked against.
+
 ## [0.6.0] - 2026-09-15
 
 ### Added

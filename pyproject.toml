@@ -44,6 +44,7 @@ notebook = [
 # lint/type/test cycle. Not on PyPI, hence the git dependency.
 eval = [
     "bigcode-eval @ git+https://github.com/bigcode-project/bigcode-evaluation-harness",
+    "lm-eval>=0.4.13",
 ]
 
 [build-system]
@@ -125,3 +126,9 @@ ignore_missing_imports = true
 # than dropped project-wide.
 module = "bonsai.eval"
 disallow_subclassing_any = false
+
+[[tool.mypy.overrides]]
+# lm-eval (the eval extra) ships no stubs, and the type env doesn't install
+# it at all.
+module = "lm_eval.*"
+ignore_missing_imports = true
