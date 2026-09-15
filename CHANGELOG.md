@@ -32,6 +32,16 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
   to `tsc` and `node` to actually compile and run generated code, and neither
   ships with the Python env this script otherwise builds. Off by default; a
   plain calibration-data or architecture-notebook run doesn't need it.
+- `notebooks/02a_baseline_humaneval_ts.ipynb`: the first real baseline-eval
+  result (plan.md step 1.2) -- HumanEval-TS pass@1 = 0.6708 against
+  `Qwen3-30B-A3B-Base`, unpruned. Run as its own notebook rather than folded
+  into a single all-five-tasks one, so a slow or failed task doesn't block
+  or hide the others; MBPP-TS and the general-knowledge suite get their own
+  notebooks in the same pattern. `batch_size=8` (not 32, and
+  `max_length_generation=512` not 1024): batched generation waits for the
+  slowest sequence in a batch to stop, and this MoE model's decode cost
+  doesn't amortize across a batch as cleanly as a dense model's would -- the
+  first attempt at batch_size=32 sat for over an hour without finishing.
 
 ## [0.6.0] - 2026-09-15
 
