@@ -53,6 +53,12 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/bonsai"]
 
+[tool.hatch.metadata]
+# bigcode-eval (the eval extra) isn't on PyPI -- hatchling refuses to build
+# at all with a direct git reference anywhere in the dependency table unless
+# this is set, regardless of whether that extra is actually installed.
+allow-direct-references = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
