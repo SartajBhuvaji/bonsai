@@ -13,6 +13,13 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
   three tasks' own harness configs set one, which would otherwise silently
   fall back to 0-shot and make the numbers incomparable to the papers'
   tables plan.md wants them checked against.
+- `tools/bigcode_eval_main.py`: a vendored copy of
+  `bigcode-evaluation-harness`'s own `main.py`. `pip install`ing the `eval`
+  extra's git dependency only packages the `bigcode_eval` library -- `main.py`
+  is a top-level script in that repo, not part of the installed package, so
+  there's no `python -m bigcode_eval.main` to run. Calls
+  `bonsai.eval.register()` itself before parsing `--tasks`, since
+  `accelerate launch` runs it as its own subprocess.
 
 ## [0.6.0] - 2026-09-15
 

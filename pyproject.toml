@@ -77,6 +77,9 @@ exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:", "raise NotImplementedE
 line-length = 100
 target-version = "py311"
 src = ["src", "tests"]
+# Vendored bigcode-evaluation-harness main.py -- kept unmodified below its
+# docstring (see the file itself) so it stays diffable against upstream.
+extend-exclude = ["tools/bigcode_eval_main.py"]
 
 [tool.ruff.lint]
 select = [
