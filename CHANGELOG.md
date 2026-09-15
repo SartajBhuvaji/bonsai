@@ -21,6 +21,13 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
   `bonsai.eval.register()` itself before parsing `--tasks`, since
   `accelerate launch` runs it as its own subprocess.
 
+### Changed
+
+- `tools/check_notebooks.py` now tolerates IPython shell/line magic (`!cmd`,
+  `%magic`) in code cells, blanking a magic line (and its `\`-continuations)
+  before `ast.parse` rather than pulling in IPython's own cell transformer
+  for one narrow need. The first notebook using `!` shell cells hit this.
+
 ## [0.6.0] - 2026-09-15
 
 ### Added
