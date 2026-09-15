@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-09-15
+
 ### Added
 
 - `bonsai.eval.general_knowledge`: runs MMLU (5-shot), ARC-Challenge
