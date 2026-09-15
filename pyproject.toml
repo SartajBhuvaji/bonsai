@@ -39,6 +39,12 @@ notebook = [
     "ipykernel>=6.0",
     "matplotlib>=3.8",
 ]
+# Eval-harness tooling for Phase 1.2 and beyond. Not part of dev -- it's only
+# needed on the GPU instance actually running an eval, not for every
+# lint/type/test cycle. Not on PyPI, hence the git dependency.
+eval = [
+    "bigcode-eval @ git+https://github.com/bigcode-project/bigcode-evaluation-harness",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -46,6 +52,12 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/bonsai"]
+
+[tool.hatch.metadata]
+# bigcode-eval (the eval extra) isn't on PyPI -- hatchling refuses to build
+# at all with a direct git reference anywhere in the dependency table unless
+# this is set, regardless of whether that extra is actually installed.
+allow-direct-references = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -98,3 +110,18 @@ pretty = true
 # datasets ships no py.typed marker / stubs as of the version this project pins.
 module = "datasets.*"
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# bigcode-eval (the eval extra) ships no stubs, and the type env doesn't
+# install it at all -- ignore_missing_imports covers both "no stubs" and
+# "not installed here" the same way.
+module = "bigcode_eval.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# In the type env (no eval extra), the above makes GeneralMultiPLE resolve
+# to Any, and strict's disallow_subclassing_any then rejects `class
+# MbppMultiPLE(GeneralMultiPLE)` outright. Scoped to this one module rather
+# than dropped project-wide.
+module = "bonsai.eval"
+disallow_subclassing_any = false

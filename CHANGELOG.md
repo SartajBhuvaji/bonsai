@@ -5,6 +5,23 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `bonsai.eval`: registers MBPP's MultiPL-E TypeScript translation
+  (`mbpp-ts`) as a `bigcode-evaluation-harness` task (`multiple-mbpp-ts`).
+  The harness's own `multiple.py` only wraps the HumanEval translations;
+  `nuprl/MultiPL-E`'s `mbpp-ts` config carries the same schema, so
+  `MbppMultiPLE` reuses `GeneralMultiPLE`'s prompt-building, postprocessing,
+  execution and pass@k scoring wholesale, pointed at a different dataset
+  config. New `eval` extra (`bigcode-eval`, git-installed -- not on PyPI)
+  kept separate from `dev` since it's only needed on the GPU instance
+  actually running an eval.
+
+### Changed
+
+- `bonsai.data` moves into its own package (`src/bonsai/data/`), matching
+  `bonsai.architecture`'s existing layout. Import path unaffected.
+
 ## [0.5.0] - 2026-09-14
 
 ### Added
