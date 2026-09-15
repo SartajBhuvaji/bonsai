@@ -5,6 +5,44 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `bonsai.eval.general_knowledge`: runs MMLU (5-shot), ARC-Challenge
+  (25-shot) and Winogrande (5-shot) against a HF model via
+  `lm_eval.simple_evaluate`. Shot counts are pinned explicitly -- none of the
+  three tasks' own harness configs set one, which would otherwise silently
+  fall back to 0-shot and make the numbers incomparable to the papers'
+  tables plan.md wants them checked against.
+- `tools/bigcode_eval_main.py`: a vendored copy of
+  `bigcode-evaluation-harness`'s own `main.py`. `pip install`ing the `eval`
+  extra's git dependency only packages the `bigcode_eval` library -- `main.py`
+  is a top-level script in that repo, not part of the installed package, so
+  there's no `python -m bigcode_eval.main` to run. Calls
+  `bonsai.eval.register()` itself before parsing `--tasks`, since
+  `accelerate launch` runs it as its own subprocess.
+
+### Changed
+
+- `tools/check_notebooks.py` now tolerates IPython shell/line magic (`!cmd`,
+  `%magic`) in code cells, blanking a magic line (and its `\`-continuations)
+  before `ast.parse` rather than pulling in IPython's own cell transformer
+  for one narrow need. The first notebook using `!` shell cells hit this.
+- `tools/setup_instance.sh` gains `WITH_EVAL=1`, installing the `eval` extra
+  plus Node.js and the TypeScript compiler -- MultiPL-E's TS task shells out
+  to `tsc` and `node` to actually compile and run generated code, and neither
+  ships with the Python env this script otherwise builds. Off by default; a
+  plain calibration-data or architecture-notebook run doesn't need it.
+- `notebooks/02a_baseline_humaneval_ts.ipynb`: the first real baseline-eval
+  result (plan.md step 1.2) -- HumanEval-TS pass@1 = 0.6708 against
+  `Qwen3-30B-A3B-Base`, unpruned. Run as its own notebook rather than folded
+  into a single all-five-tasks one, so a slow or failed task doesn't block
+  or hide the others; MBPP-TS and the general-knowledge suite get their own
+  notebooks in the same pattern. `batch_size=8` (not 32, and
+  `max_length_generation=512` not 1024): batched generation waits for the
+  slowest sequence in a batch to stop, and this MoE model's decode cost
+  doesn't amortize across a batch as cleanly as a dense model's would -- the
+  first attempt at batch_size=32 sat for over an hour without finishing.
+
 ## [0.6.0] - 2026-09-15
 
 ### Added

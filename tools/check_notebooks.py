@@ -39,8 +39,23 @@ def check(path: Path) -> list[str]:
                 break
 
         if cell["cell_type"] == "code":
+            # IPython magics (`!shell command`, `%line`, `%%cell`) aren't valid
+            # Python -- blank them out line-for-line (preserving line numbers,
+            # for errors that reference one) rather than pulling in IPython's
+            # own cell transformer just to make ast.parse tolerate them. A
+            # magic line's own trailing `\` continuations are blanked too --
+            # they're shell continuations, not Python ones, and left alone
+            # they parse as free-floating expressions on the next line(s).
+            parseable_lines = []
+            in_magic_continuation = False
+            for line in source.split("\n"):
+                if in_magic_continuation or line.lstrip().startswith(("!", "%")):
+                    in_magic_continuation = line.rstrip().endswith("\\")
+                    parseable_lines.append("")
+                else:
+                    parseable_lines.append(line)
             try:
-                ast.parse(source)
+                ast.parse("\n".join(parseable_lines))
             except SyntaxError as err:
                 problems.append(f"cell {i}: {err}")
 
