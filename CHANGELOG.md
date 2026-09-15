@@ -17,6 +17,11 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
   kept separate from `dev` since it's only needed on the GPU instance
   actually running an eval.
 
+### Changed
+
+- `bonsai.data` moves into its own package (`src/bonsai/data/`), matching
+  `bonsai.architecture`'s existing layout. Import path unaffected.
+
 ## [0.5.0] - 2026-09-14
 
 ### Added
