@@ -27,6 +27,11 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
   `%magic`) in code cells, blanking a magic line (and its `\`-continuations)
   before `ast.parse` rather than pulling in IPython's own cell transformer
   for one narrow need. The first notebook using `!` shell cells hit this.
+- `tools/setup_instance.sh` gains `WITH_EVAL=1`, installing the `eval` extra
+  plus Node.js and the TypeScript compiler -- MultiPL-E's TS task shells out
+  to `tsc` and `node` to actually compile and run generated code, and neither
+  ships with the Python env this script otherwise builds. Off by default; a
+  plain calibration-data or architecture-notebook run doesn't need it.
 
 ## [0.6.0] - 2026-09-15
 
