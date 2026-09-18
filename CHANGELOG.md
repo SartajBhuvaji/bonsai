@@ -5,6 +5,18 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `notebooks/02c_baseline_general_knowledge.ipynb`: the tracked-not-gating
+  tier of plan.md step 1.2's baseline eval, run against `Qwen3-30B-A3B-Base`
+  on the full test sets -- MMLU (5-shot): acc 0.8101; ARC-Challenge
+  (25-shot): acc 0.6536, acc_norm 0.6749; Winogrande (5-shot): acc 0.7798.
+  Run on GPU 1 of a 2x H100 instance, concurrently with MBPP-TS on GPU 0 --
+  `accelerate launch` without multi-GPU flags pins to one GPU by default, so
+  two independent single-GPU jobs coexist on one box with no cross-talk
+  (confirmed: each process shows up against only its own GPU's UUID in
+  `nvidia-smi --query-compute-apps`).
+
 ## [0.7.0] - 2026-09-15
 
 ### Added
