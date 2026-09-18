@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-09-18
+
 ### Added
 
 - `notebooks/02b_baseline_mbpp_ts.ipynb`: the second primary/gating tier of
