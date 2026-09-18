@@ -5,6 +5,15 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `notebooks/02b_baseline_mbpp_ts.ipynb`: the second primary/gating tier of
+  plan.md step 1.2's baseline eval -- MBPP-TS pass@1 = 0.7333 against
+  `Qwen3-30B-A3B-Base`, unpruned, full 390-problem test set. Same
+  `batch_size=8`/`max_length_generation=512` config as HumanEval-TS. Run on
+  GPU 0 of a 2x H100 instance, concurrently with the general-knowledge suite
+  on GPU 1.
+
 ## [0.8.0] - 2026-09-18
 
 ### Added
