@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-09-18
+
 ### Added
 
 - `notebooks/02c_baseline_general_knowledge.ipynb`: the tracked-not-gating
