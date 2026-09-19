@@ -31,6 +31,18 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
   one standout expert, not reveal structure the way the full 6,144-cell
   heatmap does). Sequential blue throughout, lifted from the project's
   validated color-formula palette.
+- `notebooks/03_importance_scores.ipynb`: plan.md 1.3's GPU-dependent
+  validation, extended from a spot-check into a full multi-axis view -- real
+  forward hooks against `Qwen3-30B-A3B-Base` (bf16), 48 samples from the
+  pinned TypeScript calibration shard, all 48 layers. Purely observational,
+  no pruning. Confirms Qwen3-30B-A3B's three known Super Experts (arXiv
+  2507.23279) rank #1 in their layer on real data, not just a smaller
+  earlier spot-check; finds the first and last layers dominate every scoring
+  method while the middle third looks comparatively redundant; finds a
+  layer's top ~16% of experts already capture about a third of its total
+  importance. Closes with a plain-language summary, each point paired with a
+  cropped visual (the real architecture diagram, or a zoomed version of the
+  chart above it) pointing at exactly what to look at.
 
 ## [0.10.0] - 2026-09-19
 
