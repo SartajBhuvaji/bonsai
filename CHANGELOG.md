@@ -5,6 +5,23 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `bonsai.pruning.depth.prune_layers`: the first actual pruning
+  implementation (plan.md 2.1) -- permanently removes decoder layers from a
+  model, the counterpart to `bonsai.importance.depth.skip_layer`'s temporary
+  identity-swap used for scoring. Caught a real bug via testing against an
+  actual forward pass rather than by reading source alone: surviving layers
+  keep their original `self_attn.layer_idx` after removal (non-contiguous,
+  e.g. `0, 2, 4, 5` after pruning layers 1 and 3), which breaks the default
+  KV cache's internal list indexing with `IndexError` the moment it's
+  used -- fixed by renumbering each surviving layer's `layer_idx` to its
+  new position.
+- `bonsai.importance.depth.mean_loss`: promoted from a private helper
+  already used internally by `ppl_importance` to a public function --
+  Phase 2's pruning steps need it to measure a pruned candidate's zero-shot
+  loss, not just to score which layers to prune in the first place.
+
 ## [0.13.2] - 2026-09-19
 
 ### Added
