@@ -62,18 +62,25 @@ We apply the Minitron structured pruning and knowledge distillation recipe
 language model, Qwen3-30B-A3B-Base, and specialize the result toward
 TypeScript. Both Minitron papers prune only dense transformers; we extend
 their forward-pass-only, activation-based importance-estimation philosophy
-to a pruning axis neither paper covers -- expert pruning -- and report early
-characterization results on the unpruned teacher model prior to any pruning
-being performed. We find that a gate-weighted expert-output-norm criterion
-(independently converged on by REAP \cite{reap2025} and NVIDIA's own
-Minitron-MoE extension) correctly identifies previously-reported ``Super
-Experts'' \cite{superexperts2025} as the top-ranked expert in their
-respective layers, and that a cheap, single-forward-pass depth-pruning proxy
-(Block Importance) correlates strongly (Pearson $r=0.91$) with the expensive,
-$49$-forward-pass perplexity-based criterion from the original Minitron
-paper, agreeing exactly on the three most critical layers. This is a living
-document, updated as pruning and distillation experiments complete; no layer,
-head, or expert has been pruned as of this writing.
+to a pruning axis neither paper covers -- expert pruning. We find that a
+gate-weighted expert-output-norm criterion (independently converged on by
+REAP \cite{reap2025} and NVIDIA's own Minitron-MoE extension) correctly
+identifies previously-reported ``Super Experts'' \cite{superexperts2025}
+as the top-ranked expert in their respective layers, and that a cheap,
+single-forward-pass depth-pruning proxy (Block Importance) correlates
+strongly (Pearson $r=0.91$) with the expensive, $49$-forward-pass
+perplexity-based criterion from the original Minitron paper, agreeing
+exactly on the three most critical layers. Acting on this scoring, not
+just ranking by it, we run the first real pruning experiment in this
+project: a sweep over nine layer counts and four selection strategies
+(BI-greedy, perplexity-greedy, best-contiguous-block, and a random
+control) shows principled selection beating random by close to an order
+of magnitude once more than a handful of layers are pruned, and finds
+contiguous-block removal -- the second Minitron paper's own preferred
+depth-pruning approach -- to be a genuinely mixed result on this model
+rather than a clean win. This is a living document, updated as further
+pruning, distillation, and retraining experiments complete; no
+head or expert has been pruned yet, and no retraining has occurred.
 \end{abstract}
 
 \section{Introduction}
@@ -108,9 +115,10 @@ disjoint parquet shards so the two pools never overlap.
 
 This paper is written incrementally, alongside the project's own commit
 history: each section is updated with real, measured results only, once the
-corresponding experiment has actually run. As of this writing, no pruning
-has occurred; every number reported below characterizes the unpruned
-teacher model.
+corresponding experiment has actually run. As of this writing, depth
+pruning has been characterized (\cref{sec:pruning-sweep}) but not yet
+combined with the other axes, retrained, or finalized to one candidate;
+attention-head and expert pruning have been scored but not yet acted on.
 
 \section{Related Work}
 \label{sec:related}
@@ -397,6 +405,84 @@ normalized within each method.}
 \label{fig:layer-summary}
 \end{figure}
 
+\section{Depth Pruning: Zero-Shot Loss vs. Layers Pruned}
+\label{sec:pruning-sweep}
+
+\Cref{sec:experts,sec:depth} only score which components matter; this
+section actually prunes them. \texttt{bonsai.pruning.depth.prune\_layers}
+permanently removes a chosen set of decoder layers -- unlike
+\texttt{skip\_layer}'s temporary identity-swap used for scoring -- and
+\texttt{bonsai.importance.depth.mean\_loss} measures the resulting model's
+zero-shot loss, here on 32 fresh calibration samples (seed 1, a disjoint
+draw from every prior calibration slice in this paper).
+
+We sweep nine layer counts ($n \in \{1,2,4,6,8,12,16,20,24\}$ of 48) under
+four selection strategies: \textbf{bi\_greedy} (the $n$ lowest-BI layers,
+\cref{eq:bi}); \textbf{ppl\_greedy} (the $n$ lowest-perplexity-delta
+layers, \cref{eq:ppl}); \textbf{contiguous\_bi} (the single contiguous
+block of $n$ layers with the lowest summed BI -- testing
+\citet{minitron2024practice}'s own claim, citing Gromov et al., that
+contiguous removal beats scattered removal); and \textbf{random} ($n$
+random layers, 3 seeds -- the control every principled strategy above has
+to actually beat, not merely correlate well with). Each candidate costs
+exactly one forward pass, since the ranking is already decided; this is
+what makes a nine-count, four-strategy sweep affordable.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/pruning_sweep.pdf}
+\caption{Zero-shot loss vs. layers pruned. Random shown as its 3-seed mean
+(dashed) and min-max band. Log-scale $y$-axis.}
+\label{fig:pruning-sweep}
+\end{figure}
+
+Principled selection clearly beats random at every count tested, by close
+to an order of magnitude once more than a handful of layers are pruned: at
+$n=24$, \texttt{bi\_greedy}/\texttt{ppl\_greedy} loss is 2.45/2.28 against
+a random range of 4.81--14.65 across the three seeds
+(\cref{table:pruning-sweep}). \texttt{bi\_greedy} and \texttt{ppl\_greedy}
+track each other closely at every count -- not merely in the ranking
+correlation already established ($r=0.91$, \cref{sec:depth}) but in the
+actual pruning \emph{outcome} -- reinforcing BI as the working criterion
+for iterating on candidates.
+
+\begin{table}[t]
+\caption{Loss increase over baseline (0.9670), by strategy and layer count.}
+\label{table:pruning-sweep}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{rrrrr}
+\toprule
+$n$ & bi\_gr. & ppl\_gr. & contig. & rand.\ (mean) \\
+\midrule
+1  & +0.3\%   & +0.9\%   & +0.3\%   & +5.3\%    \\
+2  & +1.8\%   & +1.4\%   & +0.9\%   & +7.5\%    \\
+4  & +4.3\%   & +3.8\%   & +3.6\%   & +14.5\%   \\
+6  & +8.1\%   & +7.0\%   & +7.3\%   & +31.7\%   \\
+8  & +12.0\%  & +11.9\%  & +11.3\%  & +40.7\%   \\
+12 & +21.9\%  & +22.2\%  & +24.6\%  & +101.8\%  \\
+16 & +41.6\%  & +46.4\%  & +44.5\%  & +372.6\%  \\
+20 & +76.7\%  & +73.5\%  & +76.2\%  & +568.8\%  \\
+24 & +153.8\% & +135.6\% & +211.0\% & +1000.1\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Contiguous-block removal is a genuinely mixed result on this model, not a
+clean win either way. It is competitive -- marginally best -- at small $n$
+($n=2$: loss 0.9755 vs.\ \texttt{bi\_greedy}'s 0.9845), but falls behind
+both greedy strategies as $n$ grows, most visibly by $n=24$ (211.0\% vs.\
+135.6--153.8\%). A plausible reading: BI's lowest-scoring layers already
+cluster in a contiguous run in the middle of the model
+(\cref{fig:layer-summary}), so for small $n$ the two approaches pick
+nearly the same layers anyway; forcing strict contiguity only starts
+costing something once $n$ exceeds what that natural cluster contains,
+pushing the contiguous search into a wider, less-optimal window. We
+report this as an honest, mixed result rather than adopting whichever
+framing looks cleaner, consistent with this paper's general practice of
+reporting ablations as measured (\cref{sec:discussion}).
+
 \section{Discussion and Open Questions}
 \label{sec:discussion}
 
@@ -404,6 +490,10 @@ Several design decisions remain open and are logged here rather than
 resolved prematurely:
 
 \begin{itemize}
+\item \textbf{A specific target layer count.} \Cref{sec:pruning-sweep}
+  characterizes the cost curve but does not commit to one candidate to
+  carry into later axis-combination and retraining -- that choice depends
+  on a compute/accuracy tradeoff not yet made.
 \item \textbf{Downstream-depth-pruning proxy.} \citet{minitron2024practice}'s
   preferred depth criterion ranks contiguous layer blocks by downstream-task
   accuracy after removal (Winogrande, in their case), not by BI or
