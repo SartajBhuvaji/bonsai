@@ -5,6 +5,14 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- `accelerate` is now a core runtime dependency, not something every fresh
+  GPU instance has to `pip install` by hand after `AutoModelForCausalLM.from_pretrained(...,
+  device_map=...)` fails with `requires accelerate`. Hit this exact gap on
+  two separate fresh instances now -- worth fixing permanently rather than
+  patching around it a third time.
+
 ## [0.14.0] - 2026-09-19
 
 ### Added
