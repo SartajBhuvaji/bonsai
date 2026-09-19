@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-09-19
+
 ### Added
 
 - `bonsai.importance.depth.block_importance`: Block Importance (BI),
