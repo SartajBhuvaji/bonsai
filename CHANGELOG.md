@@ -5,6 +5,17 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `bonsai.importance.depth.block_importance`: Block Importance (BI),
+  2408.11796's fast depth-pruning signal -- `1 - cosine_similarity(layer_input,
+  layer_output)`, computable in the same forward pass that produces those
+  activations rather than needing a separate pass per candidate layer (unlike
+  PPL-based scoring). Kept in its own module rather than folded into
+  `bonsai.importance`'s aggregation-primitive trio, matching plan.md 1.3's own
+  design: depth is scored structurally differently from heads/experts in both
+  papers, and bonsai keeps that split in code, not just in the docstring.
+
 ## [0.10.0] - 2026-09-19
 
 ### Added
