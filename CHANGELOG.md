@@ -7,6 +7,21 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.13.0] - 2026-09-19
 
+### Added
+
+- `docs/latex/`: first draft of the project's research paper, using the
+  ICML 2025 template. Covers everything real as of this writing -- target
+  model/data, baseline evaluation, the full importance-scoring methodology
+  and results (heads, experts including the Super Experts confirmation,
+  BI-vs-PPL agreement at r=0.91), and an explicit open-questions section.
+  No fabricated results; no pruning claimed, since none has run yet.
+  Vendored `icml2025.sty`/`.bst` and supporting style files from the
+  official ICML 2025 author package. Compiled with Tectonic, a
+  self-contained LaTeX engine, no system LaTeX install needed; `main.pdf`
+  is committed alongside the source. Citation author lists for REAP, NAEE,
+  and the Super Experts paper are incomplete placeholders, to be filled in
+  before this goes anywhere public.
+
 ## [0.12.0] - 2026-09-19
 
 ### Added
