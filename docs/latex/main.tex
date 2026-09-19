@@ -1,0 +1,304 @@
+%%%%%%%% bonsai: MoE Minitron for TypeScript specialization %%%%%%%%%%%%%%%%%
+
+\documentclass{article}
+
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+\usepackage[accepted]{icml2025}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage[capitalize,noabbrev]{cleveref}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\icmltitlerunning{bonsai}
+
+\begin{document}
+
+\twocolumn[
+\icmltitle{Pruning and Distilling a Mixture-of-Experts Language Model \\
+           for TypeScript Specialization}
+
+\icmlsetsymbol{equal}{*}
+
+\begin{icmlauthorlist}
+\icmlauthor{Sartaj Bhuvaji}{su}
+\end{icmlauthorlist}
+
+\icmlaffiliation{su}{Seattle University, Seattle, WA, USA}
+
+\icmlcorrespondingauthor{Sartaj Bhuvaji}{sbhuvaji@seattleu.edu}
+
+\icmlkeywords{Mixture of Experts, Structured Pruning, Knowledge Distillation, Language Models, Code Generation}
+
+\vskip 0.3in
+]
+
+\printAffiliationsAndNotice{}
+
+\begin{abstract}
+We apply the Minitron structured pruning and knowledge distillation recipe
+\cite{minitron2024,minitron2024practice} to a Mixture-of-Experts (MoE)
+language model, Qwen3-30B-A3B-Base, and specialize the result toward
+TypeScript. Both Minitron papers prune only dense transformers; we extend
+their forward-pass-only, activation-based importance-estimation philosophy
+to a pruning axis neither paper covers -- expert pruning -- and report early
+characterization results on the unpruned teacher model prior to any pruning
+being performed. We find that a gate-weighted expert-output-norm criterion
+(independently converged on by REAP \cite{reap2025} and NVIDIA's own
+Minitron-MoE extension) correctly identifies previously-reported ``Super
+Experts'' \cite{superexperts2025} as the top-ranked expert in their
+respective layers, and that a cheap, single-forward-pass depth-pruning proxy
+(Block Importance) correlates strongly (Pearson $r=0.91$) with the expensive,
+$49$-forward-pass perplexity-based criterion from the original Minitron
+paper, agreeing exactly on the three most critical layers. This is a living
+document, updated as pruning and distillation experiments complete; no layer,
+head, or expert has been pruned as of this writing.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+Minitron \cite{minitron2024} demonstrated that a large language model can be
+compressed into a family of smaller models via structured pruning followed
+by knowledge distillation, using up to $40\times$ fewer training tokens than
+training each size from scratch while matching or exceeding the accuracy of
+from-scratch baselines. A follow-up paper \cite{minitron2024practice} applied
+the same recipe under a more realistic constraint -- no access to the
+original pretraining data -- and introduced teacher correction and a
+downstream-task-based depth-pruning criterion.
+
+Both papers prune exclusively dense transformers. Every weight in a dense
+model's MLP is applied to every token that passes through it. This is not
+true of a Mixture-of-Experts (MoE) model: an MoE layer routes each token to a
+small subset of experts (commonly 8 of 128, in the model we study here), so
+most of the model's parameters are never touched by any given token. This
+work asks what happens when the Minitron recipe is applied to a model with
+this property, and in particular, how to score the importance of an axis --
+expert pruning -- that has no precedent in either source paper.
+
+Our target model is Qwen3-30B-A3B-Base
+\cite{qwen3moe}: 48 decoder layers, 32 query / 4 key-value attention heads
+(GQA), 128 routed experts per layer with 8 active per token, no shared
+expert, approximately 30.5B total parameters of which approximately 3.4B
+are active for any given token. We specialize this model toward TypeScript,
+using \texttt{bigcode/the-stack-dedup}'s TypeScript split
+\cite{stackdedup} for both calibration and retraining data, drawn from
+disjoint parquet shards so the two pools never overlap.
+
+This paper is written incrementally, alongside the project's own commit
+history: each section is updated with real, measured results only, once the
+corresponding experiment has actually run. As of this writing, no pruning
+has occurred; every number reported below characterizes the unpruned
+teacher model.
+
+\section{Related Work}
+\label{sec:related}
+
+\textbf{Minitron.} \citet{minitron2024} prune Nemotron-4 15B to 8B and 4B
+using purely activation-based importance estimation (no gradients), scoring
+attention heads, MLP neurons, and embedding channels via a shared formula
+that aggregates activations over a small (1024-sample) calibration set, and
+scoring depth separately via perplexity delta or Block Importance (cosine
+distance between a layer's input and output). \citet{minitron2024practice}
+extend this to settings without the original pretraining data, introducing
+teacher correction (lightly fine-tuning the teacher on the actual
+distillation data before pruning) and a downstream-task-based depth-pruning
+criterion using contiguous-block removal, evaluated on Llama 3.1 8B and
+Mistral NeMo 12B.
+
+\textbf{Expert pruning in MoE models.} Neither Minitron paper addresses
+Mixture-of-Experts models. REAP \cite{reap2025} scores expert importance as
+a gate-weighted expert-output norm, averaged over each expert's routed
+tokens, and evaluates directly on Qwen3-30B-A3B (the model we study). NVIDIA's
+Model-Optimizer library independently implements the same formula as part of
+its own Minitron-MoE extension, used to compress Nemotron-3-Nano-30B-A3B.
+Prior work on Mixtral-scale models found selection-frequency-based criteria
+underperform output-magnitude-based ones \cite{naee2024}, consistent with
+the choice we adopt (\cref{sec:experts}).
+
+\textbf{Super Experts.} \citet{superexperts2025} report that Qwen3-30B-A3B
+contains a small number of experts (three in the first four layers of the
+model, by their numbering) whose rare but extremely large-magnitude outputs
+anchor attention sinks; ablating them alone raises WikiText-2 perplexity
+from 8.70 to 59.86. We treat this as a regression test for our own expert
+importance metric (\cref{sec:experts}).
+
+\section{Target Model and Data}
+\label{sec:model-data}
+
+\subsection{Model}
+Qwen3-30B-A3B-Base~\cite{qwen3moe} is a base (not instruction-tuned) causal
+language model with 48 \texttt{Qwen3MoeDecoderLayer} blocks, hidden size
+2048, 32 query heads and 4 key-value heads (grouped-query attention,
+head\_dim 128), and 128 routed experts per layer (\texttt{Qwen3MoeExperts},
+moe\_intermediate\_size 768) with the top 8 active per token, no shared
+expert. Every layer is sparse (\texttt{decoder\_sparse\_step}=1,
+\texttt{mlp\_only\_layers} empty). Experts within a layer are not separate
+submodules but two batched parameter tensors
+(\texttt{gate\_up\_proj}, \texttt{down\_proj}), with the expert index as the
+leading dimension -- pruning an expert means slicing that dimension.
+
+\subsection{Data}
+Calibration and retraining data are both drawn from
+\texttt{bigcode/the-stack-dedup}'s \texttt{data/typescript} split (71
+parquet shards). The first shard is reserved for calibration, the remaining
+70 for retraining; because the split is shard-level rather than row-level,
+the two pools are disjoint by construction, which we additionally verify
+empirically against each sample's \texttt{hexsha}.
+
+\section{Baseline Evaluation of the Unpruned Teacher}
+\label{sec:baseline}
+
+Before any pruning decision, we establish the unpruned model's performance
+on the evaluation suite every subsequent pruning candidate will be measured
+against. Following both Minitron papers' evaluation settings (temperature
+0.2, nucleus sampling top-$p=0.95$ for generation tasks), we report:
+
+\begin{table}[t]
+\caption{Baseline evaluation of Qwen3-30B-A3B-Base, unpruned.}
+\label{tab:baseline}
+\centering
+\small
+\begin{tabular}{lcc}
+\toprule
+Task & Setting & Score \\
+\midrule
+HumanEval-TS & pass@1 & 0.6708 \\
+MBPP-TS & pass@1 & 0.7333 \\
+MMLU & 5-shot, acc & 0.8101 \\
+ARC-Challenge & 25-shot, acc & 0.6536 \\
+ARC-Challenge & 25-shot, acc\_norm & 0.6749 \\
+Winogrande & 5-shot, acc & 0.7798 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+HumanEval-TS and MBPP-TS (both MultiPL-E TypeScript translations) are
+treated as the primary, gating tier, since they measure the capability this
+project specializes toward. MMLU, ARC-Challenge, and Winogrande are tracked
+but not optimized for, giving a comparison point against both Minitron
+papers' own general-knowledge tables without over-indexing on general
+capability at the expense of TypeScript performance.
+
+\section{Importance Estimation}
+\label{sec:importance}
+
+Both Minitron papers score importance from forward-pass activations only,
+never gradients, over a small calibration set. We follow the same
+philosophy for every axis, including the one neither paper covers.
+
+\subsection{Attention Heads}
+Head importance uses the original formula unchanged: the per-token,
+per-head output vector's $L_2$ norm, aggregated over every token in the
+calibration set. Across all 48 layers (48 calibration samples, mean length
+177 tokens), scores range from 2.39 to 967.72, with the single largest value
+at the model's final layer (layer 47).
+
+\subsection{Experts}
+\label{sec:experts}
+Neither Minitron paper offers a formula for this axis. We adopt
+$S_j = \text{mean}_{x \in X_j}\left[ g_j(x) \cdot \lVert f_j(x) \rVert_2
+\right]$, where $X_j$ is the set of tokens routed to expert $j$, $g_j(x)$ is
+that token's renormalized routing weight, and $f_j(x)$ is the expert's
+output -- the formula independently reached by both REAP \cite{reap2025} and
+NVIDIA Model-Optimizer's Minitron-MoE extension, in preference to two
+alternatives considered (selection frequency alone; router logit magnitude
+alone), both reported to underperform output-magnitude-based scoring in
+prior work \cite{naee2024}.
+
+As a validation check, not a designed experiment: all three Super Experts
+reported by \citet{superexperts2025} for this exact model (layer 1 / expert
+68, layer 2 / expert 92, layer 3 / expert 82) rank \emph{first} among all
+128 experts in their respective layers under this metric, on real
+calibration data, at two different sample sizes (24 and 48 samples). On
+average across all 48 layers, the top $\sim$16\% of experts (20 of 128)
+already account for roughly a third of a layer's total importance mass,
+indicating substantial redundancy among the remaining experts as a
+candidate for pruning.
+
+\subsection{Depth: Block Importance and Perplexity}
+\label{sec:depth}
+We implement both depth-scoring criteria from \citet{minitron2024}: Block
+Importance (BI), $1 - \text{cosine\_similarity}(\text{layer\_input},
+\text{layer\_output})$, computable in the same forward pass that produces
+the two activations; and a perplexity-delta criterion, which removes one
+layer at a time (via a context manager that temporarily makes the layer act
+as identity, restoring it afterward) and measures the resulting increase in
+held-out cross-entropy loss relative to the unmodified baseline. The latter
+costs $L+1$ forward passes for an $L$-layer model, versus BI's one, and is
+run on a smaller calibration sample (16 samples, vs.\ 48 for BI) for that
+reason.
+
+Both criteria independently identify the same pattern: the first and last
+layers of the model matter far more than the middle two-thirds. BI's
+highest score is at layer 0 (0.488) and second-highest at layer 47 (0.415);
+its lowest is layer 12 (0.011). The perplexity criterion shows the same
+edges-matter-most shape at a far more extreme scale -- layer 0's removal
+costs 1.99 nats of cross-entropy, next-highest is layer 47 at 0.60 nats,
+and the lowest (layer 14) is statistically indistinguishable from zero
+($-0.0003$ nats).
+
+Across all 48 layers, the Pearson correlation between BI and the perplexity
+delta is $r=0.91$, and the two criteria pick the identical top-3 most
+critical layers (0, 47, 1). Given the 49$\times$ cost difference between the
+two, this agreement is the paper's most directly actionable early finding:
+Block Importance can be trusted as a cheap stand-in for perplexity-based
+scoring when iterating over many candidates later in this project, reserving
+the expensive criterion for confirming a final choice rather than for every
+candidate evaluated along the way.
+
+\section{Discussion and Open Questions}
+\label{sec:discussion}
+
+Several design decisions remain open and are logged here rather than
+resolved prematurely:
+
+\begin{itemize}
+\item \textbf{Downstream-depth-pruning proxy.} \citet{minitron2024practice}'s
+  preferred depth criterion ranks contiguous layer blocks by downstream-task
+  accuracy after removal (Winogrande, in their case), not by BI or
+  perplexity. No TypeScript equivalent of Winogrande exists; HumanEval-TS or
+  MBPP-TS pass-rate on partially-pruned models is the direct analogue but
+  expensive per candidate block, and a cheaper token-level-accuracy proxy is
+  under consideration.
+\item \textbf{Uniform vs.\ per-layer expert counts.} We currently plan
+  uniform expert counts per layer for the first pruning pass, following
+  published evidence that non-uniform allocation did not outperform uniform
+  allocation on this specific model in at least one independent evaluation,
+  though this has not yet been tested within this project directly.
+\item \textbf{Interaction between axes.} \citet{minitron2024} find that
+  depth and width importance rankings can flip after retraining relative to
+  their zero-shot rankings; whether the same holds when experts are combined
+  with depth and width has no precedent to draw on and will be tested
+  empirically once single-axis pruning is complete.
+\end{itemize}
+
+No results are reported for these open questions; they are listed to make
+the project's actual state legible, not to imply an answer.
+
+\section*{Acknowledgements}
+This is an independent research project with no external funding.
+
+\bibliography{references}
+\bibliographystyle{icml2025}
+
+\end{document}

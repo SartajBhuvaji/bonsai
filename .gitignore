@@ -34,6 +34,16 @@ models/
 # Jupyter's autosave directory; the committed notebook is the real copy
 .ipynb_checkpoints/
 
+# LaTeX build byproducts -- docs/latex/main.tex is the source, main.pdf is
+# committed as the readable output; these are neither
+*.aux
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.out
+docs/latex/*.log
+
 # tooling caches
 .ruff_cache/
 .pytest_cache/
@@ -42,6 +52,9 @@ models/
 .coverage.*
 htmlcov/
 coverage.xml
+
+# local-only notes and tooling, never pushed
+.cursor/
 
 # editors and OS
 .idea/
