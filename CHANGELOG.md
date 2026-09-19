@@ -5,6 +5,18 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `bonsai.importance`: shared activation-based importance scoring (plan.md
+  1.3), structured the way 2407.14679 Section 2.2 actually does it -- one
+  aggregation primitive (`aggregate`, pluggable mean(abs)/L2/variance, not
+  hardcoded) wrapped by thin axis-specific functions. First wrapper:
+  `head_importance`, the paper's own `F_head` formula unchanged. Depth stays
+  out of this module by design, matching the papers' own split (PPL/BI, not
+  activation magnitude). GPU-free and unit-tested against synthetic tensors;
+  wiring this to real forward hooks against Qwen3-30B-A3B-Base is still
+  pending.
+
 ## [0.9.0] - 2026-09-18
 
 ### Added
