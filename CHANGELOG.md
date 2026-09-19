@@ -15,6 +15,22 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
   `bonsai.importance`'s aggregation-primitive trio, matching plan.md 1.3's own
   design: depth is scored structurally differently from heads/experts in both
   papers, and bonsai keeps that split in code, not just in the docstring.
+- `bonsai.importance.viz`: heatmaps and supporting charts for every importance
+  axis -- `plot_head_heatmap`/`plot_expert_heatmap` (layers x heads/experts,
+  percentile-clipped color scale so a handful of extreme outliers don't wash
+  out the rest of the grid into one indistinguishable pale blob),
+  `plot_layer_importance` (BI bar chart), `plot_layer_summary` (normalized
+  head/expert/BI overlay, to check whether independently-computed scoring
+  methods agree on which layers matter), `plot_score_distribution` (log-scale
+  histograms exposing the long-tailed skew directly), `plot_expert_concentration`
+  (per-layer cumulative-importance curves, a real signal for how aggressively
+  2.3 could eventually prune), and `plot_expert_grid_for_layer` (one layer's
+  real expert grid, same schematic layout as `bonsai.architecture.viz`'s
+  diagram, colored by real scores -- defaults to true-max color scaling rather
+  than a percentile clip, since a 128-cell single-layer view needs to spotlight
+  one standout expert, not reveal structure the way the full 6,144-cell
+  heatmap does). Sequential blue throughout, lifted from the project's
+  validated color-formula palette.
 
 ## [0.10.0] - 2026-09-19
 
