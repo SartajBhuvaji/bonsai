@@ -5,6 +5,23 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `bonsai.pruning.viz.plot_pruning_sweep`: zero-shot loss vs. layers pruned,
+  one line per named strategy plus a shaded min-max band for a random
+  control (the check every principled pruning criterion needs to actually
+  clear, not just correlate well with each other).
+- `notebooks/05_depth_pruning_sweep.ipynb`: the first real pruning
+  experiment (plan.md 2.1) -- actual layer removal (not scoring) against
+  Qwen3-30B-A3B-Base, nine layer counts, four strategies (BI-greedy,
+  PPL-greedy, best-contiguous-block, 3-seed random control). Principled
+  selection beats random by close to an order of magnitude past a handful
+  of pruned layers; BI-greedy and PPL-greedy track each other closely in
+  actual pruning outcome, not just ranking correlation; contiguous-block
+  removal (2408.11796's own preferred approach) is a genuinely mixed
+  result on this model -- competitive at small counts, behind both greedy
+  strategies by n=24.
+
 ## [0.14.1] - 2026-09-19
 
 ### Fixed
