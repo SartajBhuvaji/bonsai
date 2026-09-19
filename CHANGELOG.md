@@ -16,6 +16,15 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
   activation magnitude). GPU-free and unit-tested against synthetic tensors;
   wiring this to real forward hooks against Qwen3-30B-A3B-Base is still
   pending.
+- `bonsai.importance.expert_importance`: the second wrapper -- gate-weighted
+  expert-output norm, averaged only over each expert's routed tokens (REAP,
+  arXiv 2510.13999, and independently NVIDIA Model-Optimizer's Minitron-MoE
+  extension converge on this formula; it beat the plan's other two
+  candidates, selection frequency and router-logit magnitude, in every
+  published comparison found). Plus `expert_max_output_norm` /
+  `flag_outlier_experts`, a percentile-based guard against pruning
+  Qwen3-30B-A3B's known Super Experts (arXiv 2507.23279) by diluting their
+  rare-but-massive output into a low mean score.
 
 ## [0.9.0] - 2026-09-18
 
