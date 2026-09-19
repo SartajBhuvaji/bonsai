@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-09-19
+
 ### Added
 
 - `bonsai.importance.depth.skip_layer` + `ppl_importance`: the PPL half of
