@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.15.1] - 2026-09-19
+
 ### Added
 
 - `docs/latex/main.tex`: new "Depth Pruning: Zero-Shot Loss vs. Layers
