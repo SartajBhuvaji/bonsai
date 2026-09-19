@@ -25,14 +25,22 @@ def plot_pruning_sweep(
     *,
     baseline_loss: float,
     log_scale: bool = True,
+    title: str = "Zero-shot loss vs. layers pruned",
+    xlabel: str = "layers pruned",
+    extra_hlines: Mapping[str, float] | None = None,
 ) -> Figure:
-    """Zero-shot loss vs. number of layers pruned, one line per strategy.
+    """Zero-shot loss vs. how much of a pruning axis was removed, one line per strategy.
 
-    `named_losses[name][i]` is that strategy's loss when pruning
-    `counts[i]` layers -- e.g. `{"bi_greedy": [...], "ppl_greedy": [...],
-    "contiguous_bi": [...]}`, colors assigned in insertion order from the
-    project's fixed categorical order (at most 3 named strategies, leaving
-    the 4th categorical slot for the random control below).
+    Axis-agnostic despite the depth-pruning-flavored defaults (this is where
+    the sweep was first built): `title`/`xlabel` let a caller relabel the
+    x-axis for a different axis's count (e.g. experts pruned per layer)
+    without duplicating this function.
+
+    `named_losses[name][i]` is that strategy's loss at `counts[i]` -- e.g.
+    `{"bi_greedy": [...], "ppl_greedy": [...], "contiguous_bi": [...]}`,
+    colors assigned in insertion order from the project's fixed categorical
+    order (at most 3 named strategies, leaving the 4th categorical slot for
+    the random control below).
 
     `random_losses[i]` is every random seed's loss at `counts[i]` (shape
     `[len(counts)][num_seeds]`) -- shown as a shaded min-max band plus its
@@ -40,10 +48,15 @@ def plot_pruning_sweep(
     its own; this is the control every principled strategy above needs to
     actually beat, not just correlate well with each other.
 
-    `baseline_loss` (0 layers pruned) is drawn as a dashed horizontal
-    reference. Loss typically spans more than an order of magnitude once
-    enough layers are pruned (a handful of unlucky random draws can blow up
-    catastrophically), so the y-axis defaults to log scale.
+    `baseline_loss` (nothing pruned) is drawn as a dashed horizontal
+    reference. `extra_hlines` adds further named horizontal references (e.g.
+    a single fixed-cost candidate outside the main count sweep, like pruning
+    only a few known-critical units) in a distinct warning color, not the
+    categorical series palette, since they're regression markers, not
+    strategies being compared across the x-axis. Loss typically spans more
+    than an order of magnitude once enough is pruned (a handful of unlucky
+    random draws can blow up catastrophically), so the y-axis defaults to
+    log scale.
     """
     if len(named_losses) > 3:
         raise ValueError(
@@ -85,11 +98,13 @@ def plot_pruning_sweep(
     ax.axhline(
         baseline_loss, color="#7a869a", linewidth=1.0, linestyle=":", label="baseline (0 pruned)"
     )
+    for name, loss in (extra_hlines or {}).items():
+        ax.axhline(loss, color="#c0392b", linewidth=1.2, linestyle="--", label=name)
 
     if log_scale:
         ax.set_yscale("log")
-    ax.set_title("Zero-shot loss vs. layers pruned", fontsize=11)
-    ax.set_xlabel("layers pruned", fontsize=9)
+    ax.set_title(title, fontsize=11)
+    ax.set_xlabel(xlabel, fontsize=9)
     ax.set_ylabel("mean cross-entropy loss" + (" (log scale)" if log_scale else ""), fontsize=9)
     ax.legend(fontsize=8, frameon=False)
     fig.tight_layout()

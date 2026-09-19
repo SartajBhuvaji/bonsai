@@ -5,6 +5,24 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `bonsai.pruning.viz.plot_pruning_sweep`: generalized with `title`/`xlabel`
+  parameters and an `extra_hlines` argument for fixed-cost reference
+  candidates outside the main count sweep, so the same function serves both
+  depth and expert pruning's sweep plots instead of duplicating it.
+- `notebooks/06_expert_pruning_sweep.ipynb`: the first real expert-pruning
+  experiment (plan.md 2.3) -- actual expert removal (not scoring) against
+  Qwen3-30B-A3B-Base, eight uniform per-layer counts, greedy
+  (protected-guard) vs. 3-seed random control. Greedy beats random at every
+  count, by a smaller multiple than depth pruning's (roughly 2-5x in
+  relative-loss terms vs. close to an order of magnitude for layers).
+  Standout finding: pruning just the three known Super Experts costs more
+  loss (+51.8%) than greedy-pruning up to 1,536 ordinary experts (+9.6%),
+  reproducing arXiv 2507.23279's own claim directly in this pipeline's own
+  loss metric -- the concrete justification for `select_experts_to_prune`'s
+  `protected` guard.
+
 ## [0.16.0] - 2026-09-19
 
 ### Added
