@@ -5,6 +5,15 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `docs/latex/main.tex`: new "Depth Pruning: Zero-Shot Loss vs. Layers
+  Pruned" section covering the real sweep from `05_depth_pruning_sweep.ipynb`
+  -- figure, relative-loss table, and the honest mixed-result writeup on
+  contiguous-block removal. Abstract and introduction updated to stop
+  claiming "no pruning has occurred," since depth pruning now has real
+  results.
+
 ## [0.15.0] - 2026-09-19
 
 ### Added
