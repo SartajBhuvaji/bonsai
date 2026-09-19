@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.14.1] - 2026-09-19
+
 ### Fixed
 
 - `accelerate` is now a core runtime dependency, not something every fresh
