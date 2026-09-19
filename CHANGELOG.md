@@ -5,6 +5,45 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `bonsai.importance.depth.block_importance`: Block Importance (BI),
+  2408.11796's fast depth-pruning signal -- `1 - cosine_similarity(layer_input,
+  layer_output)`, computable in the same forward pass that produces those
+  activations rather than needing a separate pass per candidate layer (unlike
+  PPL-based scoring). Kept in its own module rather than folded into
+  `bonsai.importance`'s aggregation-primitive trio, matching plan.md 1.3's own
+  design: depth is scored structurally differently from heads/experts in both
+  papers, and bonsai keeps that split in code, not just in the docstring.
+- `bonsai.importance.viz`: heatmaps and supporting charts for every importance
+  axis -- `plot_head_heatmap`/`plot_expert_heatmap` (layers x heads/experts,
+  percentile-clipped color scale so a handful of extreme outliers don't wash
+  out the rest of the grid into one indistinguishable pale blob),
+  `plot_layer_importance` (BI bar chart), `plot_layer_summary` (normalized
+  head/expert/BI overlay, to check whether independently-computed scoring
+  methods agree on which layers matter), `plot_score_distribution` (log-scale
+  histograms exposing the long-tailed skew directly), `plot_expert_concentration`
+  (per-layer cumulative-importance curves, a real signal for how aggressively
+  2.3 could eventually prune), and `plot_expert_grid_for_layer` (one layer's
+  real expert grid, same schematic layout as `bonsai.architecture.viz`'s
+  diagram, colored by real scores -- defaults to true-max color scaling rather
+  than a percentile clip, since a 128-cell single-layer view needs to spotlight
+  one standout expert, not reveal structure the way the full 6,144-cell
+  heatmap does). Sequential blue throughout, lifted from the project's
+  validated color-formula palette.
+- `notebooks/03_importance_scores.ipynb`: plan.md 1.3's GPU-dependent
+  validation, extended from a spot-check into a full multi-axis view -- real
+  forward hooks against `Qwen3-30B-A3B-Base` (bf16), 48 samples from the
+  pinned TypeScript calibration shard, all 48 layers. Purely observational,
+  no pruning. Confirms Qwen3-30B-A3B's three known Super Experts (arXiv
+  2507.23279) rank #1 in their layer on real data, not just a smaller
+  earlier spot-check; finds the first and last layers dominate every scoring
+  method while the middle third looks comparatively redundant; finds a
+  layer's top ~16% of experts already capture about a third of its total
+  importance. Closes with a plain-language summary, each point paired with a
+  cropped visual (the real architecture diagram, or a zoomed version of the
+  chart above it) pointing at exactly what to look at.
+
 ## [0.10.0] - 2026-09-19
 
 ### Added
