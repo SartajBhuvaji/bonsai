@@ -77,7 +77,14 @@ def skip_layer(model: Qwen3MoeForCausalLM, layer_idx: int) -> Iterator[None]:
         layers[layer_idx].forward = original_forward
 
 
-def _mean_loss(model: Qwen3MoeForCausalLM, input_ids_batches: list[torch.Tensor]) -> float:
+def mean_loss(model: Qwen3MoeForCausalLM, input_ids_batches: list[torch.Tensor]) -> float:
+    """Mean cross-entropy loss over `input_ids_batches`, via the model's own `labels=` path.
+
+    Public (not just an internal helper for `ppl_importance`): Phase 2's
+    pruning steps need exactly this to measure a pruned-but-not-yet-retrained
+    candidate's zero-shot loss, the deliverable plan.md's Phase 2 intro
+    calls for, not just to score which layers to prune in the first place.
+    """
     losses = [float(model(input_ids=ids, labels=ids).loss) for ids in input_ids_batches]
     return sum(losses) / len(losses)
 
@@ -106,11 +113,11 @@ def ppl_importance(
     num_layers = len(model.model.layers)
     scores = torch.zeros(num_layers)
     with torch.no_grad():
-        baseline = _mean_loss(model, input_ids_batches)
+        baseline = mean_loss(model, input_ids_batches)
         for i in range(num_layers):
             with skip_layer(model, i):
-                scores[i] = _mean_loss(model, input_ids_batches) - baseline
+                scores[i] = mean_loss(model, input_ids_batches) - baseline
     return scores
 
 
-__all__ = ["block_importance", "ppl_importance", "skip_layer"]
+__all__ = ["block_importance", "mean_loss", "ppl_importance", "skip_layer"]
