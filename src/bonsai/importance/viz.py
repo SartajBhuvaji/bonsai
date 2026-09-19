@@ -33,10 +33,14 @@ _SEQUENTIAL_BLUE = LinearSegmentedColormap.from_list(
 )
 _OUTLINE_COLOR = "#eb6834"  # categorical slot 2 (orange) -- the outline, not a fill
 
-# Fixed categorical order (slots 1/2/3: blue, orange, aqua) for the one chart
-# here with more than one series -- assigned in this order, never cycled,
-# per the project's color formula.
-_CATEGORICAL = ("#2a78d6", "#eb6834", "#1baf7a")
+# Fixed categorical order (slots 1-4: blue, orange, aqua, yellow) for charts
+# with more than one series -- assigned in this order, never cycled, per the
+# project's color formula. Four slots, not the full eight: the documented
+# default palette only clears the *adjacent*-pairs CVD/contrast gates this
+# far in strict slot order (line charts only ever have neighbors touch);
+# `plot_metric_agreement`'s scatter never uses more than one series, so the
+# stricter all-pairs gate (which caps at three slots) doesn't apply here.
+_CATEGORICAL = ("#2a78d6", "#eb6834", "#1baf7a", "#eda100")
 
 
 def _heatmap(
@@ -151,15 +155,22 @@ def plot_head_heatmap(
     return fig
 
 
-def plot_layer_importance(scores: torch.Tensor) -> Figure:
-    """Bar chart of per-layer Block Importance (BI) scores. `scores`: `[num_layers]`.
+def plot_layer_importance(
+    scores: torch.Tensor,
+    *,
+    title: str = "Block Importance (BI) per layer",
+    ylabel: str = "BI score",
+    annotation_label: str = "lowest BI",
+) -> Figure:
+    """Bar chart of a per-layer depth-scoring metric. `scores`: `[num_layers]`.
 
     One series -- a flat slot-1 blue fill, no legend needed, per the
     project's color formula (a legend only earns its place at >= 2 series).
-    A low BI score means a layer is close to a no-op (2408.11796's own
-    naming for this metric, kept as-is rather than inverted for intuition);
-    the lowest-scoring layer is called out directly since that's the one a
-    reader most wants to find in a 48-bar chart at a glance.
+    Works for either of plan.md 2.1's two depth criteria: Block Importance
+    (BI, the default title/label) or PPL delta -- both share the same "low
+    score = this layer is close to a no-op" interpretation, just at
+    different absolute scales, so the lowest-scoring layer is called out
+    directly either way.
     """
     if scores.ndim != 1:
         raise ValueError(f"expected scores: [num_layers], got shape {tuple(scores.shape)}")
@@ -168,14 +179,14 @@ def plot_layer_importance(scores: torch.Tensor) -> Figure:
     data = scores.detach().cpu().float().numpy()
     fig, ax = plt.subplots(figsize=(10, 4))
     ax.bar(range(len(data)), data, color="#2a78d6")
-    ax.set_title("Block Importance (BI) per layer", fontsize=11)
+    ax.set_title(title, fontsize=11)
     ax.set_xlabel("layer", fontsize=9)
-    ax.set_ylabel("BI score", fontsize=9)
+    ax.set_ylabel(ylabel, fontsize=9)
 
     lowest = int(data.argmin())
     span = float(data.max() - data.min()) or 1.0
     ax.annotate(
-        f"layer {lowest}\nlowest BI",
+        f"layer {lowest}\n{annotation_label}",
         xy=(lowest, data[lowest]),
         xytext=(lowest, data[lowest] + 0.08 * span),
         ha="center",
@@ -187,49 +198,95 @@ def plot_layer_importance(scores: torch.Tensor) -> Figure:
     return fig
 
 
-def plot_layer_summary(
-    head_scores: torch.Tensor, expert_scores: torch.Tensor, depth_scores: torch.Tensor
-) -> Figure:
-    """Per-layer mean head/expert importance and BI, min-max normalized and overlaid.
+def plot_layer_summary(scores: dict[str, torch.Tensor]) -> Figure:
+    """Per-layer scores from independently-computed methods, normalized and overlaid.
 
-    The three heatmap/bar plots above each show one axis in isolation; this
-    is the one place all three come together, to answer a question none of
-    them can alone: do independently-computed scoring methods (an
-    activation-magnitude formula for heads, a gate-weighted one for experts,
-    a cosine-distance one for depth) actually agree on which layers matter?
-    Each series is normalized to its own [0, 1] range first -- the three
-    metrics have unrelated units and scales, so only the *shape* across
-    layers is comparable, not the absolute values between series.
+    `scores`: an ordered mapping from series label to a `[num_layers]`
+    tensor, already reduced to one value per layer by the caller (e.g.
+    `head_scores.mean(dim=1)` for the head axis, not the raw
+    `[num_layers, num_heads]` heatmap data -- this function doesn't know or
+    care where a series came from). Colors are assigned in insertion order
+    from the project's fixed categorical order, never cycled, so at most
+    `len(_CATEGORICAL)` series are supported.
+
+    The point: none of the heatmap/bar plots above can answer this alone --
+    do independently-computed scoring methods (activation magnitude for
+    heads/experts, cosine distance for BI, actual held-out perplexity for
+    PPL) agree on which layers matter? Each series is normalized to its own
+    [0, 1] range first, since the metrics have unrelated units and scales;
+    only the *shape* across layers is comparable, not the absolute values
+    between series.
     """
-    if head_scores.ndim != 2 or expert_scores.ndim != 2 or depth_scores.ndim != 1:
-        raise ValueError(
-            "expected head_scores/expert_scores: [num_layers, *], depth_scores: [num_layers]; "
-            f"got shapes {tuple(head_scores.shape)}, {tuple(expert_scores.shape)}, "
-            f"{tuple(depth_scores.shape)}"
-        )
+    if not scores:
+        raise ValueError("expected at least one named score series")
+    if len(scores) > len(_CATEGORICAL):
+        raise ValueError(f"at most {len(_CATEGORICAL)} series supported, got {len(scores)}")
+    shapes = {name: tuple(s.shape) for name, s in scores.items()}
+    if any(s.ndim != 1 for s in scores.values()):
+        raise ValueError(f"expected every series to be 1D [num_layers]; got shapes {shapes}")
+    if len({s.shape[0] for s in scores.values()}) != 1:
+        raise ValueError(f"expected every series to have the same length; got shapes {shapes}")
+
     import matplotlib.pyplot as plt
 
     def normalize(x: torch.Tensor) -> torch.Tensor:
         lo, hi = x.min(), x.max()
         return (x - lo) / (hi - lo + 1e-12)
 
-    mean_head = normalize(head_scores.mean(dim=1))
-    mean_expert = normalize(expert_scores.mean(dim=1))
-    bi = normalize(depth_scores)
-
+    num_layers = next(iter(scores.values())).shape[0]
     fig, ax = plt.subplots(figsize=(10, 4))
-    layers = range(head_scores.shape[0])
-    ax.plot(
-        layers, mean_head.numpy(), color=_CATEGORICAL[0], linewidth=1.6, label="mean head score"
-    )
-    ax.plot(
-        layers, mean_expert.numpy(), color=_CATEGORICAL[1], linewidth=1.6, label="mean expert score"
-    )
-    ax.plot(layers, bi.numpy(), color=_CATEGORICAL[2], linewidth=1.6, label="block importance (BI)")
-    ax.set_title("Per-layer summary: do the three scoring methods agree?", fontsize=11)
+    for color, (name, series) in zip(_CATEGORICAL, scores.items(), strict=False):
+        ax.plot(
+            range(num_layers), normalize(series).numpy(), color=color, linewidth=1.6, label=name
+        )
+    ax.set_title("Per-layer summary: do independent scoring methods agree?", fontsize=11)
     ax.set_xlabel("layer", fontsize=9)
     ax.set_ylabel("normalized score (0-1, per-metric min-max)", fontsize=9)
     ax.legend(fontsize=8, frameon=False)
+    fig.tight_layout()
+    return fig
+
+
+def plot_metric_agreement(
+    x: torch.Tensor, y: torch.Tensor, *, x_label: str, y_label: str, title: str
+) -> Figure:
+    """Scatter one per-layer metric against another, with Pearson correlation annotated.
+
+    Built for the question that matters once more than one depth-scoring
+    criterion exists (plan.md 2.1): does a cheap proxy (BI, one forward
+    pass) actually predict an expensive ground truth (PPL delta,
+    `num_layers + 1` forward passes) well enough to trust in its place? Each
+    point is one layer; the two layers with the highest `y` are labeled
+    directly, since those are usually the ones a reader most wants to
+    identify by index.
+    """
+    if x.ndim != 1 or y.ndim != 1 or x.shape != y.shape:
+        raise ValueError(
+            f"expected x and y to be 1D and the same shape; got {tuple(x.shape)}, {tuple(y.shape)}"
+        )
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    x_np = x.detach().cpu().float().numpy()
+    y_np = y.detach().cpu().float().numpy()
+    correlation = float(np.corrcoef(x_np, y_np)[0, 1])
+
+    fig, ax = plt.subplots(figsize=(6, 6))
+    ax.scatter(x_np, y_np, color=_CATEGORICAL[0], s=30, alpha=0.8)
+
+    for i in np.argsort(y_np)[-2:]:
+        ax.annotate(
+            f"layer {i}",
+            xy=(x_np[i], y_np[i]),
+            xytext=(5, 5),
+            textcoords="offset points",
+            fontsize=8,
+            color="#4a4a4a",
+        )
+
+    ax.set_title(f"{title}\nPearson r = {correlation:.2f}", fontsize=11)
+    ax.set_xlabel(x_label, fontsize=9)
+    ax.set_ylabel(y_label, fontsize=9)
     fig.tight_layout()
     return fig
 
@@ -388,5 +445,6 @@ __all__ = [
     "plot_head_heatmap",
     "plot_layer_importance",
     "plot_layer_summary",
+    "plot_metric_agreement",
     "plot_score_distribution",
 ]

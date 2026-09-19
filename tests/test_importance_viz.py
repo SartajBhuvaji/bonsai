@@ -22,6 +22,7 @@ from bonsai.importance.viz import (
     plot_head_heatmap,
     plot_layer_importance,
     plot_layer_summary,
+    plot_metric_agreement,
     plot_score_distribution,
 )
 
@@ -76,16 +77,72 @@ def test_plot_expert_heatmap_handles_top_n_larger_than_grid() -> None:
 
 
 def test_plot_layer_summary_draws() -> None:
-    fig = plot_layer_summary(torch.rand(6, 12), torch.rand(6, 24), torch.rand(6))
+    fig = plot_layer_summary(
+        {
+            "mean head score": torch.rand(6),
+            "mean expert score": torch.rand(6),
+            "block importance (BI)": torch.rand(6),
+            "PPL delta": torch.rand(6),
+        }
+    )
     assert len(fig.axes) == 1
 
 
-def test_plot_layer_summary_rejects_mismatched_shapes() -> None:
+def test_plot_layer_summary_rejects_mismatched_lengths() -> None:
     try:
-        plot_layer_summary(torch.rand(6, 12), torch.rand(6, 24), torch.rand(8))
+        plot_layer_summary({"a": torch.rand(6), "b": torch.rand(8)})
     except ValueError:
         return
-    raise AssertionError("expected ValueError for a mismatched depth_scores layer count")
+    raise AssertionError("expected ValueError for mismatched series lengths")
+
+
+def test_plot_layer_summary_rejects_non_1d_series() -> None:
+    try:
+        plot_layer_summary({"a": torch.rand(6, 12)})
+    except ValueError:
+        return
+    raise AssertionError("expected ValueError for a non-1D series")
+
+
+def test_plot_layer_summary_rejects_empty_dict() -> None:
+    try:
+        plot_layer_summary({})
+    except ValueError:
+        return
+    raise AssertionError("expected ValueError for no series")
+
+
+def test_plot_layer_summary_rejects_too_many_series() -> None:
+    try:
+        plot_layer_summary({str(i): torch.rand(6) for i in range(10)})
+    except ValueError:
+        return
+    raise AssertionError("expected ValueError for more series than categorical slots")
+
+
+def test_plot_layer_importance_accepts_custom_labels() -> None:
+    fig = plot_layer_importance(
+        torch.rand(24),
+        title="PPL delta per layer",
+        ylabel="loss delta",
+        annotation_label="lowest PPL delta",
+    )
+    assert len(fig.axes) == 1
+
+
+def test_plot_metric_agreement_draws() -> None:
+    fig = plot_metric_agreement(
+        torch.rand(24), torch.rand(24), x_label="BI", y_label="PPL delta", title="BI vs PPL"
+    )
+    assert len(fig.axes) == 1
+
+
+def test_plot_metric_agreement_rejects_mismatched_shapes() -> None:
+    try:
+        plot_metric_agreement(torch.rand(24), torch.rand(20), x_label="x", y_label="y", title="t")
+    except ValueError:
+        return
+    raise AssertionError("expected ValueError for mismatched x/y shapes")
 
 
 def test_plot_score_distribution_draws() -> None:
