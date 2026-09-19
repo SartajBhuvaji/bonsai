@@ -5,6 +5,19 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `bonsai.pruning.experts`: `prune_experts` (permanently slices the pruned
+  experts out of `Qwen3MoeExperts.gate_up_proj`/`down_proj` and the matching
+  `Qwen3MoeTopKRouter.weight` rows, in place, per named MoE layer) and
+  `select_experts_to_prune` (lowest-`n_per_layer` by score, with a
+  `protected` guard -- e.g. Super Experts -- excluded from the ranking
+  entirely rather than just filtered after). Mirrors
+  `bonsai.pruning.depth.prune_layers`'s mechanism-implementation pattern;
+  unlike depth pruning, no index renumbering is needed since
+  `Qwen3MoeExperts.forward` re-derives hit experts fresh from `top_k_index`
+  each call rather than depending on fixed per-expert identity.
+
 ## [0.15.1] - 2026-09-19
 
 ### Added
