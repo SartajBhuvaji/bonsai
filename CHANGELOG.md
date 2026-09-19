@@ -5,6 +5,36 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `bonsai.importance.depth.skip_layer` + `ppl_importance`: the PPL half of
+  plan.md 2.1's depth-pruning criteria, alongside BI (1.3). `skip_layer` is
+  a context manager that temporarily makes one decoder layer act as
+  identity, restoring it afterward even on exception; `ppl_importance`
+  removes each layer in turn and measures the real held-out perplexity
+  cost against the unmodified baseline (`num_layers + 1` forward passes,
+  versus BI's one). Unit-tested against a real, tiny, randomly-initialized
+  CPU model, not just shapes -- confirms the model's actual output changes
+  when a layer is skipped and is bit-for-bit restored afterward.
+- `bonsai.importance.viz.plot_metric_agreement`: scatter one per-layer
+  metric against another with Pearson correlation annotated, for checking
+  whether a cheap importance proxy actually predicts an expensive one.
+
+### Changed
+
+- `bonsai.importance.viz.plot_layer_summary` now takes a `dict[str, Tensor]`
+  of named per-layer series instead of three fixed positional arguments --
+  supports any number of scoring methods (up to the categorical palette's
+  four adjacent-pairs-safe slots), not just the original three, so adding
+  PPL as a fourth signal didn't need a new function.
+- `bonsai.importance.viz.plot_layer_importance` takes optional
+  `title`/`ylabel`/`annotation_label` overrides, so both of 2.1's depth
+  criteria (BI, PPL) reuse the same bar-chart function instead of two
+  near-identical ones.
+- Every figure in `notebooks/03_importance_scores.ipynb` now also saves a
+  `.pdf` (vector) alongside its `.png` -- PNGs pixelate at print/journal
+  resolution.
+
 ## [0.11.0] - 2026-09-19
 
 ### Added

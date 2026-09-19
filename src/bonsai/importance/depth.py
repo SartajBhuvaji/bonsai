@@ -9,7 +9,12 @@ in code, not just in the docstring.
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
+from typing import Any
+
 import torch
+from transformers.models.qwen3_moe.modeling_qwen3_moe import Qwen3MoeForCausalLM
 
 
 def block_importance(layer_inputs: torch.Tensor, layer_outputs: torch.Tensor) -> torch.Tensor:
@@ -40,4 +45,72 @@ def block_importance(layer_inputs: torch.Tensor, layer_outputs: torch.Tensor) ->
     return 1.0 - cos_sim.mean()
 
 
-__all__ = ["block_importance"]
+@contextmanager
+def skip_layer(model: Qwen3MoeForCausalLM, layer_idx: int) -> Iterator[None]:
+    """Temporarily make one decoder layer act as identity: output = input.
+
+    Simulates "this layer is pruned" for scoring purposes without touching
+    any weights -- 2407.14679's PPL criterion needs exactly this: remove a
+    single layer, measure the model's perplexity with it gone, put it back.
+    Confirmed against the installed `Qwen3MoeModel.forward` source: every
+    decoder layer is called as `decoder_layer(hidden_states, attention_mask=...,
+    ...)`, `hidden_states` always positional, and returns a plain tensor (not
+    a tuple) -- `identity_forward` below only needs to match that shape,
+    accepting and ignoring everything else. Swaps the layer's bound `forward`
+    for the duration of the `with` block and restores the original
+    afterward, even if the block raises.
+    """
+    layers = model.model.layers
+    original_forward: Callable[..., torch.Tensor] = layers[layer_idx].forward
+
+    def identity_forward(
+        hidden_states: torch.Tensor,
+        *args: Any,  # noqa: ANN401
+        **kwargs: Any,  # noqa: ANN401
+    ) -> torch.Tensor:
+        return hidden_states
+
+    layers[layer_idx].forward = identity_forward
+    try:
+        yield
+    finally:
+        layers[layer_idx].forward = original_forward
+
+
+def _mean_loss(model: Qwen3MoeForCausalLM, input_ids_batches: list[torch.Tensor]) -> float:
+    losses = [float(model(input_ids=ids, labels=ids).loss) for ids in input_ids_batches]
+    return sum(losses) / len(losses)
+
+
+def ppl_importance(
+    model: Qwen3MoeForCausalLM, input_ids_batches: list[torch.Tensor]
+) -> torch.Tensor:
+    """Score each decoder layer by the perplexity cost of removing it.
+
+    2407.14679's PPL criterion: for each layer, temporarily skip it
+    (`skip_layer`) and measure the model's mean cross-entropy loss over
+    `input_ids_batches` relative to the unmodified baseline. A bigger
+    increase means the layer matters more -- unlike Block Importance, this
+    genuinely measures the layer's effect on the model's actual output
+    quality, at the cost of one full forward pass per layer instead of one
+    forward pass total (`num_layers + 1` passes altogether).
+
+    Each element of `input_ids_batches` is a `[batch, seq_len]` token ID
+    tensor already on the model's device; loss is computed via the model's
+    own `labels=` path (the standard HF shifted cross-entropy, confirmed
+    against the installed `Qwen3MoeForCausalLM.forward` source -- no manual
+    shifting needed here). The mean loss is unweighted across batches,
+    matching this module's existing convention of leaving batching
+    decisions to the caller rather than baking them into the scorer.
+    """
+    num_layers = len(model.model.layers)
+    scores = torch.zeros(num_layers)
+    with torch.no_grad():
+        baseline = _mean_loss(model, input_ids_batches)
+        for i in range(num_layers):
+            with skip_layer(model, i):
+                scores[i] = _mean_loss(model, input_ids_batches) - baseline
+    return scores
+
+
+__all__ = ["block_importance", "ppl_importance", "skip_layer"]
