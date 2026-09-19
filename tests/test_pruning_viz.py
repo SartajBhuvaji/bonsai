@@ -50,6 +50,25 @@ def test_plot_pruning_sweep_rejects_too_many_named_strategies() -> None:
     raise AssertionError("expected ValueError for more than 3 named strategies")
 
 
+def test_plot_pruning_sweep_custom_labels_and_extra_hlines() -> None:
+    counts = [8, 16]
+    named_losses = {"greedy": [1.0, 1.2]}
+    random_losses = [[1.1, 1.3], [1.2, 1.4]]
+
+    fig = plot_pruning_sweep(
+        counts,
+        named_losses,
+        random_losses,
+        baseline_loss=0.97,
+        title="Zero-shot loss vs. experts pruned per layer",
+        xlabel="experts pruned per layer",
+        extra_hlines={"super experts only": 1.47},
+    )
+
+    assert len(fig.axes) == 1
+    assert fig.axes[0].get_xlabel() == "experts pruned per layer"
+
+
 def test_plot_pruning_sweep_rejects_mismatched_lengths() -> None:
     counts = [1, 2, 4]
     named_losses = {"bi_greedy": [1.0, 1.1]}  # wrong length
