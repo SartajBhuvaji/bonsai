@@ -6,6 +6,8 @@
 \usepackage{graphicx}
 \usepackage{subfigure}
 \usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algorithmic}
 \usepackage{hyperref}
 
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
@@ -207,11 +209,32 @@ never gradients, over a small calibration set. We follow the same
 philosophy for every axis, including the one neither paper covers.
 
 \subsection{Attention Heads}
-Head importance uses the original formula unchanged: the per-token,
-per-head output vector's $L_2$ norm, aggregated over every token in the
-calibration set. Across all 48 layers (48 calibration samples, mean length
-177 tokens), scores range from 2.39 to 967.72, with the single largest value
-at the model's final layer (layer 47).
+Head importance uses the original formula unchanged. For head $h$ in a
+given layer, let $a_{t,h} \in \mathbb{R}^{d_{\text{head}}}$ be that head's
+output for calibration token $t$, prior to the $W^O$ merge. The per-token
+score is its $L_2$ norm, aggregated over every token $t$ in the calibration
+set:
+\begin{equation}
+\label{eq:head}
+F_h = \operatorname{agg}_{t}\left( \lVert a_{t,h} \rVert_2 \right),
+\end{equation}
+where $\operatorname{agg}$ is a pluggable aggregation function --
+\citet{minitron2024} ablate mean-of-absolute-value, $L_2$ norm, and
+variance, finding the best choice is not the same for every axis; we use
+the $L_2$ variant throughout this paper. Across all 48 layers (48
+calibration samples, mean length 177 tokens), scores range from 2.39 to
+967.72, with the single largest value at the model's final layer (layer
+47) -- visible as the dark band at the bottom of \cref{fig:head-heatmap}.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/head_heatmap.pdf}
+\caption{Head importance ($F_h$, \cref{eq:head}), all 48 layers $\times$ 32
+heads. Color is clipped at the 95th percentile (outlined cells mark the
+true top 5) since a linear scale to the true maximum leaves the rest of
+the grid indistinguishable from zero.}
+\label{fig:head-heatmap}
+\end{figure}
 
 \subsection{Experts}
 \label{sec:experts}
@@ -225,46 +248,154 @@ alternatives considered (selection frequency alone; router logit magnitude
 alone), both reported to underperform output-magnitude-based scoring in
 prior work \cite{naee2024}.
 
+Unlike head importance, there is no dense batch/sequence grid to aggregate
+over: routing is sparse and data-dependent per token, so $S_j$ is computed
+from a flat list of (token, expert) assignments rather than a fixed-shape
+tensor, mirroring how the model's own expert-dispatch loop iterates
+(\cref{alg:expert-importance}).
+
+\begin{algorithm}[t]
+\caption{Expert importance from routing data}
+\label{alg:expert-importance}
+\begin{algorithmic}
+\STATE {\bfseries Input:} expert indices $e_1,\dots,e_N$, gate weights
+$g_1,\dots,g_N$, expert outputs $f_1,\dots,f_N \in \mathbb{R}^{d}$ for every
+(token, selected-expert) pair in the calibration set; number of experts $E$
+\STATE $\text{sum}[1..E] \gets 0$; \quad $\text{count}[1..E] \gets 0$
+\FOR{$i = 1$ {\bfseries to} $N$}
+  \STATE $\text{sum}[e_i] \gets \text{sum}[e_i] + g_i \cdot \lVert f_i \rVert_2$
+  \STATE $\text{count}[e_i] \gets \text{count}[e_i] + 1$
+\ENDFOR
+\FOR{$j = 1$ {\bfseries to} $E$}
+  \STATE $S_j \gets \text{count}[j] > 0 \;?\; \text{sum}[j] / \text{count}[j] \;:\; 0$
+\ENDFOR
+\STATE {\bfseries Return:} $S_1, \dots, S_E$
+\end{algorithmic}
+\end{algorithm}
+
+An expert with zero routed tokens in the calibration set scores 0 and ranks
+lowest by construction -- appropriate for a calibration-set-specific score,
+but a real risk if a rare-but-critical expert happens to be under-sampled
+by chance, which is exactly what the Super Experts check below guards
+against.
+
 As a validation check, not a designed experiment: all three Super Experts
 reported by \citet{superexperts2025} for this exact model (layer 1 / expert
 68, layer 2 / expert 92, layer 3 / expert 82) rank \emph{first} among all
 128 experts in their respective layers under this metric, on real
-calibration data, at two different sample sizes (24 and 48 samples). On
-average across all 48 layers, the top $\sim$16\% of experts (20 of 128)
-already account for roughly a third of a layer's total importance mass,
-indicating substantial redundancy among the remaining experts as a
-candidate for pruning.
+calibration data, at two different sample sizes (24 and 48 samples) -- the
+three isolated bright cells in \cref{fig:expert-heatmap}. On average across
+all 48 layers, the top $\sim$16\% of experts (20 of 128) already account
+for roughly a third of a layer's total importance mass
+(\cref{fig:expert-concentration}), indicating substantial redundancy among
+the remaining experts as a candidate for pruning.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/expert_heatmap.pdf}
+\caption{Expert importance ($S_j$), all 48 layers $\times$ 128 experts,
+same clipping convention as \cref{fig:head-heatmap}. The three outlined
+cells in layers 1--3 are the Super Experts \cite{superexperts2025}.}
+\label{fig:expert-heatmap}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/expert_concentration.pdf}
+\caption{Per-layer cumulative importance captured by the top-$k$
+highest-scoring experts (thin lines: all 48 layers; bold: mean). The
+dashed diagonal is the no-concentration reference.}
+\label{fig:expert-concentration}
+\end{figure}
 
 \subsection{Depth: Block Importance and Perplexity}
 \label{sec:depth}
-We implement both depth-scoring criteria from \citet{minitron2024}: Block
-Importance (BI), $1 - \text{cosine\_similarity}(\text{layer\_input},
-\text{layer\_output})$, computable in the same forward pass that produces
-the two activations; and a perplexity-delta criterion, which removes one
-layer at a time (via a context manager that temporarily makes the layer act
-as identity, restoring it afterward) and measures the resulting increase in
-held-out cross-entropy loss relative to the unmodified baseline. The latter
-costs $L+1$ forward passes for an $L$-layer model, versus BI's one, and is
-run on a smaller calibration sample (16 samples, vs.\ 48 for BI) for that
-reason.
+We implement both depth-scoring criteria from \citet{minitron2024}. Block
+Importance (BI) for layer $\ell$, with input activations $X_\ell$ and
+output activations $X_{\ell+1}$ over calibration tokens $t$, is
+\begin{equation}
+\label{eq:bi}
+\text{BI}_\ell = 1 - \mathbb{E}_t\!\left[
+\frac{X_{\ell,t}^{\top} X_{\ell+1,t}}{\lVert X_{\ell,t} \rVert_2 \lVert X_{\ell+1,t} \rVert_2}
+\right],
+\end{equation}
+computable in the same forward pass that produces the two activations. The
+perplexity-delta criterion instead removes one layer at a time and measures
+the resulting change in held-out loss relative to the unmodified baseline:
+\begin{equation}
+\label{eq:ppl}
+\Delta_\ell = \mathcal{L}(\theta \setminus \ell) - \mathcal{L}(\theta),
+\end{equation}
+where $\mathcal{L}$ is mean cross-entropy loss over the calibration set and
+$\theta \setminus \ell$ denotes the model with layer $\ell$ temporarily
+skipped (\cref{alg:ppl}). This costs $L+1$ forward passes for an $L$-layer
+model, versus BI's one, and is run on a smaller calibration sample (16
+samples, vs.\ 48 for BI) for that reason.
+
+\begin{algorithm}[t]
+\caption{Perplexity-delta depth scoring}
+\label{alg:ppl}
+\begin{algorithmic}
+\STATE {\bfseries Input:} model $\theta$ with layers $1,\dots,L$;
+calibration batches $\mathcal{D}$
+\STATE $\textit{base} \gets \text{MeanLoss}(\theta, \mathcal{D})$
+\FOR{$\ell = 1$ {\bfseries to} $L$}
+  \STATE replace layer $\ell$'s forward with the identity function
+  \STATE $\Delta_\ell \gets \text{MeanLoss}(\theta, \mathcal{D}) - \textit{base}$
+  \STATE restore layer $\ell$'s original forward function
+\ENDFOR
+\STATE {\bfseries Return:} $\Delta_1, \dots, \Delta_L$
+\end{algorithmic}
+\end{algorithm}
 
 Both criteria independently identify the same pattern: the first and last
-layers of the model matter far more than the middle two-thirds. BI's
-highest score is at layer 0 (0.488) and second-highest at layer 47 (0.415);
-its lowest is layer 12 (0.011). The perplexity criterion shows the same
-edges-matter-most shape at a far more extreme scale -- layer 0's removal
-costs 1.99 nats of cross-entropy, next-highest is layer 47 at 0.60 nats,
-and the lowest (layer 14) is statistically indistinguishable from zero
-($-0.0003$ nats).
+layers of the model matter far more than the middle two-thirds
+(\cref{fig:ppl-bar}). BI's highest score is at layer 0 (0.488) and
+second-highest at layer 47 (0.415); its lowest is layer 12 (0.011). The
+perplexity criterion shows the same edges-matter-most shape at a far more
+extreme scale -- layer 0's removal costs 1.99 nats of cross-entropy,
+next-highest is layer 47 at 0.60 nats, and the lowest (layer 14) is
+statistically indistinguishable from zero ($-0.0003$ nats).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/ppl_bar.pdf}
+\caption{Perplexity delta $\Delta_\ell$ (\cref{eq:ppl}) per layer.}
+\label{fig:ppl-bar}
+\end{figure}
 
 Across all 48 layers, the Pearson correlation between BI and the perplexity
-delta is $r=0.91$, and the two criteria pick the identical top-3 most
-critical layers (0, 47, 1). Given the 49$\times$ cost difference between the
-two, this agreement is the paper's most directly actionable early finding:
-Block Importance can be trusted as a cheap stand-in for perplexity-based
-scoring when iterating over many candidates later in this project, reserving
-the expensive criterion for confirming a final choice rather than for every
-candidate evaluated along the way.
+delta is $r=0.91$ (\cref{fig:bi-vs-ppl}), and the two criteria pick the
+identical top-3 most critical layers (0, 47, 1). Given the 49$\times$ cost
+difference between the two, this agreement is the paper's most directly
+actionable early finding: Block Importance can be trusted as a cheap
+stand-in for perplexity-based scoring when iterating over many candidates
+later in this project, reserving the expensive criterion for confirming a
+final choice rather than for every candidate evaluated along the way.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/bi_vs_ppl.pdf}
+\caption{BI (\cref{eq:bi}) vs. perplexity delta (\cref{eq:ppl}), one point
+per layer.}
+\label{fig:bi-vs-ppl}
+\end{figure}
+
+\Cref{fig:layer-summary} places the three cheap, single-forward-pass
+methods -- heads, experts, BI -- on the same (min-max normalized) axis;
+\cref{fig:bi-vs-ppl} above already gives the fourth, perplexity, directly
+against BI. Heads and experts agree closely with each other throughout the
+model; BI diverges from both through the middle third, agreeing with them
+only at the two edges -- the same edges where \cref{fig:bi-vs-ppl} shows it
+also agrees with perplexity.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/layer_summary.pdf}
+\caption{Mean head score, mean expert score, and BI, per layer, min-max
+normalized within each method.}
+\label{fig:layer-summary}
+\end{figure}
 
 \section{Discussion and Open Questions}
 \label{sec:discussion}

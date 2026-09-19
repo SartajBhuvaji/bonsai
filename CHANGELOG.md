@@ -5,6 +5,17 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `docs/latex/main.tex`: explicit numbered equations for every scoring
+  formula in use (head importance, Block Importance, perplexity delta --
+  expert importance already had one), two algorithm blocks (expert
+  importance from routing data; perplexity-delta depth scoring via layer
+  skipping), and six figures copied in as vector PDFs from the project's
+  own real notebook outputs (head/expert heatmaps, expert concentration
+  curve, PPL bar chart, BI-vs-PPL scatter, the three-method per-layer
+  summary). All real results already reported in prose, now also shown.
+
 ## [0.13.1] - 2026-09-19
 
 ## [0.13.0] - 2026-09-19
