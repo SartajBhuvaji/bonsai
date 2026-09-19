@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.13.2] - 2026-09-19
+
 ### Added
 
 - `docs/latex/main.tex`: explicit numbered equations for every scoring
