@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-09-19
+
 ### Added
 
 - `bonsai.importance`: shared activation-based importance scoring (plan.md
