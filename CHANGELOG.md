@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.21.1] - 2026-09-20
+
 ### Added
 
 - `docs/latex/main.tex`: new "Combining Axes: Depth, Experts, and Heads
