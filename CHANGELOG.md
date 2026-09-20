@@ -5,6 +5,27 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `bonsai.pruning.viz.plot_combined_pruning_sweep`: grouped bar chart
+  (one group per aggressiveness tier, one bar per axis-combination type)
+  for comparing multi-axis pruned candidates, which don't share a single
+  sweepable count the way `plot_pruning_sweep`'s line-chart layout
+  assumes.
+- `notebooks/08_combined_pruning_sweep.ipynb`: the first real multi-axis
+  pruning experiment (plan.md 2.4) -- actual combined depth+expert+head
+  pruning (not each axis swept alone) against Qwen3-30B-A3B-Base, 3
+  aggressiveness tiers x 4 combination types (depth+experts, depth+heads,
+  experts+heads, all three). Comparing each combo's actual zero-shot loss
+  to what independent (naive multiplicative) compounding of its
+  single-axis costs would predict shows real interaction effects, not
+  just "more pruning costs more": depth+heads compounds genuinely worse
+  than independent at every tier (excess grows to +64.9pp at the
+  aggressive tier); depth+experts is actually *subadditive* at the
+  moderate/aggressive tiers (cheaper than independent compounding
+  predicts); experts+heads tracks the independent prediction closely
+  throughout.
+
 ## [0.20.0] - 2026-09-20
 
 ### Added

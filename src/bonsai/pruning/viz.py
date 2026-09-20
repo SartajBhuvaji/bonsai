@@ -111,4 +111,73 @@ def plot_pruning_sweep(
     return fig
 
 
-__all__ = ["plot_pruning_sweep"]
+def plot_combined_pruning_sweep(
+    tiers: Sequence[str],
+    combo_losses: Mapping[str, Sequence[float]],
+    *,
+    baseline_loss: float,
+    log_scale: bool = True,
+    title: str = "Zero-shot loss by combination and aggressiveness tier",
+) -> Figure:
+    """Grouped bar chart: one group per tier, one bar per axis-combination type.
+
+    Unlike `plot_pruning_sweep` (one continuous count axis per strategy),
+    combined-axis candidates don't share a single scalar "how much was
+    pruned" -- each tier fixes a different count per axis, chosen so each
+    axis's own zero-shot cost lands in a similar band (see plan.md 2.4),
+    not a single sweepable number. A grouped bar chart compares them
+    directly instead of forcing them onto a shared x-axis that doesn't
+    really exist.
+
+    `combo_losses[name][i]` is that combination's loss at `tiers[i]` --
+    e.g. `{"depth_experts": [...], "depth_heads": [...],
+    "experts_heads": [...], "all_three": [...]}`, colors assigned in
+    insertion order from the project's fixed categorical order (at most 4
+    combinations, one per slot).
+
+    `baseline_loss` (nothing pruned) is drawn as a dashed horizontal
+    reference. Loss can span more than an order of magnitude across tiers,
+    so the y-axis defaults to log scale.
+    """
+    if len(combo_losses) > 4:
+        raise ValueError(f"at most 4 combinations supported, got {len(combo_losses)}")
+    lengths = {len(v) for v in combo_losses.values()}
+    if lengths != {len(tiers)}:
+        raise ValueError(
+            f"expected every combination to have one value per tier ({len(tiers)}); "
+            f"got lengths {lengths}"
+        )
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+
+    n_combos = len(combo_losses)
+    group_width = 0.8
+    bar_width = group_width / n_combos
+    x = np.arange(len(tiers))
+
+    for i, (color, (name, losses)) in enumerate(
+        zip(_CATEGORICAL, combo_losses.items(), strict=False)
+    ):
+        offset = (i - (n_combos - 1) / 2) * bar_width
+        ax.bar(x + offset, losses, width=bar_width * 0.9, color=color, label=name)
+
+    ax.axhline(
+        baseline_loss, color="#7a869a", linewidth=1.0, linestyle=":", label="baseline (0 pruned)"
+    )
+
+    if log_scale:
+        ax.set_yscale("log")
+    ax.set_xticks(x)
+    ax.set_xticklabels(tiers)
+    ax.set_title(title, fontsize=11)
+    ax.set_xlabel("aggressiveness tier", fontsize=9)
+    ax.set_ylabel("mean cross-entropy loss" + (" (log scale)" if log_scale else ""), fontsize=9)
+    ax.legend(fontsize=8, frameon=False)
+    fig.tight_layout()
+    return fig
+
+
+__all__ = ["plot_combined_pruning_sweep", "plot_pruning_sweep"]
