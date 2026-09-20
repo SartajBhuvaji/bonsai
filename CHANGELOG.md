@@ -5,6 +5,20 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `docs/latex/main.tex`: new "Combining Axes: Depth, Experts, and Heads
+  Together" section covering the real multi-axis sweep from
+  `08_combined_pruning_sweep.ipynb` -- per-tier target-count table,
+  figure, relative-loss table, and the naive-multiplicative interaction
+  analysis (depth+heads compounds worse than independent pruning would
+  predict; depth+experts is actually subadditive). All three single
+  pruning axes and their zero-shot combinations are now in the paper.
+  Abstract, introduction, and Discussion/Open-Questions updated
+  accordingly, including two new open questions (whether the zero-shot
+  interaction ordering survives retraining, and which tier/combination
+  to carry forward).
+
 ## [0.21.0] - 2026-09-20
 
 ### Added
