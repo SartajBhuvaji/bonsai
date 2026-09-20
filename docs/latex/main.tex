@@ -130,8 +130,9 @@ pruning axes -- depth (\cref{sec:pruning-sweep}), experts
 (\cref{sec:expert-pruning-sweep}), and attention heads
 (\cref{sec:head-pruning-sweep}) -- have each been characterized in
 isolation and combined with each other zero-shot
-(\cref{sec:combined-pruning-sweep}), but no candidate has been retrained
-or finalized yet.
+(\cref{sec:combined-pruning-sweep}); the teacher has been corrected on the
+TypeScript retraining pool (\cref{sec:teacher-correction}); but no pruned
+candidate has been retrained or finalized yet.
 
 \section{Related Work}
 \label{sec:related}
@@ -813,6 +814,109 @@ specifically -- needs real retraining and real eval-suite numbers
 (\cref{sec:discussion}), not zero-shot loss alone. This sweep narrows the
 candidate space and surfaces a real interaction effect worth reporting
 either way, not a final ranking.
+
+\section{Teacher Correction}
+\label{sec:teacher-correction}
+
+\citet{minitron2024practice} introduce teacher correction to handle a
+constraint we share: without access to a model's original pretraining
+mix, distilling a pruned student directly from the uncorrected teacher
+hands the student guidance drawn from a distribution the teacher was
+never trained to match downstream. Their fix is a brief full-parameter
+fine-tune of the teacher on the target retraining data before it teaches
+anything, so its outputs stay trustworthy on the distribution the student
+will actually be evaluated on. We apply the same idea here, fine-tuning
+the unpruned Qwen3-30B-A3B-Base on the TypeScript retraining pool
+(\cref{sec:model-data}) with plain LM cross-entropy loss, before
+using it as a distillation teacher for any pruned candidate
+(\cref{sec:combined-pruning-sweep}).
+
+\subsection{Hyperparameter Sweep}
+
+Full-parameter fine-tuning needs real memory: weights, gradients, and
+optimizer state together are roughly $4\times$ a parameter's own bf16
+footprint before any activations, which OOMs even 8x40GB of GPU memory
+with plain AdamW and \texttt{device\_map="auto"}'s naive weight-only
+placement. We fix this with 8-bit AdamW (\texttt{bitsandbytes}, roughly
+halving the optimizer-state share) and an explicit per-GPU memory cap
+that leaves headroom instead of packing each device with weights alone.
+
+We sweep 3 peak learning rates ($1\times10^{-6}$, $5\times10^{-6}$,
+$2\times10^{-5}$) $\times$ 2 warmup fractions ($5\%$, $15\%$ of steps;
+150 steps each, linear warmup then cosine decay to a floor of peak/10,
+256 retraining samples cycled, 32 held-out validation samples) to find a
+stable, improving configuration. $\text{peak LR}=2\times10^{-5}$,
+$\text{warmup}=15\%$ wins on both validation-loss delta and final train
+loss across the 6 configurations and is carried into the real correction
+run below; per-config metrics were logged to each sweep run's directory
+on the training instance but were not copied off it before the instance
+was terminated, so we report the sweep's qualitative outcome here rather
+than fabricate the missing numbers -- an oversight in this run's
+logistics, not a gap in what was measured.
+
+\subsection{Multi-GPU Utilization: A Negative Result Worth Reporting}
+\label{sec:fsdp-negative-result}
+
+While tuning the sweep above, \texttt{nvidia-smi} showed only one of 8
+GPUs active at a time (42\% utilization on one device, 0--8\% on the
+rest) despite the model being sharded across all 8. The cause:
+\texttt{device\_map="auto"} shards \emph{layers} across devices, not
+\emph{parameters} -- forward and backward each walk the same
+layer-by-layer chain in sequence, so only one GPU computes at any given
+instant while the rest wait their turn in the pipeline.
+
+We implemented Fully Sharded Data Parallel (FSDP, via
+\texttt{accelerate}) as a fix: FSDP shards parameters instead of layers,
+so every GPU holds a slice of every layer and computes on every step,
+all at once. After resolving two real out-of-memory failures --
+FSDP's own parameter-broadcast step during initialization, and a missing
+\texttt{use\_orig\_params=True} flag breaking 8-bit AdamW's
+per-parameter quantization -- a real 8-GPU run confirmed genuinely high
+utilization (55--89\% across all 8 GPUs).
+
+It was also $2.7\times$ \emph{slower} in wall-clock time than the naive
+single-GPU-active approach ($\sim$11 sec/step vs.\ $\sim$4 sec/step).
+For this workload -- a small per-step batch and an MoE model where most
+layers do little compute per token -- FSDP's per-layer
+all-gather/reduce-scatter communication overhead outweighs the benefit
+of computing on every GPU at once. Higher literal utilization did not
+mean faster or cheaper training here; we report this as a caution against
+treating GPU utilization as a proxy for training efficiency without
+also checking wall-clock cost, and used the naive (lower-utilization,
+faster) approach for the real run below.
+
+\subsection{Real Correction Run}
+
+Using the sweep's winning hyperparameters, we fine-tune the teacher for
+1500 steps (batch size 4) on 6{,}000 fresh, non-repeating TypeScript
+samples -- one pass, no repeats, disjoint from the calibration pool used
+to measure validation loss. Training took $\sim$105 minutes on 8x A100
+(40GB SXM4) at $\sim$4.2 sec/step.
+
+\begin{table}[t]
+\caption{Real teacher-correction run: validation loss before and after.}
+\label{table:teacher-correction-real}
+\centering
+\begin{tabular}{lr}
+\toprule
+& validation loss \\
+\midrule
+before correction & 0.9331 \\
+after correction (1500 steps) & 0.8842 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The corrected checkpoint is released at
+\url{https://huggingface.co/sartajbhuvaji/bonsai-qwen3-30b-a3b-teacher-corrected}
+and becomes the distillation teacher for the candidate-selection work in
+\cref{sec:combined-pruning-sweep}. We have not yet run the ablation this
+section's approach depends on -- corrected vs.\ uncorrected teacher on a
+fixed pruned candidate, the comparison \citet{minitron2024practice} make
+in their Figure 4 -- so whether teacher correction earns its cost on this
+model, with general-purpose (not domain-mismatched) retraining data, for
+an MoE rather than dense architecture, remains open until a pruned
+candidate exists to test it against (\cref{sec:discussion}).
 
 \section{Discussion and Open Questions}
 \label{sec:discussion}
