@@ -113,6 +113,7 @@ def train(
     config: TrainConfig,
     *,
     loss_fn: LossFn = _lm_loss,
+    optimizer: torch.optim.Optimizer | None = None,
     val_every: int = 10,
     run_dir: Path | None = None,
 ) -> list[dict[str, Any]]:
@@ -123,6 +124,18 @@ def train(
     correct for a fixed pre-tokenized pool used across a short
     hyperparameter sweep, not a claim that a full production run
     shouldn't stream fresh, non-repeating data instead.
+
+    `optimizer` defaults to plain `torch.optim.AdamW`, constructed here
+    from `config.peak_lr`/`config.weight_decay` -- pass a pre-built
+    optimizer instead (e.g. `bitsandbytes.optim.AdamW8bit`) when full-
+    parameter fine-tuning on a large model needs it: plain AdamW's states
+    are ~2x a parameter's own footprint on top of the parameter and its
+    gradient (~4x total per parameter, in the same dtype as the model),
+    confirmed to OOM a naive `device_map="auto"`-sharded 30B-parameter
+    model across 8x40GB GPUs even with gradient checkpointing enabled --
+    an 8-bit optimizer roughly halves that. This function still owns the
+    LR schedule regardless of which optimizer is passed (`lr_schedule`
+    writes into `optimizer.param_groups` every step either way).
 
     Validation loss (mean `loss_fn` over all of `val_input_ids`, no
     gradient) is computed every `val_every` steps and on the final step.
@@ -135,9 +148,10 @@ def train(
 
     from bonsai.tracking import log_metric
 
-    optimizer = torch.optim.AdamW(
-        model.parameters(), lr=config.peak_lr, weight_decay=config.weight_decay
-    )
+    if optimizer is None:
+        optimizer = torch.optim.AdamW(
+            model.parameters(), lr=config.peak_lr, weight_decay=config.weight_decay
+        )
     model.train()
     history: list[dict[str, Any]] = []
     n = len(train_input_ids)

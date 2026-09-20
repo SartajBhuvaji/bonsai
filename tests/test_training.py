@@ -125,6 +125,20 @@ def test_train_runs_the_requested_number_of_steps() -> None:
     assert [r["step"] for r in history] == [0, 1, 2, 3, 4]
 
 
+def test_train_accepts_a_pre_built_optimizer() -> None:
+    model = tiny_model()
+    config = TrainConfig(peak_lr=1e-3, min_lr=1e-4, warmup_steps=2, total_steps=5, batch_size=2)
+    custom_optimizer = torch.optim.SGD(model.parameters(), lr=config.peak_lr)
+    original = next(model.parameters()).data.clone()
+
+    history = train(
+        model, tiny_batch(4), tiny_batch(2), config, val_every=2, optimizer=custom_optimizer
+    )
+
+    assert len(history) == 5
+    assert not torch.allclose(original, next(model.parameters()).data)
+
+
 def test_train_reports_val_loss_on_schedule_and_final_step() -> None:
     model = tiny_model()
     config = TrainConfig(peak_lr=1e-3, min_lr=1e-4, warmup_steps=1, total_steps=5, batch_size=1)

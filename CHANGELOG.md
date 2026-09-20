@@ -5,6 +5,41 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `bonsai.training.distributed`: FSDP-based multi-GPU training, for when
+  `bonsai.training`'s `device_map="auto"` sharding leaves most GPUs idle
+  -- confirmed on a real 8x A100 run that naive layer-sharding keeps only
+  one GPU active at a time (forward/backward walk the same layer chain in
+  sequence). FSDP shards *parameters* instead, so every GPU computes on
+  every step; needs a genuinely different execution model (one process
+  per GPU via `accelerate launch`), hence a separate module rather than
+  branching `bonsai.training.train`'s existing single-process loop.
+  `TrainConfig`/`lr_schedule` are reused as-is. Two real, reproduced
+  failure modes fixed along the way: `cpu_ram_efficient_loading`/
+  `sync_module_states`'s "only rank 0 loads, then broadcast" path OOMs
+  during FSDP's own init broadcast step (every rank hit ~38.8GB right as
+  it ran) -- worked around by having every rank load its own full copy
+  into CPU RAM instead, which this project's instances have >1TB of; and
+  `use_orig_params=True` is required for FSDP to hand the optimizer real
+  per-parameter shapes rather than one flattened blob per wrapped unit,
+  needed for 8-bit AdamW's block-wise quantization to work at all --
+  without it, every rank OOM'd identically at ~39.5GB during the first
+  optimizer step.
+- `bonsai.training`: `train()` now accepts an optional pre-built
+  `optimizer`, defaulting to plain `AdamW` as before -- lets a caller pass
+  a memory-efficient optimizer (e.g. `bitsandbytes.optim.AdamW8bit`)
+  instead. Confirmed necessary on a real run: full-parameter fine-tuning
+  of the 30B-parameter teacher OOMs a naive `device_map="auto"`-sharded
+  8x40GB-GPU setup with plain AdamW even with gradient checkpointing on,
+  since AdamW's states roughly double a parameter's own footprint on top
+  of its gradient (~4x total per parameter, before activations).
+- `src/bonsai/training.py` restructured into a `training/` package
+  (`training/__init__.py` + `training/distributed.py`), matching
+  `importance/`/`pruning/`'s existing package-with-axis-specific-modules
+  convention, ahead of Phase 4 adding more (a distillation loss variant,
+  a loss-curve `viz.py`) rather than needing this migration later.
+
 ## [0.21.1] - 2026-09-20
 
 ### Added
