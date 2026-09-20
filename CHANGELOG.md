@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.19.1] - 2026-09-20
+
 ### Fixed
 
 - `bonsai.pruning.experts.prune_experts`: previously left
