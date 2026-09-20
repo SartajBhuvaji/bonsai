@@ -70,18 +70,23 @@ in their respective layers, and a cheap, single-forward-pass depth-pruning
 proxy (Block Importance) correlates strongly with the expensive,
 perplexity-based criterion from the original Minitron paper (Pearson
 $r=0.91$; both agree on the three most critical layers). We prune, not
-just score, on two axes. A depth sweep (nine layer counts, four selection
-strategies) shows principled selection beating random by up to $9\times$ in
-relative loss once more than a handful of layers are pruned, and finds
-contiguous-block removal -- the second Minitron paper's preferred
-depth-pruning approach -- a mixed result on this model. An expert-pruning
-sweep (eight per-layer counts) shows the same pattern at a narrower margin
-($2$--$5\times$), and finds that pruning only the three known Super Experts
-costs more zero-shot loss than greedy-pruning up to 1,536 ordinary
-experts, reproducing a prior regression test directly in this pipeline's
-own metric. This is a living document, updated as further pruning,
-distillation, and retraining experiments complete; no attention head has
-been pruned yet, and no retraining has occurred.
+just score, on all three axes. A depth sweep (nine layer counts, four
+selection strategies) shows principled selection beating random by up to
+$9\times$ in relative loss once more than a handful of layers are pruned,
+and finds contiguous-block removal -- the second Minitron paper's
+preferred depth-pruning approach -- a mixed result on this model. An
+expert-pruning sweep (eight per-layer counts) shows the same pattern at a
+narrower margin ($2$--$5\times$), and finds that pruning only the three
+known Super Experts costs more zero-shot loss than greedy-pruning up to
+1,536 ordinary experts, reproducing a prior regression test directly in
+this pipeline's own metric. A head-pruning sweep (all 7 valid per-group
+counts under this model's grouped-query attention) shows a much narrower
+greedy-vs-random margin still ($1.2$--$2.9\times$), and comparing all
+three axes at matched pruned-fractions shows experts are by far the most
+redundant axis on this model, with heads and depth comparably
+(un)forgiving to prune. This is a living document, updated as further
+pruning, distillation, and retraining experiments complete; no axis has
+been combined with another, and no retraining has occurred.
 \end{abstract}
 
 \section{Introduction}
@@ -116,12 +121,12 @@ disjoint parquet shards so the two pools never overlap.
 
 This paper is written incrementally, alongside the project's own commit
 history: each section is updated with real, measured results only, once the
-corresponding experiment has actually run. As of this writing, depth
-pruning (\cref{sec:pruning-sweep}) and expert pruning
-(\cref{sec:expert-pruning-sweep}) have both been characterized but not yet
-combined with each other, retrained, or finalized to one candidate;
-attention-head pruning has been scored (\cref{sec:importance}) but not yet
-acted on.
+corresponding experiment has actually run. As of this writing, all three
+pruning axes -- depth (\cref{sec:pruning-sweep}), experts
+(\cref{sec:expert-pruning-sweep}), and attention heads
+(\cref{sec:head-pruning-sweep}) -- have each been characterized in
+isolation, but none has been combined with another, retrained, or
+finalized to one candidate.
 
 \section{Related Work}
 \label{sec:related}
@@ -581,6 +586,98 @@ data, not merely by citation, and is the concrete justification for
 exempting these experts from the ranking (\cref{sec:experts}) rather than
 relying only on the score itself to never rank them low.
 
+\section{Head Pruning: Zero-Shot Loss vs. Query Heads Pruned}
+\label{sec:head-pruning-sweep}
+
+\Cref{sec:expert-pruning-sweep} pruned experts; this section prunes
+attention heads. \texttt{bonsai.pruning.heads.prune\_heads} permanently
+slices the chosen query heads out of \texttt{Qwen3MoeAttention}'s
+\texttt{q\_proj} (output rows) and \texttt{o\_proj} (input columns) at
+head boundaries. Unlike the other two axes, heads cannot be selected
+freely: Qwen3-30B-A3B-Base's grouped-query attention (GQA) shares every 8
+consecutive query heads onto one key/value head
+(\texttt{num\_key\_value\_groups}~$=8$, \cref{sec:model-data}), and
+\texttt{Qwen3MoeAttention.forward} reads that value fresh off the module
+on every call via \texttt{repeat\_kv} -- pruning a ragged count per group
+would leave it undefined. We therefore prune the same count of query
+heads from every key/value group in a layer, never an entire group
+(which would orphan its key/value head), and recompute
+\texttt{self\_attn.num\_key\_value\_groups} for the new count. We measure
+the resulting zero-shot loss the same way as
+\cref{sec:pruning-sweep,sec:expert-pruning-sweep}, on the same 32 fresh
+calibration samples.
+
+This constraint fixes the sweep's entire valid search space rather than
+leaving a larger one to sample from, unlike the other two axes: group
+size 8 admits exactly 7 per-group counts ($k \in \{1,\dots,7\}$, since
+$k=8$ would orphan a key/value head), so we sweep all of them under two
+selection strategies: \textbf{greedy} (the $k$ lowest-$F_h$-scoring query
+heads per group, \cref{eq:head}); \textbf{random} ($k$ random heads per
+group, 3 seeds). This run used a rented 4x A6000 instance via
+\texttt{device\_map="auto"} sharding rather than the single 80GB GPU the
+other two sweeps used, since no H100/A100-80GB capacity was available at
+launch time.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/head_pruning_sweep.pdf}
+\caption{Zero-shot loss vs. query heads pruned per key/value group.
+Random shown as its 3-seed mean (dashed) and min-max band. Log-scale
+$y$-axis.}
+\label{fig:head-pruning-sweep}
+\end{figure}
+
+Greedy selection beats random at every count tested
+(\cref{table:head-pruning-sweep}), but by a much narrower margin than
+either other axis, and one that shrinks as $k$ grows: $2.7\times$ at
+$k=1$ down to $1.2\times$ at $k=7$, versus depth's up to $9\times$
+(\cref{sec:pruning-sweep}) and experts' $2$--$5\times$
+(\cref{sec:expert-pruning-sweep}).
+
+\begin{table}[t]
+\caption{Loss increase over baseline (0.9668), by strategy and per-group
+head count. ``total'' is query heads removed across all 48 layers.}
+\label{table:head-pruning-sweep}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{rrrr}
+\toprule
+$k$ & total & greedy & random (mean) \\
+\midrule
+1 & 192  & $+5.2\%$    & $+13.8\%$   \\
+2 & 384  & $+21.4\%$   & $+49.3\%$   \\
+3 & 576  & $+58.5\%$   & $+143.4\%$  \\
+4 & 768  & $+129.6\%$  & $+380.0\%$  \\
+5 & 960  & $+346.8\%$  & $+684.9\%$  \\
+6 & 1152 & $+678.9\%$  & $+1097.5\%$ \\
+7 & 1344 & $+1052.1\%$ & $+1236.4\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The narrowing greedy/random gap raises an obvious question: is this
+model's attention-head axis simply more redundant than depth or experts,
+so any reasonable subset survives about as well as any other -- or is it
+the least redundant, unable to absorb pruning gracefully regardless of
+which heads are chosen? Comparing absolute cost at every pruned-fraction
+this sweep shares with the other two answers it. Depth's counts coincide
+with heads' at 3 fractions (12.5\%, 25\%, 50\%); experts' counts coincide
+at all 7. At every shared point, expert pruning is dramatically cheaper
+than either heads or depth -- e.g. at 50\% pruned, greedy costs
+$+25.5\%$ for experts versus $+129.6\%$ for heads and $+153.8\%$ for
+depth. Heads and depth track each other closely at all 3 points they
+share (12.5\%: $+5.2\%$ vs.\ $+8.1\%$; 25\%: $+21.4\%$ vs.\ $+21.9\%$;
+50\%: $+129.6\%$ vs.\ $+153.8\%$), with depth's greedy loss slightly
+higher every time -- a small, consistent difference on a single-seed,
+32-sample run, not one we lean on as a strong ranking claim. The robust
+reading is that experts are far more redundant than either heads or
+depth on this model; heads and depth look comparably (un)forgiving to
+prune, and the narrowing greedy/random gap on heads reflects that
+low redundancy -- with few good substitutes available in a group of 8,
+even a bad (random) choice is not that much worse than a good one, not
+because head choice stops mattering.
+
 \section{Discussion and Open Questions}
 \label{sec:discussion}
 
@@ -613,11 +710,22 @@ resolved prematurely:
   neither claim has been independently re-verified by this project. Whether
   a per-layer search would do meaningfully better than uniform on this
   model remains untested here directly.
+\item \textbf{A specific target per-group head count.}
+  \Cref{sec:head-pruning-sweep} characterizes the cost curve across all 7
+  valid per-key/value-group counts but does not commit to one candidate,
+  for the same reason as the two target-count questions above.
+\item \textbf{Free (non-uniform-per-group) head selection.}
+  \Cref{sec:head-pruning-sweep}'s GQA constraint requires the same count
+  pruned from every key/value group in a layer; whether a free per-head
+  search across group boundaries would do meaningfully better is
+  untested, since \texttt{prune\_heads} does not support it by design.
 \item \textbf{Interaction between axes.} \citet{minitron2024} find that
-  depth and width importance rankings can flip after retraining relative to
-  their zero-shot rankings; whether the same holds when experts are combined
-  with depth and width has no precedent to draw on and will be tested
-  empirically once single-axis pruning is complete.
+  depth and width importance rankings can flip after retraining relative
+  to their zero-shot rankings; whether the same holds when experts are
+  combined with depth and width has no precedent to draw on. All three
+  axes are now characterized in isolation (\cref{sec:pruning-sweep,sec:expert-pruning-sweep,sec:head-pruning-sweep}),
+  so this is the next open question this project is positioned to
+  answer empirically, not a hypothetical for later.
 \item \textbf{Lightweight-retrain token budget.} \citet{minitron2024}'s
   1.8B-token budget was calibrated for a 15B dense model, not a $\sim$3.35B
   active-parameter MoE; the right budget for this model's post-combination
