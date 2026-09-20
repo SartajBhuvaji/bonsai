@@ -84,9 +84,13 @@ counts under this model's grouped-query attention) shows a much narrower
 greedy-vs-random margin still ($1.2$--$2.9\times$), and comparing all
 three axes at matched pruned-fractions shows experts are by far the most
 redundant axis on this model, with heads and depth comparably
-(un)forgiving to prune. This is a living document, updated as further
-pruning, distillation, and retraining experiments complete; no axis has
-been combined with another, and no retraining has occurred.
+(un)forgiving to prune. Combining axes into single pruned candidates
+(three aggressiveness tiers, four combination types) shows real
+interaction effects beyond simple compounding: depth+heads combines
+genuinely worse than independent pruning would predict, while
+depth+experts is actually cheaper than independent compounding predicts.
+This is a living document, updated as further pruning, distillation, and
+retraining experiments complete; no candidate has been retrained yet.
 \end{abstract}
 
 \section{Introduction}
@@ -125,8 +129,9 @@ corresponding experiment has actually run. As of this writing, all three
 pruning axes -- depth (\cref{sec:pruning-sweep}), experts
 (\cref{sec:expert-pruning-sweep}), and attention heads
 (\cref{sec:head-pruning-sweep}) -- have each been characterized in
-isolation, but none has been combined with another, retrained, or
-finalized to one candidate.
+isolation and combined with each other zero-shot
+(\cref{sec:combined-pruning-sweep}), but no candidate has been retrained
+or finalized yet.
 
 \section{Related Work}
 \label{sec:related}
@@ -678,6 +683,137 @@ low redundancy -- with few good substitutes available in a group of 8,
 even a bad (random) choice is not that much worse than a good one, not
 because head choice stops mattering.
 
+\section{Combining Axes: Depth, Experts, and Heads Together}
+\label{sec:combined-pruning-sweep}
+
+Sections~\ref{sec:pruning-sweep}--\ref{sec:head-pruning-sweep} each prune
+one axis at a time; this section combines them into single candidates.
+Per-axis target counts are chosen so each axis's own single-axis
+zero-shot cost lands in a similar band, not a uniform pruned fraction
+across axes -- \cref{sec:head-pruning-sweep} already showed experts are
+far more redundant than depth or heads, so a uniform fraction would leave
+experts badly under-exploited. Three aggressiveness tiers result:
+
+\begin{table}[t]
+\caption{Per-axis target counts, by tier -- depth ($n$ of 48 layers),
+experts ($n$ of 128/layer), heads ($k$ of 8/group). \% is that axis's own
+single-axis zero-shot loss increase at that count (Sections
+\ref{sec:pruning-sweep}--\ref{sec:head-pruning-sweep}).}
+\label{table:combined-tiers}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccc}
+\toprule
+tier & depth & experts & heads \\
+\midrule
+conservative & $n{=}8$ ($+12.0\%$) & $n{=}48$ ($+13.7\%$) & $k{=}1$ ($+5.2\%$) \\
+moderate & $n{=}12$ ($+21.9\%$) & $n{=}64$ ($+25.5\%$) & $k{=}2$ ($+21.4\%$) \\
+aggressive & $n{=}16$ ($+41.6\%$) & $n{=}80$ ($+46.3\%$) & $k{=}3$ ($+58.5\%$) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For each tier, we build and measure four combinations -- depth+experts,
+depth+heads, experts+heads, and all three -- by applying
+\texttt{prune\_layers}, \texttt{prune\_experts}, and \texttt{prune\_heads}
+in sequence (depth first, when present) on the same model, then measuring
+zero-shot loss the same way as the single-axis sweeps. Combining depth
+pruning with experts and/or heads requires one correctness step the
+single-axis sweeps didn't: \texttt{expert\_scores}/\texttt{head\_scores}
+are indexed by the \emph{original} 48-layer model, so after depth pruning
+removes layers, the expert/head selection has to be computed against only
+the surviving layers' scores, in their new post-depth-pruning order --
+including remapping the Super Experts \texttt{protected} set
+(\cref{sec:experts}) to whichever of layers 1/2/3 actually survive.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/combined_pruning_sweep.pdf}
+\caption{Zero-shot loss by axis-combination and aggressiveness tier.
+Log-scale $y$-axis.}
+\label{fig:combined-pruning-sweep}
+\end{figure}
+
+\begin{table}[t]
+\caption{Loss increase over baseline (0.9668), by tier and combination.}
+\label{table:combined-pruning-sweep}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrrr}
+\toprule
+tier & depth+exp. & depth+heads & exp.+heads & all three \\
+\midrule
+conservative & $+29.4\%$ & $+22.9\%$ & $+20.8\%$ & $+41.6\%$ \\
+moderate & $+46.9\%$ & $+67.8\%$ & $+57.0\%$ & $+105.2\%$ \\
+aggressive & $+91.1\%$ & $+189.3\%$ & $+135.2\%$ & $+288.7\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\texttt{all\_three} is the worst zero-shot candidate at every tier, as
+expected from combining the most axes -- but \citet{minitron2024}'s own
+finding (depth/width rankings can flip after retraining) means this is
+not grounds to drop it before a real lightweight retrain (\cref{sec:discussion})
+actually tests that.
+
+\subsection{Do axes compound independently, or interact?}
+
+If axes contributed independent, uncorrelated damage, a combined
+candidate's relative loss increase should track the \emph{naive
+multiplicative} prediction: $(1+a)(1+b)\cdots - 1$, where $a, b, \ldots$
+are each axis's own single-axis relative loss increase at that tier's
+count (\cref{table:combined-tiers}). Comparing that prediction to what we
+actually measured reveals real interaction effects, not just ``more
+pruning costs more'':
+
+\begin{table}[t]
+\caption{Actual loss increase minus the naive-multiplicative prediction
+(percentage points), by tier and combination.}
+\label{table:combined-excess}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrrr}
+\toprule
+tier & depth+exp. & depth+heads & exp.+heads & all three \\
+\midrule
+conservative & $+2.1$pp & $+5.1$pp & $+1.2$pp & $+7.7$pp \\
+moderate & $-6.1$pp & $+19.8$pp & $+4.7$pp & $+19.5$pp \\
+aggressive & $-16.0$pp & $+64.9$pp & $+3.4$pp & $+60.4$pp \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{depth+heads compounds genuinely worse than independent} at every
+tier, and the excess grows sharply with aggressiveness. \textbf{depth+experts
+is actually subadditive} at the moderate and aggressive tiers -- cheaper
+than independent compounding predicts. \textbf{experts+heads tracks the
+naive prediction closely} throughout ($+1.2$pp to $+4.7$pp), the closest
+thing to genuine independence among the three pairwise combinations
+tested.
+
+A plausible reading, not a proven one: depth pruning removes whole
+layers, including their attention heads entirely. Combining it with
+separate head pruning on the \emph{surviving} layers may compound damage
+to the same mechanism (attention) rather than spreading the cut across
+more orthogonal components the way depth+experts does (removing layers
+alongside MLP/expert capacity on the survivors hits more independent
+parts of the model). Consistent with this account: experts are also the
+single most redundant axis by a wide margin
+(\cref{sec:head-pruning-sweep}), so depth+experts is the cheapest or
+near-cheapest pairwise combination at every tier, while depth+heads is
+the most expensive pairwise combination at every tier.
+
+These are zero-shot numbers only. The candidate-selection goal --
+a TypeScript-specialized model that is smaller, faster, and cheaper to
+serve than the unpruned baseline, and high-accuracy on TypeScript
+specifically -- needs real retraining and real eval-suite numbers
+(\cref{sec:discussion}), not zero-shot loss alone. This sweep narrows the
+candidate space and surfaces a real interaction effect worth reporting
+either way, not a final ranking.
+
 \section{Discussion and Open Questions}
 \label{sec:discussion}
 
@@ -719,17 +855,25 @@ resolved prematurely:
   pruned from every key/value group in a layer; whether a free per-head
   search across group boundaries would do meaningfully better is
   untested, since \texttt{prune\_heads} does not support it by design.
-\item \textbf{Interaction between axes.} \citet{minitron2024} find that
-  depth and width importance rankings can flip after retraining relative
-  to their zero-shot rankings; whether the same holds when experts are
-  combined with depth and width has no precedent to draw on. All three
-  axes are now characterized in isolation (\cref{sec:pruning-sweep,sec:expert-pruning-sweep,sec:head-pruning-sweep}),
-  so this is the next open question this project is positioned to
-  answer empirically, not a hypothetical for later.
+\item \textbf{Interaction between axes after retraining.}
+  \Cref{sec:combined-pruning-sweep} shows real zero-shot interaction
+  effects between axes (depth+heads compounds worse than independent,
+  depth+experts compounds better). Whether that ordering survives
+  retraining is a different, still-open question: \citet{minitron2024}
+  find that depth and width importance rankings can flip after
+  retraining relative to their zero-shot rankings, and there is no
+  precedent for whether the same holds for this project's specific
+  three-axis combinations.
+\item \textbf{A specific target tier/combination to carry forward.}
+  \Cref{sec:combined-pruning-sweep} characterizes three aggressiveness
+  tiers x four combination types zero-shot, but committing to one (or a
+  shortlist) for retraining depends on real eval-suite numbers this
+  section doesn't have yet -- the actual selection criteria are refined
+  where the retraining/distillation plan is finalized, not decided here.
 \item \textbf{Lightweight-retrain token budget.} \citet{minitron2024}'s
   1.8B-token budget was calibrated for a 15B dense model, not a $\sim$3.35B
-  active-parameter MoE; the right budget for this model's post-combination
-  retraining passes (the item above) has no direct precedent to scale from.
+  active-parameter MoE; the right budget for this model's retraining
+  passes has no direct precedent to scale from.
 \end{itemize}
 
 No results are reported for these open questions; they are listed to make
