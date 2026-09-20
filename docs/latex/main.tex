@@ -71,16 +71,22 @@ single-forward-pass depth-pruning proxy (Block Importance) correlates
 strongly (Pearson $r=0.91$) with the expensive, $49$-forward-pass
 perplexity-based criterion from the original Minitron paper, agreeing
 exactly on the three most critical layers. Acting on this scoring, not
-just ranking by it, we run the first real pruning experiment in this
-project: a sweep over nine layer counts and four selection strategies
-(BI-greedy, perplexity-greedy, best-contiguous-block, and a random
-control) shows principled selection beating random by close to an order
-of magnitude once more than a handful of layers are pruned, and finds
-contiguous-block removal -- the second Minitron paper's own preferred
-depth-pruning approach -- to be a genuinely mixed result on this model
-rather than a clean win. This is a living document, updated as further
-pruning, distillation, and retraining experiments complete; no
-head or expert has been pruned yet, and no retraining has occurred.
+just ranking by it, we run real pruning experiments on two axes. A depth
+sweep over nine layer counts and four selection strategies (BI-greedy,
+perplexity-greedy, best-contiguous-block, and a random control) shows
+principled selection beating random by close to an order of magnitude once
+more than a handful of layers are pruned, and finds contiguous-block
+removal -- the second Minitron paper's own preferred depth-pruning approach
+-- to be a genuinely mixed result on this model rather than a clean win. An
+expert-pruning sweep over eight per-layer counts finds the same
+principled-beats-random pattern at a narrower margin ($2$--$5\times$ rather
+than close to an order of magnitude), and -- more strikingly -- finds that
+pruning only the three previously-reported Super Experts costs more
+zero-shot loss than greedy-pruning up to 1,536 ordinary experts, directly
+reproducing a prior regression test in this pipeline's own metric. This is
+a living document, updated as further pruning, distillation, and
+retraining experiments complete; no attention head has been pruned yet,
+and no retraining has occurred.
 \end{abstract}
 
 \section{Introduction}
@@ -116,9 +122,11 @@ disjoint parquet shards so the two pools never overlap.
 This paper is written incrementally, alongside the project's own commit
 history: each section is updated with real, measured results only, once the
 corresponding experiment has actually run. As of this writing, depth
-pruning has been characterized (\cref{sec:pruning-sweep}) but not yet
-combined with the other axes, retrained, or finalized to one candidate;
-attention-head and expert pruning have been scored but not yet acted on.
+pruning (\cref{sec:pruning-sweep}) and expert pruning
+(\cref{sec:expert-pruning-sweep}) have both been characterized but not yet
+combined with each other, retrained, or finalized to one candidate;
+attention-head pruning has been scored (\cref{sec:importance}) but not yet
+acted on.
 
 \section{Related Work}
 \label{sec:related}
@@ -247,8 +255,12 @@ the grid indistinguishable from zero.}
 \subsection{Experts}
 \label{sec:experts}
 Neither Minitron paper offers a formula for this axis. We adopt
-$S_j = \text{mean}_{x \in X_j}\left[ g_j(x) \cdot \lVert f_j(x) \rVert_2
-\right]$, where $X_j$ is the set of tokens routed to expert $j$, $g_j(x)$ is
+\begin{equation}
+\label{eq:expert}
+S_j = \operatorname{mean}_{x \in X_j}\left[ g_j(x) \cdot \lVert f_j(x) \rVert_2
+\right],
+\end{equation}
+where $X_j$ is the set of tokens routed to expert $j$, $g_j(x)$ is
 that token's renormalized routing weight, and $f_j(x)$ is the expert's
 output -- the formula independently reached by both REAP \cite{reap2025} and
 NVIDIA Model-Optimizer's Minitron-MoE extension, in preference to two
@@ -483,6 +495,90 @@ report this as an honest, mixed result rather than adopting whichever
 framing looks cleaner, consistent with this paper's general practice of
 reporting ablations as measured (\cref{sec:discussion}).
 
+\section{Expert Pruning: Zero-Shot Loss vs. Experts Pruned}
+\label{sec:expert-pruning-sweep}
+
+\Cref{sec:pruning-sweep} pruned layers; this section prunes experts.
+\texttt{bonsai.pruning.experts.prune\_experts} permanently slices the
+chosen experts out of \texttt{Qwen3MoeExperts}'s \texttt{gate\_up\_proj}
+and \texttt{down\_proj} and the matching rows of
+\texttt{Qwen3MoeTopKRouter}'s weight matrix, per layer; unlike depth
+pruning, no index renumbering is required, since the model re-derives which
+experts were hit fresh from routing indices on every forward pass rather
+than depending on a fixed per-expert identity. We measure the resulting
+zero-shot loss the same way as \cref{sec:pruning-sweep}, on the same 32
+fresh calibration samples.
+
+We sweep eight per-layer expert counts ($n \in \{8,16,32,48,64,80,96,112\}$
+of 128), pruned uniformly across all 48 sparse layers, under two selection
+strategies: \textbf{greedy} (the $n$ lowest-$S_j$ experts per layer,
+\cref{eq:expert}, with the three Super Experts identified in
+\cref{sec:experts} exempted from the ranking entirely rather than merely
+checked afterward); and \textbf{random} ($n$ random experts per layer, same
+exemption, 3 seeds). We additionally evaluate one candidate outside the
+count sweep -- \textbf{super\_experts\_only} -- that prunes \emph{just} the
+three known Super Experts and nothing else, to reproduce
+\citet{superexperts2025}'s own regression test directly in this pipeline's
+loss metric rather than only by citation.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/expert_pruning_sweep.pdf}
+\caption{Zero-shot loss vs. experts pruned per layer. Random shown as its
+3-seed mean (dashed) and min-max band; the horizontal reference line is the
+super\_experts\_only candidate. Log-scale $y$-axis.}
+\label{fig:expert-pruning-sweep}
+\end{figure}
+
+Greedy selection beats random at every count tested
+(\cref{table:expert-pruning-sweep}), though by a narrower margin than depth
+pruning's: roughly $2$--$5\times$ in relative-loss terms here, versus close
+to an order of magnitude for layers (\cref{sec:pruning-sweep}). A plausible
+reading is that 128 experts per layer offers far more substitutable
+choices than 48 layers does, so principled selection matters less
+dramatically even though it still matters clearly. Pruning is close to
+free up to a point: $n=8$ (384 experts total, across all layers) lands at
+the same loss as the unpruned baseline (0.9670); the curve only bends
+noticeably past $n=48$--64.
+
+\begin{table}[t]
+\caption{Loss increase over baseline (0.9670), by strategy and per-layer
+expert count. ``total'' is experts removed across all 48 layers.}
+\label{table:expert-pruning-sweep}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{rrrr}
+\toprule
+$n$ & total & greedy & random (mean) \\
+\midrule
+8   & 384  & $-0.0\%$  & $+7.7\%$   \\
+16  & 768  & $+3.0\%$  & $+19.0\%$  \\
+32  & 1536 & $+9.6\%$  & $+43.0\%$  \\
+48  & 2304 & $+13.7\%$ & $+71.8\%$  \\
+64  & 3072 & $+25.5\%$ & $+105.9\%$ \\
+80  & 3840 & $+46.3\%$ & $+167.4\%$ \\
+96  & 4608 & $+83.2\%$ & $+256.4\%$ \\
+112 & 5376 & $+229.7\%$ & $+434.0\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The starkest finding in this sweep is not on the main curve at all: pruning
+\emph{only} the three known Super Experts -- 3 of the model's 6{,}144
+experts -- costs more zero-shot loss ($+51.8\%$) than greedy-pruning up to
+1{,}536 ordinary experts ($n=32$, $+9.6\%$). Greedy selection does not cross
+the super\_experts\_only line until somewhere between $n=80$ and $n=96$
+(3{,}840--4{,}608 experts), roughly $1{,}300$--$1{,}500\times$ as many
+experts as the three Super Experts alone. This reproduces
+\citet{superexperts2025}'s claim (isolated ablation of these experts alone
+raised WikiText-2 perplexity from 8.70 to 59.86) directly in this
+pipeline's own loss metric and on this project's own TypeScript calibration
+data, not merely by citation, and is the concrete justification for
+exempting these experts from the ranking (\cref{sec:experts}) rather than
+trusting the score alone to never rank them low -- however unlikely that
+already looked from the sanity check in \cref{sec:experts}.
+
 \section{Discussion and Open Questions}
 \label{sec:discussion}
 
@@ -501,11 +597,17 @@ resolved prematurely:
   MBPP-TS pass-rate on partially-pruned models is the direct analogue but
   expensive per candidate block, and a cheaper token-level-accuracy proxy is
   under consideration.
-\item \textbf{Uniform vs.\ per-layer expert counts.} We currently plan
-  uniform expert counts per layer for the first pruning pass, following
+\item \textbf{A specific target per-layer expert count.}
+  \Cref{sec:expert-pruning-sweep} characterizes the cost curve up to
+  $n=112$ of 128 but does not commit to one candidate to carry into later
+  axis-combination and retraining, for the same reason as the layer-count
+  question above.
+\item \textbf{Uniform vs.\ per-layer expert counts.} \Cref{sec:expert-pruning-sweep}'s
+  sweep uses uniform expert counts per layer throughout, following
   published evidence that non-uniform allocation did not outperform uniform
-  allocation on this specific model in at least one independent evaluation,
-  though this has not yet been tested within this project directly.
+  allocation on this specific model in at least one independent evaluation.
+  Whether a per-layer search would do meaningfully better than uniform
+  remains untested within this project directly.
 \item \textbf{Interaction between axes.} \citet{minitron2024} find that
   depth and width importance rankings can flip after retraining relative to
   their zero-shot rankings; whether the same holds when experts are combined

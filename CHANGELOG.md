@@ -5,6 +5,22 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `docs/latex/main.tex`: new "Expert Pruning: Zero-Shot Loss vs. Experts
+  Pruned" section covering the real sweep from
+  `06_expert_pruning_sweep.ipynb` -- figure, relative-loss table, and the
+  Super Experts regression-test writeup. Abstract, introduction, and
+  discussion/open-questions updated to reflect that expert pruning (not
+  just depth) now has real results.
+
+### Fixed
+
+- `docs/latex/references.bib`: `superexperts2025` had a placeholder
+  `{Anonymous}` author, and `reap2025`/`naee2024` used an `and others`
+  truncation -- replaced with the real, complete author lists (verified
+  against each paper's arXiv listing).
+
 ## [0.17.0] - 2026-09-19
 
 ### Added
