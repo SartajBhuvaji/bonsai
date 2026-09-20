@@ -5,6 +5,19 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `docs/latex/main.tex`: new "Head Pruning: Zero-Shot Loss vs. Query
+  Heads Pruned" section covering the real sweep from
+  `07_head_pruning_sweep.ipynb` -- figure, relative-loss table, and the
+  cross-axis matched-fraction comparison (experts are by far the most
+  redundant axis; heads and depth read as comparably prunable). All
+  three pruning axes are now characterized in the paper. Abstract,
+  introduction, and Discussion/Open-Questions updated accordingly,
+  including two new open questions (target per-group head count, and
+  whether a free non-uniform-per-group head search would beat the
+  constrained sweep).
+
 ## [0.19.1] - 2026-09-20
 
 ### Fixed
