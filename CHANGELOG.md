@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-09-20
+
 ### Added
 
 - `bonsai.training`: the first real backward-pass code in this project
