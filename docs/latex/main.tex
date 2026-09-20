@@ -62,31 +62,26 @@ We apply the Minitron structured pruning and knowledge distillation recipe
 language model, Qwen3-30B-A3B-Base, and specialize the result toward
 TypeScript. Both Minitron papers prune only dense transformers; we extend
 their forward-pass-only, activation-based importance-estimation philosophy
-to a pruning axis neither paper covers -- expert pruning. We find that a
-gate-weighted expert-output-norm criterion (independently converged on by
-REAP \cite{reap2025} and NVIDIA's own Minitron-MoE extension) correctly
-identifies previously-reported ``Super Experts'' \cite{superexperts2025}
-as the top-ranked expert in their respective layers, and that a cheap,
-single-forward-pass depth-pruning proxy (Block Importance) correlates
-strongly (Pearson $r=0.91$) with the expensive, $49$-forward-pass
-perplexity-based criterion from the original Minitron paper, agreeing
-exactly on the three most critical layers. Acting on this scoring, not
-just ranking by it, we run real pruning experiments on two axes. A depth
-sweep over nine layer counts and four selection strategies (BI-greedy,
-perplexity-greedy, best-contiguous-block, and a random control) shows
-principled selection beating random by close to an order of magnitude once
-more than a handful of layers are pruned, and finds contiguous-block
-removal -- the second Minitron paper's own preferred depth-pruning approach
--- to be a genuinely mixed result on this model rather than a clean win. An
-expert-pruning sweep over eight per-layer counts finds the same
-principled-beats-random pattern at a narrower margin ($2$--$5\times$ rather
-than close to an order of magnitude), and -- more strikingly -- finds that
-pruning only the three previously-reported Super Experts costs more
-zero-shot loss than greedy-pruning up to 1,536 ordinary experts, directly
-reproducing a prior regression test in this pipeline's own metric. This is
-a living document, updated as further pruning, distillation, and
-retraining experiments complete; no attention head has been pruned yet,
-and no retraining has occurred.
+to a pruning axis neither paper covers -- expert pruning. A gate-weighted
+expert-output-norm criterion (independently converged on by REAP
+\cite{reap2025} and NVIDIA's Minitron-MoE extension \cite{modelopt2024})
+ranks previously-reported ``Super Experts'' \cite{superexperts2025} first
+in their respective layers, and a cheap, single-forward-pass depth-pruning
+proxy (Block Importance) correlates strongly with the expensive,
+perplexity-based criterion from the original Minitron paper (Pearson
+$r=0.91$; both agree on the three most critical layers). We prune, not
+just score, on two axes. A depth sweep (nine layer counts, four selection
+strategies) shows principled selection beating random by up to $9\times$ in
+relative loss once more than a handful of layers are pruned, and finds
+contiguous-block removal -- the second Minitron paper's preferred
+depth-pruning approach -- a mixed result on this model. An expert-pruning
+sweep (eight per-layer counts) shows the same pattern at a narrower margin
+($2$--$5\times$), and finds that pruning only the three known Super Experts
+costs more zero-shot loss than greedy-pruning up to 1,536 ordinary
+experts, reproducing a prior regression test directly in this pipeline's
+own metric. This is a living document, updated as further pruning,
+distillation, and retraining experiments complete; no attention head has
+been pruned yet, and no retraining has occurred.
 \end{abstract}
 
 \section{Introduction}
@@ -104,7 +99,7 @@ downstream-task-based depth-pruning criterion.
 Both papers prune exclusively dense transformers. Every weight in a dense
 model's MLP is applied to every token that passes through it. This is not
 true of a Mixture-of-Experts (MoE) model: an MoE layer routes each token to a
-small subset of experts (commonly 8 of 128, in the model we study here), so
+small subset of experts (8 of 128, in the model we study here), so
 most of the model's parameters are never touched by any given token. This
 work asks what happens when the Minitron recipe is applied to a model with
 this property, and in particular, how to score the importance of an axis --
@@ -113,7 +108,7 @@ expert pruning -- that has no precedent in either source paper.
 Our target model is Qwen3-30B-A3B-Base
 \cite{qwen3moe}: 48 decoder layers, 32 query / 4 key-value attention heads
 (GQA), 128 routed experts per layer with 8 active per token, no shared
-expert, approximately 30.5B total parameters of which approximately 3.4B
+expert, approximately 30.5B total parameters of which approximately 3.35B
 are active for any given token. We specialize this model toward TypeScript,
 using \texttt{bigcode/the-stack-dedup}'s TypeScript split
 \cite{stackdedup} for both calibration and retraining data, drawn from
@@ -146,9 +141,10 @@ Mistral NeMo 12B.
 \textbf{Expert pruning in MoE models.} Neither Minitron paper addresses
 Mixture-of-Experts models. REAP \cite{reap2025} scores expert importance as
 a gate-weighted expert-output norm, averaged over each expert's routed
-tokens, and evaluates directly on Qwen3-30B-A3B (the model we study). NVIDIA's
-Model-Optimizer library independently implements the same formula as part of
-its own Minitron-MoE extension, used to compress Nemotron-3-Nano-30B-A3B.
+tokens, and evaluates on Qwen3-30B-A3B, the same architecture family we
+study. NVIDIA's Model-Optimizer library \cite{modelopt2024} independently
+implements the same formula as part of its own Minitron-MoE extension,
+used to compress Nemotron-3-Nano-30B-A3B.
 Prior work on Mixtral-scale models found selection-frequency-based criteria
 underperform output-magnitude-based ones \cite{naee2024}, consistent with
 the choice we adopt (\cref{sec:experts}).
@@ -263,7 +259,7 @@ S_j = \operatorname{mean}_{x \in X_j}\left[ g_j(x) \cdot \lVert f_j(x) \rVert_2
 where $X_j$ is the set of tokens routed to expert $j$, $g_j(x)$ is
 that token's renormalized routing weight, and $f_j(x)$ is the expert's
 output -- the formula independently reached by both REAP \cite{reap2025} and
-NVIDIA Model-Optimizer's Minitron-MoE extension, in preference to two
+NVIDIA Model-Optimizer's \cite{modelopt2024} Minitron-MoE extension, in preference to two
 alternatives considered (selection frequency alone; router logit magnitude
 alone), both reported to underperform output-magnitude-based scoring in
 prior work \cite{naee2024}.
@@ -306,7 +302,7 @@ reported by \citet{superexperts2025} for this exact model (layer 1 / expert
 calibration data, at two different sample sizes (24 and 48 samples) -- the
 three isolated bright cells in \cref{fig:expert-heatmap}. On average across
 all 48 layers, the top $\sim$16\% of experts (20 of 128) already account
-for roughly a third of a layer's total importance mass
+for 33\% of a layer's total importance mass
 (\cref{fig:expert-concentration}), indicating substantial redundancy among
 the remaining experts as a candidate for pruning.
 
@@ -314,8 +310,12 @@ the remaining experts as a candidate for pruning.
 \centering
 \includegraphics[width=\columnwidth]{figures/expert_heatmap.pdf}
 \caption{Expert importance ($S_j$), all 48 layers $\times$ 128 experts,
-same clipping convention as \cref{fig:head-heatmap}. The three outlined
-cells in layers 1--3 are the Super Experts \cite{superexperts2025}.}
+same clipping convention as \cref{fig:head-heatmap} (outlined cells mark
+the true top 5 \emph{model-wide}, not per-layer). Only one Super Expert
+\cite{superexperts2025} (layer 1, expert 68) is among them; the other two
+rank highest only within their own layer, not model-wide -- but the 95th
+percentile color clip still renders all three as visually saturated,
+since each is well above that threshold.}
 \label{fig:expert-heatmap}
 \end{figure}
 
@@ -374,8 +374,8 @@ layers of the model matter far more than the middle two-thirds
 second-highest at layer 47 (0.415); its lowest is layer 12 (0.011). The
 perplexity criterion shows the same edges-matter-most shape at a far more
 extreme scale -- layer 0's removal costs 1.99 nats of cross-entropy,
-next-highest is layer 47 at 0.60 nats, and the lowest (layer 14) is
-statistically indistinguishable from zero ($-0.0003$ nats).
+next-highest is layer 47 at 0.60 nats, and the lowest (layer 14) costs
+only $-0.0003$ nats.
 
 \begin{figure}[t]
 \centering
@@ -387,11 +387,9 @@ statistically indistinguishable from zero ($-0.0003$ nats).
 Across all 48 layers, the Pearson correlation between BI and the perplexity
 delta is $r=0.91$ (\cref{fig:bi-vs-ppl}), and the two criteria pick the
 identical top-3 most critical layers (0, 47, 1). Given the 49$\times$ cost
-difference between the two, this agreement is the paper's most directly
-actionable early finding: Block Importance can be trusted as a cheap
-stand-in for perplexity-based scoring when iterating over many candidates
-later in this project, reserving the expensive criterion for confirming a
-final choice rather than for every candidate evaluated along the way.
+difference between the two, BI is a reliable cheap stand-in for
+perplexity-based scoring when iterating over many candidates, reserving
+the expensive criterion for confirming a final choice.
 
 \begin{figure}[t]
 \centering
@@ -424,6 +422,9 @@ normalized within each method.}
 section actually prunes them. \texttt{bonsai.pruning.depth.prune\_layers}
 permanently removes a chosen set of decoder layers -- unlike
 \texttt{skip\_layer}'s temporary identity-swap used for scoring -- and
+renumbers each surviving layer's attention-cache index to match its new
+position, since the default KV cache indexes by position and breaks on the
+non-contiguous indices removal otherwise leaves behind.
 \texttt{bonsai.importance.depth.mean\_loss} measures the resulting model's
 zero-shot loss, here on 32 fresh calibration samples (seed 1, a disjoint
 draw from every prior calibration slice in this paper).
@@ -435,10 +436,9 @@ layers, \cref{eq:ppl}); \textbf{contiguous\_bi} (the single contiguous
 block of $n$ layers with the lowest summed BI -- testing
 \citet{minitron2024practice}'s own claim, citing Gromov et al., that
 contiguous removal beats scattered removal); and \textbf{random} ($n$
-random layers, 3 seeds -- the control every principled strategy above has
-to actually beat, not merely correlate well with). Each candidate costs
-exactly one forward pass, since the ranking is already decided; this is
-what makes a nine-count, four-strategy sweep affordable.
+random layers, 3 seeds), the control every principled strategy has to
+beat. Each candidate costs one forward pass, since the ranking is already
+decided.
 
 \begin{figure}[t]
 \centering
@@ -448,11 +448,14 @@ what makes a nine-count, four-strategy sweep affordable.
 \label{fig:pruning-sweep}
 \end{figure}
 
-Principled selection clearly beats random at every count tested, by close
-to an order of magnitude once more than a handful of layers are pruned: at
-$n=24$, \texttt{bi\_greedy}/\texttt{ppl\_greedy} loss is 2.45/2.28 against
-a random range of 4.81--14.65 across the three seeds
-(\cref{table:pruning-sweep}). \texttt{bi\_greedy} and \texttt{ppl\_greedy}
+Principled selection clearly beats random at every count tested. In
+relative-loss-increase terms (\cref{table:pruning-sweep}), the gap
+approaches an order of magnitude as $n$ grows: at $n=16$,
+\texttt{bi\_greedy} is $+41.6\%$ over baseline versus random's $+372.6\%$
+mean ($9.0\times$), and at $n=24$, \texttt{bi\_greedy}/\texttt{ppl\_greedy}
+are $+153.8\%/+135.6\%$ against random's $+1000.1\%$ mean ($6.5$--$7.4\times$;
+in raw loss, 2.45/2.28 against a range of 4.81--14.65 across the three
+seeds). \texttt{bi\_greedy} and \texttt{ppl\_greedy}
 track each other closely at every count -- not merely in the ranking
 correlation already established ($r=0.91$, \cref{sec:depth}) but in the
 actual pruning \emph{outcome} -- reinforcing BI as the working criterion
@@ -483,17 +486,14 @@ $n$ & bi\_gr. & ppl\_gr. & contig. & rand.\ (mean) \\
 
 Contiguous-block removal is a genuinely mixed result on this model, not a
 clean win either way. It is competitive -- marginally best -- at small $n$
-($n=2$: loss 0.9755 vs.\ \texttt{bi\_greedy}'s 0.9845), but falls behind
-both greedy strategies as $n$ grows, most visibly by $n=24$ (211.0\% vs.\
-135.6--153.8\%). A plausible reading: BI's lowest-scoring layers already
+($n=2$: $+0.9\%$ vs.\ \texttt{bi\_greedy}'s $+1.8\%$), but falls behind
+both greedy strategies as $n$ grows, most visibly by $n=24$ ($+211.0\%$
+vs.\ $+135.6$--$153.8\%$). A plausible reading: BI's lowest-scoring layers already
 cluster in a contiguous run in the middle of the model
 (\cref{fig:layer-summary}), so for small $n$ the two approaches pick
 nearly the same layers anyway; forcing strict contiguity only starts
 costing something once $n$ exceeds what that natural cluster contains,
-pushing the contiguous search into a wider, less-optimal window. We
-report this as an honest, mixed result rather than adopting whichever
-framing looks cleaner, consistent with this paper's general practice of
-reporting ablations as measured (\cref{sec:discussion}).
+pushing the contiguous search into a wider, less-optimal window.
 
 \section{Expert Pruning: Zero-Shot Loss vs. Experts Pruned}
 \label{sec:expert-pruning-sweep}
@@ -502,10 +502,12 @@ reporting ablations as measured (\cref{sec:discussion}).
 \texttt{bonsai.pruning.experts.prune\_experts} permanently slices the
 chosen experts out of \texttt{Qwen3MoeExperts}'s \texttt{gate\_up\_proj}
 and \texttt{down\_proj} and the matching rows of
-\texttt{Qwen3MoeTopKRouter}'s weight matrix, per layer; unlike depth
-pruning, no index renumbering is required, since the model re-derives which
-experts were hit fresh from routing indices on every forward pass rather
-than depending on a fixed per-expert identity. We measure the resulting
+\texttt{Qwen3MoeTopKRouter}'s weight matrix, per layer. Unlike the
+layer-index renumbering \cref{sec:pruning-sweep} needed, no such step is
+required here: the model re-derives which experts were hit fresh from
+routing indices on every forward pass rather than depending on a fixed
+per-expert identity, so a pruned expert's neighbors need no bookkeeping to
+stay consistent. We measure the resulting
 zero-shot loss the same way as \cref{sec:pruning-sweep}, on the same 32
 fresh calibration samples.
 
@@ -552,7 +554,7 @@ expert count. ``total'' is experts removed across all 48 layers.}
 \toprule
 $n$ & total & greedy & random (mean) \\
 \midrule
-8   & 384  & $-0.0\%$  & $+7.7\%$   \\
+8   & 384  & $0.0\%$   & $+7.7\%$   \\
 16  & 768  & $+3.0\%$  & $+19.0\%$  \\
 32  & 1536 & $+9.6\%$  & $+43.0\%$  \\
 48  & 2304 & $+13.7\%$ & $+71.8\%$  \\
@@ -576,8 +578,7 @@ raised WikiText-2 perplexity from 8.70 to 59.86) directly in this
 pipeline's own loss metric and on this project's own TypeScript calibration
 data, not merely by citation, and is the concrete justification for
 exempting these experts from the ranking (\cref{sec:experts}) rather than
-trusting the score alone to never rank them low -- however unlikely that
-already looked from the sanity check in \cref{sec:experts}.
+relying only on the score itself to never rank them low.
 
 \section{Discussion and Open Questions}
 \label{sec:discussion}
@@ -603,16 +604,23 @@ resolved prematurely:
   axis-combination and retraining, for the same reason as the layer-count
   question above.
 \item \textbf{Uniform vs.\ per-layer expert counts.} \Cref{sec:expert-pruning-sweep}'s
-  sweep uses uniform expert counts per layer throughout, following
-  published evidence that non-uniform allocation did not outperform uniform
-  allocation on this specific model in at least one independent evaluation.
-  Whether a per-layer search would do meaningfully better than uniform
-  remains untested within this project directly.
+  sweep uses uniform expert counts per layer throughout, as a simplifying
+  starting choice rather than one settled by confirmed evidence: scoping
+  research surfaced conflicting claims on this exact question (one
+  evolutionary-search paper reports the opposite -- non-uniform allocation
+  beating uniform by up to $19.6\%$ on MATH-500 at matched sparsity), and
+  neither claim has been independently re-verified by this project. Whether
+  a per-layer search would do meaningfully better than uniform on this
+  model remains untested here directly.
 \item \textbf{Interaction between axes.} \citet{minitron2024} find that
   depth and width importance rankings can flip after retraining relative to
   their zero-shot rankings; whether the same holds when experts are combined
   with depth and width has no precedent to draw on and will be tested
   empirically once single-axis pruning is complete.
+\item \textbf{Lightweight-retrain token budget.} \citet{minitron2024}'s
+  1.8B-token budget was calibrated for a 15B dense model, not a $\sim$3.35B
+  active-parameter MoE; the right budget for this model's post-combination
+  retraining passes (the item above) has no direct precedent to scale from.
 \end{itemize}
 
 No results are reported for these open questions; they are listed to make
