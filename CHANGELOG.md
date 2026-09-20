@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-09-20
+
 ### Added
 
 - `bonsai.training.distributed`: FSDP-based multi-GPU training, for when
