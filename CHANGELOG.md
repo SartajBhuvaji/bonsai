@@ -5,6 +5,22 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `notebooks/07_head_pruning_sweep.ipynb`: the first real head-pruning
+  experiment (plan.md 2.2) -- actual query-head removal (not scoring)
+  against Qwen3-30B-A3B-Base, all 7 valid per-key/value-group counts
+  (GQA's uniform-per-group constraint means this sweep already covers its
+  entire valid search space, unlike depth/experts' chosen subsets).
+  Greedy beats random at every count, but by a much narrower margin than
+  depth (up to ~9x) or experts (2-5x): 1.2-2.9x here, shrinking as more
+  heads are pruned. Compared properly across all three sweeps at shared
+  pruned-fractions: experts is by far the most redundant axis (e.g. +25.5%
+  vs. +129.6%/+153.8% for heads/depth at 50% pruned); heads and depth read
+  as comparably (un)forgiving to prune, not clearly ranked against each
+  other. Run on a rented 4x A6000 instance via `device_map="auto"`
+  sharding -- no H100/A100-80GB capacity was available at launch time.
+
 ## [0.18.0] - 2026-09-20
 
 ### Added
