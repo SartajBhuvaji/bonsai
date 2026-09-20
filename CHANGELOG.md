@@ -5,6 +5,46 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `docs/latex/main.tex`: new "Expert Pruning: Zero-Shot Loss vs. Experts
+  Pruned" section covering the real sweep from
+  `06_expert_pruning_sweep.ipynb` -- figure, relative-loss table, and the
+  Super Experts regression-test writeup. Abstract, introduction, and
+  discussion/open-questions updated to reflect that expert pruning (not
+  just depth) now has real results.
+
+### Fixed
+
+- `docs/latex/references.bib`: `superexperts2025` had a placeholder
+  `{Anonymous}` author, and `reap2025`/`naee2024` used an `and others`
+  truncation -- replaced with the real, complete author lists (verified
+  against each paper's arXiv listing). `qwen3moe` pointed only at the HF
+  model card despite claiming to be "Qwen3 Technical Report" -- added the
+  real arXiv citation (2505.09388). Added a missing bibliography entry for
+  NVIDIA Model-Optimizer, cited three times in the paper with no entry.
+- `docs/latex/main.tex`: found via an independent review pass (a
+  background agent tasked with fact-checking the paper against its own
+  sources) --
+  Figure 2's caption claimed the three outlined cells were the Super
+  Experts; the figure actually outlines the model-wide top-5 by score,
+  which catches only one of the three (the other two rank highest only
+  within their own layer). Also: a Discussion bullet claimed published
+  evidence that non-uniform expert-count allocation underperforms uniform
+  allocation, sourced to EvoESAP (arXiv 2603.06003) -- re-checked directly
+  against the primary source and found EvoESAP reports the opposite
+  (non-uniform beats uniform by up to 19.6% on MATH-500); reworded to state
+  this honestly as an untested, simplifying assumption rather than settled
+  evidence, and fixed the same error in plan.md. Smaller fixes: an
+  "order-of-magnitude" claim didn't match the metric it cited alongside;
+  a "statistically indistinguishable from zero" claim had no variance/test
+  behind it; the active-parameter count (3.4B) didn't match the project's
+  own measured value (3.35B); a dangling "unlike depth pruning" comparison
+  that Section 6 never set up. Added a missing Discussion bullet for the
+  retrain-token-budget open question (in plan.md but not the paper). Also
+  tightened the abstract and Sections 6-7's prose, which had drifted into
+  a more notebook-register voice than the rest of the paper.
+
 ## [0.17.0] - 2026-09-19
 
 ### Added
