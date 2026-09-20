@@ -112,6 +112,11 @@ warn_unreachable = true
 pretty = true
 
 [[tool.mypy.overrides]]
+# accelerate ships no py.typed marker / stubs as of the version this project pins.
+module = "accelerate.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
 # datasets ships no py.typed marker / stubs as of the version this project pins.
 module = "datasets.*"
 ignore_missing_imports = true
