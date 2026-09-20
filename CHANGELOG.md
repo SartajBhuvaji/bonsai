@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.17.1] - 2026-09-20
+
 ### Added
 
 - `docs/latex/main.tex`: new "Expert Pruning: Zero-Shot Loss vs. Experts
