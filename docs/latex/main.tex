@@ -145,9 +145,9 @@ tokens, and evaluates on Qwen3-30B-A3B, the same architecture family we
 study. NVIDIA's Model-Optimizer library \cite{modelopt2024} independently
 implements the same formula as part of its own Minitron-MoE extension,
 used to compress Nemotron-3-Nano-30B-A3B.
-Prior work on Mixtral-scale models found selection-frequency-based criteria
-underperform output-magnitude-based ones \cite{naee2024}, consistent with
-the choice we adopt (\cref{sec:experts}).
+Prior work on Mixtral-scale models found selection-frequency-based pruning
+performs worst among the criteria it tested \cite{naee2024}, consistent
+with our choice not to rely on selection frequency (\cref{sec:experts}).
 
 \textbf{Super Experts.} \citet{superexperts2025} report that Qwen3-30B-A3B
 contains a small number of experts (three in the first four layers of the
@@ -259,10 +259,11 @@ S_j = \operatorname{mean}_{x \in X_j}\left[ g_j(x) \cdot \lVert f_j(x) \rVert_2
 where $X_j$ is the set of tokens routed to expert $j$, $g_j(x)$ is
 that token's renormalized routing weight, and $f_j(x)$ is the expert's
 output -- the formula independently reached by both REAP \cite{reap2025} and
-NVIDIA Model-Optimizer's \cite{modelopt2024} Minitron-MoE extension, in preference to two
-alternatives considered (selection frequency alone; router logit magnitude
-alone), both reported to underperform output-magnitude-based scoring in
-prior work \cite{naee2024}.
+NVIDIA Model-Optimizer's \cite{modelopt2024} Minitron-MoE extension, in preference to
+two alternatives (selection frequency alone; router logit magnitude
+alone) both cited sources report underperforming it (see also
+\cref{sec:related}'s note on selection-frequency-based pruning more
+broadly).
 
 Unlike head importance, there is no dense batch/sequence grid to aggregate
 over: routing is sparse and data-dependent per token, so $S_j$ is computed

@@ -36,6 +36,23 @@ def prune_experts(
     `Qwen3MoeExperts.forward` re-derives which experts were hit from
     `top_k_index` fresh on every call, not from a fixed per-expert
     identity.
+
+    Refuses to prune a layer below `router.top_k` (`config.num_experts_per_tok`)
+    surviving experts -- routing's own `torch.topk(..., self.top_k, ...)`
+    would otherwise fail with an opaque `RuntimeError` deep in the router's
+    forward instead of a clear error here.
+
+    If every sparse layer in the model ends up with the same expert count
+    (true for every uniform-per-layer call this project actually makes,
+    e.g. via `select_experts_to_prune`), `model.config.num_experts` and
+    `model.num_experts` (the top-level count `load_balancing_loss_func`
+    reads when `output_router_logits=True`) are updated to match -- both
+    only ever read at module *construction* time otherwise, so nothing
+    breaks today by leaving them stale, but a later `save_pretrained` +
+    reload, or turning on the router aux loss for retraining, would. A
+    scalar config field can't describe a genuinely non-uniform per-layer
+    result, so this sync is skipped (config left as-is) if the resulting
+    counts aren't actually uniform across every sparse layer.
     """
     for layer_idx, prune_idx in expert_indices_by_layer.items():
         layer = model.model.layers[layer_idx]
@@ -58,6 +75,13 @@ def prune_experts(
                 f"layer {layer_idx}: cannot prune all {num_experts} experts "
                 f"(got {len(indices)} indices)"
             )
+        remaining = num_experts - len(indices)
+        if remaining < router.top_k:
+            raise ValueError(
+                f"layer {layer_idx}: cannot prune to {remaining} experts, below "
+                f"router.top_k ({router.top_k}) -- routing would have nothing left "
+                f"to select for some tokens"
+            )
 
         keep_mask = torch.ones(num_experts, dtype=torch.bool, device=experts.gate_up_proj.device)
         keep_mask[indices] = False
@@ -68,6 +92,16 @@ def prune_experts(
 
         router.weight = torch.nn.Parameter(router.weight.data[keep_mask].clone())
         router.num_experts = experts.num_experts
+
+    sparse_counts = {
+        layer.mlp.experts.num_experts
+        for layer in model.model.layers
+        if hasattr(layer.mlp, "experts")
+    }
+    if len(sparse_counts) == 1:
+        (uniform_count,) = sparse_counts
+        model.config.num_experts = uniform_count
+        model.num_experts = uniform_count
 
 
 def select_experts_to_prune(
@@ -80,9 +114,11 @@ def select_experts_to_prune(
 
     `expert_scores`: `[num_layers, num_experts]` (e.g.
     `bonsai.importance.expert_importance`, from a calibration run).
-    Uniform count per layer, per plan.md 2.3's decision -- not a per-layer
-    search, since published evidence found non-uniform allocation didn't
-    outperform uniform on this specific model.
+    Uniform count per layer, per plan.md 2.3's decision -- a simplifying
+    starting choice for tractability, not one settled by confirmed
+    evidence either way (scoping research surfaced conflicting claims on
+    this exact question, re-checked and corrected in plan.md's 2.3
+    writeup -- not a per-layer search yet).
 
     `protected` -- e.g. Super Experts flagged by
     `bonsai.importance.flag_outlier_experts` -- are excluded from the

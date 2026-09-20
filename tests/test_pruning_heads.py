@@ -114,6 +114,26 @@ def test_prune_heads_empty_list_is_a_noop_for_that_layer() -> None:
     assert torch.allclose(model.model.layers[0].self_attn.q_proj.weight.data, original)
 
 
+def test_prune_heads_syncs_config_when_uniform_across_layers() -> None:
+    model = tiny_model()  # 3 layers, 6 heads each
+
+    prune_heads(model, {0: [0, 3], 1: [0, 3], 2: [0, 3]})  # every layer -> 4 heads
+
+    assert model.config.num_attention_heads == 4
+
+
+def test_prune_heads_leaves_config_stale_when_not_uniform_across_layers() -> None:
+    model = tiny_model()  # 3 layers, 6 heads each
+    original_config_count = model.config.num_attention_heads
+
+    prune_heads(model, {0: [0, 3]})  # only layer 0 pruned -> 4, 6, 6
+
+    head_dim = model.model.layers[0].self_attn.head_dim
+    assert model.model.layers[0].self_attn.q_proj.out_features == 4 * head_dim
+    assert model.model.layers[1].self_attn.q_proj.out_features == 6 * head_dim
+    assert model.config.num_attention_heads == original_config_count
+
+
 def test_prune_heads_rejects_out_of_range_index() -> None:
     model = tiny_model()
     try:
