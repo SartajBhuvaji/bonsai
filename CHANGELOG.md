@@ -5,6 +5,8 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-09-20
+
 ### Added
 
 - `notebooks/07_head_pruning_sweep.ipynb`: the first real head-pruning
