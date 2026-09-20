@@ -5,6 +5,22 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `bonsai.pruning.heads`: `prune_heads` (permanently slices the pruned
+  query heads out of `Qwen3MoeAttention.q_proj`/`o_proj` at head
+  boundaries, in place, and recomputes `self_attn.num_key_value_groups`
+  for the new head count) and `select_heads_to_prune` (lowest-`k_per_group`
+  by score, ranked independently within each contiguous key/value group).
+  Decided the pruning mechanism has to respect GQA group boundaries --
+  `Qwen3MoeAttention.forward` reads `self.num_key_value_groups` fresh off
+  the module every call, so a free per-head selection across group
+  boundaries would leave that scalar undefined; pruning the same count of
+  query heads from every key/value group (never a whole group) keeps it
+  well-defined, mirroring how depth/expert pruning each needed their own
+  real bookkeeping fix (`self_attn.layer_idx` renumbering,
+  `Qwen3MoeTopKRouter` row slicing).
+
 ## [0.17.1] - 2026-09-20
 
 ### Added
