@@ -5,6 +5,20 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `bonsai.training`: the first real backward-pass code in this project
+  (`bonsai.importance`/`bonsai.pruning` are forward-pass-only). `train_step`
+  does gradient-accumulated single-sample forward/backward passes
+  (sequences aren't padded, matching every other forward-pass call site in
+  this codebase); `lr_schedule` implements linear warmup + cosine decay to
+  a floor, matching arXiv 2408.11796's Table 4 recipe's shape, not its
+  literal numbers (94-380B tokens across 32 DGX H100 nodes doesn't scale
+  down to this project's compute); `train` runs the full loop, logging via
+  `bonsai.tracking`. `loss_fn` is a pluggable seam so Phase 4's
+  distillation (forward-KL against teacher logits) reuses this same loop
+  later. Built for plan.md 3.1 (teacher correction).
+
 ## [0.19.2] - 2026-09-20
 
 ### Added
