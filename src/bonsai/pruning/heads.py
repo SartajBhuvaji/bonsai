@@ -46,6 +46,18 @@ def prune_heads(
     the same number of pruned heads in every key/value group (see module
     docstring); a ragged per-group count raises, since `num_key_value_groups`
     would no longer be a single well-defined integer.
+
+    If every layer in the model ends up with the same query-head count
+    (true for every uniform-per-layer call this project actually makes,
+    e.g. via `select_heads_to_prune`), `model.config.num_attention_heads`
+    is updated to match -- only read at module *construction* time
+    otherwise (every head-count-dependent computation inside
+    `Qwen3MoeAttention.forward` infers the live count from `q_proj`'s
+    actual tensor shape, not from config), so nothing breaks today by
+    leaving it stale, but a later `save_pretrained` + reload would. Left
+    as-is (not updated) if the resulting per-layer counts aren't actually
+    uniform across the whole model, since a scalar config field can't
+    describe that.
     """
     for layer_idx, prune_idx in head_indices_by_layer.items():
         attn = model.model.layers[layer_idx].self_attn
@@ -97,6 +109,14 @@ def prune_heads(
         attn.o_proj.in_features = int(keep_dims.sum())
 
         attn.num_key_value_groups = group_size - pruned_per_group
+
+    head_counts = {
+        layer.self_attn.q_proj.out_features // layer.self_attn.head_dim
+        for layer in model.model.layers
+    }
+    if len(head_counts) == 1:
+        (uniform_count,) = head_counts
+        model.config.num_attention_heads = uniform_count
 
 
 def select_heads_to_prune(

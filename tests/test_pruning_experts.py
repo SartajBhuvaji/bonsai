@@ -130,6 +130,37 @@ def test_prune_experts_rejects_pruning_every_expert() -> None:
     raise AssertionError("expected ValueError for pruning every expert in a layer")
 
 
+def test_prune_experts_rejects_pruning_below_router_top_k() -> None:
+    model = tiny_model()  # num_experts_per_tok (router.top_k) = 2
+    try:
+        prune_experts(model, {0: [1, 2, 3, 4, 5, 6, 7]})  # would leave 1 expert
+    except ValueError:
+        return
+    raise AssertionError("expected ValueError for pruning below router.top_k surviving experts")
+
+
+def test_prune_experts_syncs_config_when_uniform_across_layers() -> None:
+    model = tiny_model()  # 3 layers, 8 experts each
+
+    prune_experts(model, {0: [0, 1], 1: [2, 3], 2: [4, 5]})  # every layer -> 6 experts
+
+    assert model.config.num_experts == 6
+    assert model.num_experts == 6
+
+
+def test_prune_experts_leaves_config_stale_when_not_uniform_across_layers() -> None:
+    model = tiny_model()  # 3 layers, 8 experts each
+    original_config_count = model.config.num_experts
+    original_model_count = model.num_experts
+
+    prune_experts(model, {0: [0, 1]})  # only layer 0 pruned -> 6, 8, 8
+
+    assert model.model.layers[0].mlp.experts.num_experts == 6
+    assert model.model.layers[1].mlp.experts.num_experts == 8
+    assert model.config.num_experts == original_config_count
+    assert model.num_experts == original_model_count
+
+
 def test_prune_experts_rejects_non_moe_layer() -> None:
     config = deepcopy(TINY_CONFIG)
     config.mlp_only_layers = [0]

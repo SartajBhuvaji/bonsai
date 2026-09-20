@@ -5,6 +5,36 @@ Versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- `bonsai.pruning.experts.prune_experts`: previously left
+  `model.config.num_experts` stale after pruning (only the per-module
+  `experts.num_experts`/`router.num_experts` were updated) -- fixed to
+  sync `model.config.num_experts` and `model.num_experts` (the latter
+  read by `load_balancing_loss_func` for the router aux loss) whenever
+  every sparse layer ends up with the same expert count. Also now raises
+  if pruning would leave a layer with fewer experts than
+  `router.top_k`, instead of failing later with an opaque `RuntimeError`
+  inside routing.
+- `bonsai.pruning.heads.prune_heads`: the same `model.config` staleness
+  gap for `num_attention_heads`, fixed the same way.
+- `docs/latex/main.tex`: two mentions of a NAEE (arXiv 2402.14800)
+  finding overstated what the paper actually shows -- it reports
+  selection-frequency-based pruning performing worst against its own
+  reconstruction-loss method, not against an output-magnitude-based
+  criterion as the text implied. Reworded both, and simplified the
+  second mention to cross-reference the first instead of repeating it.
+  `select_experts_to_prune`'s docstring also had the same backwards
+  EvoESAP claim already fixed elsewhere in the paper and in plan.md --
+  fixed here too.
+
+Found by a systematic Fable/Sonnet review pass across the pruning code,
+tests, visualizations, the paper, and plan.md; everything else it
+checked (formulas verified against the actual Minitron PDF text, pruning
+mechanisms verified against the real `transformers` source, unit tests
+confirmed to exercise real forward-pass correctness, every notebook
+number cross-checked against plan.md and the paper) came back clean.
+
 ## [0.19.0] - 2026-09-20
 
 ### Added
