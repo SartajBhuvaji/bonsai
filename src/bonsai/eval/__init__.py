@@ -19,6 +19,7 @@ into it directly. Call `register()` before anything calls
 
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING
 
 from bigcode_eval.tasks.multiple import GeneralMultiPLE
@@ -29,9 +30,54 @@ if TYPE_CHECKING:
 
 TASK_NAME = "multiple-mbpp-ts"
 
+# Matches a standalone `export default foo;` or `export { foo, bar };` line,
+# with any leading whitespace -- deliberately scoped to lines *starting* with
+# `export` (not e.g. `export function foo() {...}`, which the corrected
+# teacher was never observed emitting) so this can't accidentally eat a
+# legitimate declaration.
+_EXPORT_STATEMENT_RE = re.compile(
+    r"^[ \t]*export[ \t]+(?:default[ \t]+\w+|\{[^}]*\})[ \t]*;?[ \t]*\n?", re.MULTILINE
+)
 
-class MbppMultiPLE(GeneralMultiPLE):
-    """`GeneralMultiPLE`, pointed at MultiPL-E's `mbpp-{language}` translation."""
+
+def strip_module_exports(code: str) -> str:
+    """Remove trailing `export default X;` / `export { X };` lines from a completion.
+
+    The corrected teacher (`3.1`) was fine-tuned on raw TypeScript *files*,
+    which routinely end in a module export -- unlike MultiPL-E's
+    function-completion scaffold, which expects none. Confirmed directly
+    (2026-09-21, a 10-problem HumanEval-TS diagnostic): the corrected
+    teacher added an export statement to every single completion, which
+    dropped raw pass@1 to 0.0 despite every completion's underlying logic
+    being correct -- stripping just this line, no regeneration, raised
+    pass@1 back to 0.9 on the same completions. This is a no-op for the
+    base (uncorrected) model, which was never observed emitting one, so
+    1.2's already-recorded baseline stays comparable.
+    """
+    return _EXPORT_STATEMENT_RE.sub("", code)
+
+
+class ExportStrippingMultiPLE(GeneralMultiPLE):
+    """`GeneralMultiPLE`, with `strip_module_exports` applied after stop-token truncation."""
+
+    def postprocess_generation(self, generation: str, idx: int) -> str:
+        prompt: str = self.get_prompt(self.get_dataset()[idx])
+        completion: str = generation[len(prompt) :]
+        completion = self._stop_at_stop_token(completion, self.stop_words)
+        return prompt + strip_module_exports(completion)
+
+
+class TsMultiPLE(ExportStrippingMultiPLE):
+    """`multiple-ts`, export-stripped -- bigcode-eval's own registration wraps
+    only the *HumanEval* MultiPL-E translations natively; this replaces that
+    entry so HumanEval-TS gets the same fix `MbppMultiPLE` gets below."""
+
+    def __init__(self) -> None:
+        super().__init__("ts")
+
+
+class MbppMultiPLE(ExportStrippingMultiPLE):
+    """`ExportStrippingMultiPLE`, pointed at MultiPL-E's `mbpp-{language}` translation."""
 
     def __init__(self, language: str = "ts", dataset: DatasetDict | None = None) -> None:
         self.language = language
@@ -52,11 +98,19 @@ class MbppMultiPLE(GeneralMultiPLE):
 
 
 def register() -> None:
-    """Patch `MbppMultiPLE` into bigcode-evaluation-harness's task registry."""
+    """Patch `TsMultiPLE`/`MbppMultiPLE` into bigcode-evaluation-harness's task registry."""
     import bigcode_eval.tasks as bc_tasks
 
+    bc_tasks.TASK_REGISTRY["multiple-ts"] = TsMultiPLE
     bc_tasks.TASK_REGISTRY[TASK_NAME] = MbppMultiPLE
     bc_tasks.ALL_TASKS = sorted(bc_tasks.TASK_REGISTRY)
 
 
-__all__ = ["TASK_NAME", "MbppMultiPLE", "register"]
+__all__ = [
+    "TASK_NAME",
+    "ExportStrippingMultiPLE",
+    "MbppMultiPLE",
+    "TsMultiPLE",
+    "register",
+    "strip_module_exports",
+]

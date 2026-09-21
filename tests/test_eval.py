@@ -15,7 +15,13 @@ bigcode_eval = pytest.importorskip("bigcode_eval")
 
 from datasets import Dataset, DatasetDict  # noqa: E402
 
-from bonsai.eval import TASK_NAME, MbppMultiPLE, register  # noqa: E402
+from bonsai.eval import (  # noqa: E402
+    TASK_NAME,
+    MbppMultiPLE,
+    TsMultiPLE,
+    register,
+    strip_module_exports,
+)
 
 
 def fixture_dataset() -> DatasetDict:
@@ -86,4 +92,47 @@ def test_register_adds_task_to_the_harness_registry() -> None:
     import bigcode_eval.tasks as bc_tasks
 
     assert bc_tasks.TASK_REGISTRY[TASK_NAME] is MbppMultiPLE
+    assert bc_tasks.TASK_REGISTRY["multiple-ts"] is TsMultiPLE
     assert TASK_NAME in bc_tasks.ALL_TASKS
+    assert "multiple-ts" in bc_tasks.ALL_TASKS
+
+
+def test_strip_module_exports_removes_export_default() -> None:
+    code = "function f(): void {}\nexport default f;\n"
+
+    assert strip_module_exports(code) == "function f(): void {}\n"
+
+
+def test_strip_module_exports_removes_named_export() -> None:
+    code = "function f(): void {}\nexport { f };\n"
+
+    assert strip_module_exports(code) == "function f(): void {}\n"
+
+
+def test_strip_module_exports_removes_multiple_export_lines() -> None:
+    # Observed directly from the corrected teacher (2026-09-21 diagnostic):
+    # some completions emit both a default and a named export for the same
+    # function.
+    code = "function f(): void {}\nexport default f;\nexport { f };\n"
+
+    assert strip_module_exports(code) == "function f(): void {}\n"
+
+
+def test_strip_module_exports_is_a_noop_when_no_export_present() -> None:
+    code = "function f(): void {}\n"
+
+    assert strip_module_exports(code) == code
+
+
+def test_postprocess_generation_strips_exports_after_stop_token_truncation() -> None:
+    task = MbppMultiPLE(dataset=fixture_dataset())
+    prompt = task.get_prompt(task.get_dataset()[0])
+    generation = (
+        prompt + "\n  return n < 2;\n}\nexport default isNotPrime;\nfunction unrelated() {}"
+    )
+
+    result = task.postprocess_generation(generation, 0)
+
+    assert "export" not in result
+    assert "unrelated" not in result  # still truncated at the stop token
+    assert "return n < 2" in result
