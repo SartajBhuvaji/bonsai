@@ -1,6 +1,6 @@
 [project]
 name = "bonsai"
-version = "0.22.3"
+version = "0.22.4"
 description = "Pruning and distilling a Mixture-of-Experts model into a smaller, TypeScript-specialized one"
 readme = "README.md"
 license = { text = "MIT" }
