@@ -30,13 +30,19 @@ if TYPE_CHECKING:
 
 TASK_NAME = "multiple-mbpp-ts"
 
-# Matches a standalone `export default foo;` or `export { foo, bar };` line,
-# with any leading whitespace -- deliberately scoped to lines *starting* with
-# `export` (not e.g. `export function foo() {...}`, which the corrected
-# teacher was never observed emitting) so this can't accidentally eat a
-# legitimate declaration.
+# Matches `export default foo;` or `export { foo, bar };`, anywhere in the
+# text -- not anchored to the start of a line. `export` is a reserved word in
+# TS/JS (never a legitimate identifier), so this can't accidentally eat
+# unrelated code; deliberately scoped to these two forms specifically (not
+# e.g. `export function foo() {...}`, which the corrected teacher was never
+# observed emitting at the top level, only mid-repetition-loop garbage --
+# see `strip_module_exports`'s docstring). Not anchored to line-start
+# (`re.MULTILINE`'s `^`) because the model sometimes emits an entire
+# completion as one line with no newline before the trailing export --
+# confirmed directly (2026-09-21/22): a `^`-anchored version of this regex
+# missed exactly that case on the real 159-problem HumanEval-TS run.
 _EXPORT_STATEMENT_RE = re.compile(
-    r"^[ \t]*export[ \t]+(?:default[ \t]+\w+|\{[^}]*\})[ \t]*;?[ \t]*\n?", re.MULTILINE
+    r"[ \t]*export[ \t]+(?:default[ \t]+\w+|\{[^}]*\})[ \t]*;?[ \t]*\n?"
 )
 
 
@@ -48,11 +54,27 @@ def strip_module_exports(code: str) -> str:
     function-completion scaffold, which expects none. Confirmed directly
     (2026-09-21, a 10-problem HumanEval-TS diagnostic): the corrected
     teacher added an export statement to every single completion, which
-    dropped raw pass@1 to 0.0 despite every completion's underlying logic
-    being correct -- stripping just this line, no regeneration, raised
-    pass@1 back to 0.9 on the same completions. This is a no-op for the
-    base (uncorrected) model, which was never observed emitting one, so
-    1.2's already-recorded baseline stays comparable.
+    dropped raw pass@1 to 0.0 despite every one of those 10 completions'
+    underlying logic being correct -- stripping just this line, no
+    regeneration, raised pass@1 back to 0.9 on the same 10 completions.
+    This is a no-op for the base (uncorrected) model, which was never
+    observed emitting one, so 1.2's already-recorded baseline stays
+    comparable.
+
+    That 10-problem result was not representative of the full benchmark,
+    and reading too much into it would have been a real mistake: the full
+    159-problem HumanEval-TS run (2026-09-22) scored pass@1=0.5660 with
+    this exact fix applied -- well below the base model's 0.6708, not
+    the ~0.9 the small sample suggested. Confirmed this gap isn't a
+    remaining postprocessing artifact: a manual audit of the 159
+    completions found a handful of genuine, non-export-related failure
+    modes this function can't and shouldn't try to paper over --
+    duplicate function declarations (the model writing the same function
+    name twice), and degenerate repetition loops (the same fragment
+    repeated dozens of times until hitting the length cap) -- the same
+    kind of generation instability a Python HumanEval cross-check first
+    surfaced (see plan.md 3.2). The bulk of the gap to the base model is
+    real, not an artifact of how completions get scored.
     """
     return _EXPORT_STATEMENT_RE.sub("", code)
 
