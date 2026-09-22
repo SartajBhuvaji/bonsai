@@ -124,6 +124,16 @@ def test_strip_module_exports_is_a_noop_when_no_export_present() -> None:
     assert strip_module_exports(code) == code
 
 
+def test_strip_module_exports_removes_same_line_export_no_newline() -> None:
+    # Regression test: a line-start-anchored version of this regex missed
+    # this case on the real 159-problem HumanEval-TS run (2026-09-22) --
+    # the model sometimes emits its entire completion as one line, with no
+    # newline before the trailing export.
+    code = "function f(): void {}export { f };"
+
+    assert strip_module_exports(code) == "function f(): void {}"
+
+
 def test_postprocess_generation_strips_exports_after_stop_token_truncation() -> None:
     task = MbppMultiPLE(dataset=fixture_dataset())
     prompt = task.get_prompt(task.get_dataset()[0])

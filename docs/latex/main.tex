@@ -131,8 +131,10 @@ pruning axes -- depth (\cref{sec:pruning-sweep}), experts
 (\cref{sec:head-pruning-sweep}) -- have each been characterized in
 isolation and combined with each other zero-shot
 (\cref{sec:combined-pruning-sweep}); the teacher has been corrected on the
-TypeScript retraining pool (\cref{sec:teacher-correction}); but no pruned
-candidate has been retrained or finalized yet.
+TypeScript retraining pool and evaluated downstream, where it regresses
+on the primary benchmark despite improved validation loss
+(\cref{sec:teacher-correction,sec:teacher-correction-eval}); but no
+pruned candidate has been retrained or finalized yet.
 
 \section{Related Work}
 \label{sec:related}
@@ -910,13 +912,115 @@ after correction (1500 steps) & 0.8842 \\
 The corrected checkpoint is released at
 \url{https://huggingface.co/sartajbhuvaji/bonsai-qwen3-30b-a3b-teacher-corrected}
 and becomes the distillation teacher for the candidate-selection work in
-\cref{sec:combined-pruning-sweep}. We have not yet run the ablation this
-section's approach depends on -- corrected vs.\ uncorrected teacher on a
-fixed pruned candidate, the comparison \citet{minitron2024practice} make
-in their Figure 4 -- so whether teacher correction earns its cost on this
-model, with general-purpose (not domain-mismatched) retraining data, for
-an MoE rather than dense architecture, remains open until a pruned
-candidate exists to test it against (\cref{sec:discussion}).
+\cref{sec:combined-pruning-sweep}.
+
+\subsection{Downstream Evaluation of the Corrected Teacher}
+\label{sec:teacher-correction-eval}
+
+Validation loss improving is a proxy for teacher correction ``helping,''
+not proof -- better perplexity on TypeScript text does not guarantee
+better code, and it says nothing about capability outside the correction
+domain. We run the corrected teacher through the same evaluation suite
+as \cref{sec:baseline} (temperature 0.2, top-$p{=}0.95$) to check
+directly.
+
+\textbf{General knowledge, preserved.} MMLU, ARC-Challenge, and
+Winogrande are essentially unchanged from the unpruned baseline:
+
+\begin{table}[t]
+\caption{Corrected teacher vs.\ baseline (\cref{tab:baseline}) on the
+tracked, not-optimized-for general-knowledge tier.}
+\label{tab:teacher-correction-general-knowledge}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrr}
+\toprule
+Task & Baseline & Corrected & $\Delta$ \\
+\midrule
+MMLU (5-shot) & 0.8101 & 0.8082 & $-0.0019$ \\
+ARC-C acc (25-shot) & 0.6536 & 0.6433 & $-0.0103$ \\
+ARC-C acc\_norm & 0.6749 & 0.6689 & $-0.0060$ \\
+Winogrande (5-shot) & 0.7798 & 0.7806 & $+0.0008$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Every delta is within noise (largest $\sim$1pp). Correction does not
+measurably hurt general reasoning or knowledge.
+
+\textbf{HumanEval-TS, the primary gating benchmark, regresses.} A first,
+10-problem diagnostic scored pass@1$=0.0$ -- every completion added a
+trailing \texttt{export default X;} or \texttt{export \{X\};} statement,
+a habit from fine-tuning on raw TypeScript \emph{files} (which routinely
+end in a module export) rather than MultiPL-E's bare function-completion
+format. Stripping the export line and rescoring the same 10 completions,
+no regeneration, raised pass@1 to $0.9$ -- promising, but not
+representative: the full 159-problem run scored pass@1$=0.5597$ with the
+same fix applied, and $0.5660$ after closing a further gap in the fix
+itself (the export-stripping regex was anchored to the start of a line;
+the model sometimes emits an entire completion as one line with no
+newline before the trailing export). Re-scoring the same 159 completions
+with the corrected regex -- no regeneration -- moved pass@1 by only
+$+0.0063$ ($89 \to 90$ of 159), confirming the regex gap explains almost
+none of the shortfall.
+
+\begin{table}[t]
+\caption{Corrected teacher's HumanEval-TS pass@1, full 159-problem set,
+vs.\ the unpruned baseline (\cref{tab:baseline}).}
+\label{tab:teacher-correction-humaneval}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lr}
+\toprule
+& pass@1 \\
+\midrule
+baseline (unpruned, uncorrected) & 0.6708 \\
+corrected teacher, raw & 0.5597 \\
+corrected teacher, export-stripped, fixed regex & 0.5660 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The rest of the gap is genuine generation instability, not a scoring
+artifact -- confirmed by manually inspecting the remaining failures:
+\textbf{duplicate function declarations} (the model writes the same
+function name twice in one completion, a real TypeScript compile error
+independent of exports) and \textbf{degenerate repetition loops} (the
+same fragment, e.g.\ \texttt{export function eat(...) \{}, repeated
+dozens of times until the completion hits the length cap). A separate,
+smaller cross-check on plain (Python) HumanEval -- not part of this
+project's gating suite, run to test whether the instability was
+TypeScript-specific -- first surfaced this same failure class (empty
+function bodies, a docstring's closing \texttt{"""} glued onto the next
+statement with no newline, one 9,227-character repeated-comment loop)
+at a higher rate (3 of 10) than it turned out to occur in TypeScript
+(roughly 2--4 of 159). So the instability is not confined to
+off-target languages, as an earlier, smaller sample suggested -- it is
+present in the correction target's own language too, just less often.
+
+\textbf{Interpretation.} Teacher correction, as configured here (1500
+steps, $\sim$1.9M tokens, TypeScript-only), makes the teacher measurably
+\emph{worse} at the primary benchmark it exists to help with, while
+leaving general capability untouched. This does not match
+\citet{minitron2024practice}'s own framing of correction's effect as
+``minor,'' with ``some tasks improving and some degrading'' --our result
+is a clear regression on the one task that matters most for this
+project. A plausible reading, not yet confirmed: \citet{minitron2024practice}
+correct with $\sim$100B tokens; ours uses $\sim$1.9M, roughly five
+orders of magnitude smaller, and they explicitly flag using fewer tokens
+as an untested ``interesting topic for future work,'' not something
+they validated as safe. A much smaller, more concentrated update may be
+more prone to generation instability (repetition, duplicate
+declarations) than a properly-averaged large-scale one, not just to
+sharper off-target forgetting. Not proven -- this remains open until
+tested directly, and it changes what the still-outstanding
+Figure-4-style ablation (corrected vs.\ uncorrected teacher on a fixed
+\emph{pruned} candidate, \citet{minitron2024practice}'s own comparison)
+needs to settle: not just whether correction helps, but whether it
+helps enough to outweigh a real, measured regression in the uncorrected
+teacher's replacement (\cref{sec:discussion}).
 
 \section{Discussion and Open Questions}
 \label{sec:discussion}
@@ -978,6 +1082,17 @@ resolved prematurely:
   1.8B-token budget was calibrated for a 15B dense model, not a $\sim$3.35B
   active-parameter MoE; the right budget for this model's retraining
   passes has no direct precedent to scale from.
+\item \textbf{Whether the teacher-correction token budget itself needs
+  revisiting.} \Cref{sec:teacher-correction-eval} finds the corrected
+  teacher's HumanEval-TS pass@1 regresses well below the uncorrected
+  baseline ($0.5660$ vs.\ $0.6708$) despite improved validation loss,
+  plausibly because a $\sim$1.9M-token correction is roughly five orders
+  of magnitude smaller than \citet{minitron2024practice}'s own
+  $\sim$100B-token recipe -- a regime they explicitly did not validate.
+  Whether a larger correction budget, a lower learning rate, or a
+  different retraining-data mix would close this gap is untested;
+  right now the project has one data point (this configuration
+  regresses) and no comparison point.
 \end{itemize}
 
 No results are reported for these open questions; they are listed to make
