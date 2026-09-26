@@ -1,5 +1,10 @@
 # bonsai: an MoE Minitron
 
+> **If you were pointed at this file to run something on a rented GPU:**
+> search for `## MISSION BRIEF` below (Phase 3, just after 3.3/3.4) --
+> that section is a complete, standalone task. You don't need to read
+> the rest of this file first.
+
 Status: draft, exploratory. No customer, no deadline. We pick a public MoE
 model, apply the Minitron pruning + distillation recipe to it, specialize the
 result toward TypeScript, and write down what happens. Where the two Minitron
@@ -1137,18 +1142,41 @@ HumanEval-TS, the metric the project actually gates on.
 MBPP-TS (390 problems, the largest of the queued suite) still deferred
 to a later session regardless of how 3.3 turns out.
 
-**HANDOFF: how to run MBPP-TS on the LoRA-corrected teacher, for
-whichever session picks this up next (2026-09-26).** Two attempts on
-Lambda so far, both killed before completion -- once for a timeout
-mistake (see below), once deliberately to switch to a different GPU
-provider. Nothing salvageable from either: `bigcode-eval` only writes
-`--metric_output_path`/`--save_generations_path` once the *entire* task
-finishes, not incrementally, so a killed run leaves nothing to resume
-from -- this always restarts from problem 0.
+## MISSION BRIEF
 
-Needs a rented GPU, 1x 80GB (H100/A100-80GB), with the `eval` extra
-installed (`pip install -e ".[eval]"`, plus Node.js + `tsc` -- see
-`tools/setup_instance.sh` with `WITH_EVAL=1`). Run:
+**Written 2026-09-26 for whichever Claude session picks this up next.**
+This section is self-contained -- you don't need the rest of this file
+to execute it, though the surrounding Phase 3 sections (3.1-3.4, just
+above) have the full backstory if you want it.
+
+**The task, in one sentence:** run the MBPP-TS benchmark against the
+LoRA-corrected teacher checkpoint, using the GPU you already have
+access to (DigitalOcean, not Lambda -- no provisioning needed, you're
+not launching anything, just SSH'd into or running directly on a box
+that already has a GPU).
+
+**Which model, exactly:** `sartajbhuvaji/bonsai-qwen3-30b-a3b-teacher-corrected-lora`
+on Hugging Face. Not the full-parameter corrected teacher
+(`sartajbhuvaji/bonsai-qwen3-30b-a3b-teacher-corrected`, a different,
+older checkpoint) -- that one predates a data-quality fix (3.4) and its
+MBPP-TS score wouldn't be a fair comparison point.
+
+**Which benchmark, exactly:** MBPP-TS (`multiple-mbpp-ts` in the
+`bigcode-evaluation-harness` task registry this project patches in via
+`bonsai.eval.register()`), full 390-problem set. Not HumanEval-TS
+(already done for this model, 0.5723/0.5849, see 3.3 above) and not the
+general-knowledge suite (already done, see 3.3 above) -- those are
+finished, this is the one gap left.
+
+**Prerequisites on the GPU box:** clone this repo, `pip install -e
+".[eval]"` (needs Node.js + `tsc` too -- MultiPL-E's TS task shells out
+to compile/run the generated code; see `tools/setup_instance.sh` with
+`WITH_EVAL=1` for the exact steps, adapted as needed since that script
+assumes a Lambda Stack image). Needs ~80GB of GPU memory (the model is
+~61GB in bf16 plus generation activations/KV-cache) -- confirm the
+DigitalOcean GPU has this much before starting, or it'll OOM partway in.
+
+**The exact command:**
 
 ```bash
 accelerate launch tools/bigcode_eval_main.py \
@@ -1161,42 +1189,61 @@ accelerate launch tools/bigcode_eval_main.py \
     --save_generations_path <run_dir>/mbpp-ts-generations.json
 ```
 
-(`bonsai.eval.register()` must run first to patch in the export-stripping
-fix -- `tools/bigcode_eval_main.py` already does this; don't call
-`bigcode_eval`'s own entrypoint directly.) Only against the LoRA-corrected
-teacher, not the full-parameter one -- that checkpoint predates the 3.4
-data-quality fix, so its MBPP-TS score wouldn't be a fair data point.
+Run this from `tools/bigcode_eval_main.py` specifically, not
+`bigcode_eval`'s own upstream entrypoint -- this vendored copy calls
+`bonsai.eval.register()` first, which patches in an export-statement
+postprocessing fix this project's own eval harness needs (see 3.2/3.3
+above for why). Skipping that step would score real, correct
+completions as failures.
 
-Two real lessons from the killed attempts, both costly to relearn:
+**Two hard-learned lessons, both costly to relearn -- read before
+running:**
 
-1. **`batch_size=8`, not higher.** `batch_size=32` was tried during 1.2's
-   baseline eval and hung for over an hour -- this MoE model's batched
-   decode doesn't amortize across sequences routing to different experts
-   the way a dense model's would, and batching also waits on each
-   batch's slowest sequence to hit a stop token.
-2. **Set a generous timeout, and don't trust an early-pace estimate.**
-   Real observed pace on MBPP-TS was $\sim$100s/problem average
-   (390 problems $\to$ roughly 10-11 hours total) -- much slower than
-   HumanEval-TS's $\sim$54s/problem for this same model, plausibly
-   because MBPP-TS prompts don't include example I/O the way
-   HumanEval-TS's `>>> ` doctests do, so this model (which has a known
-   tendency to append its own trailing `console.log(...)` usage
-   examples, found during the HumanEval-TS run) may generate more of
-   them here with nothing to anchor "the spec is complete" -- not
-   confirmed, a hypothesis to check once real completions exist. If
-   running via `jupyter nbconvert`, set
+1. **`batch_size=8`, not higher.** `batch_size=32` was tried during this
+   project's very first baseline eval and hung for over an hour -- this
+   MoE model's batched decode doesn't amortize across sequences routing
+   to different experts the way a dense model's would, and batching
+   also waits on each batch's slowest sequence to hit a stop token.
+   Don't re-tune this; it's already been found the hard way.
+2. **This is slow -- budget 10-11 hours, and set your timeout
+   accordingly.** Real observed pace on this exact benchmark/model
+   combination was ~100s/problem average across 390 problems on the
+   attempts already made (see below) -- much slower than this same
+   model's HumanEval-TS pace (~54s/problem). If you're running this
+   inside a Jupyter notebook via `nbconvert`, set
    `--ExecutePreprocessor.timeout` to at least 16 hours (57600 seconds)
-   -- a 1-hour timeout killed the first HumanEval-TS attempt on this
-   same model after 97\% completion, and an 8-hour timeout on this exact
-   MBPP-TS task would likely have hit the same wall. If running as a
-   plain script/CLI (no notebook), this doesn't apply -- there's no
-   preprocessor timeout to hit, only whatever session/shell timeout the
-   environment itself imposes.
+   -- a 1-hour timeout killed an earlier HumanEval-TS attempt on this
+   same model at 97% completion, all progress lost, because
+   `bigcode-eval` only writes its output files once the *entire* task
+   finishes, not incrementally. If you're running this as a plain
+   script/CLI with no notebook wrapper, this specific pitfall doesn't
+   apply, but budget the same 10-11 hours regardless and don't kill it
+   early on an impatient read of the first few percent.
 
-Comparison point once this lands: base model 0.7333 (`runs/20260918T171357Z-8b1038-baseline-eval/mbpp-ts.json`),
-no full-parameter-teacher number exists (never run, per above).
-*Notebook (scaffolded, not committed to `main` -- see the `handoff/mbpp-ts-lora`
-branch):* `11d_teacher_corrected_lora_mbpp_ts.ipynb`.
+**Status as of this handoff:** two attempts already made on a different
+GPU provider (Lambda Cloud), both killed before completion by the
+previous session -- once from the 1-hour-timeout mistake above (on the
+HumanEval-TS run, not this one), once deliberately to switch providers.
+Nothing was salvageable from either, for the reason in lesson 2 above.
+This DigitalOcean attempt is a clean restart from problem 0, not a
+resume.
+
+**Comparison point, once this lands:** base (unpruned, uncorrected)
+model scored 0.7333 on MBPP-TS (`runs/20260918T171357Z-8b1038-baseline-eval/mbpp-ts.json`
+in this repo's history). No full-parameter-corrected-teacher number
+exists for MBPP-TS -- never run, for the reason above.
+
+**When it's done:** save `mbpp-ts.json` and the generations file
+somewhere durable, and report the `pass@1` number back. If you want to
+commit results back to this project the way prior runs have been
+(see any `notebooks/1*_*.ipynb` for the pattern -- a notebook that
+actually executed the run, carrying its real output, committed via a
+branch + PR), a scaffolded-but-unexecuted notebook for this exact task
+already exists at `notebooks/11d_teacher_corrected_lora_mbpp_ts.ipynb`
+on the `handoff/mbpp-ts-lora` branch of this repo -- run that notebook
+via `jupyter nbconvert --execute --inplace` (with the timeout flag from
+lesson 2 above) rather than the bare CLI command if you want committable
+output in the established format.
 
 ### Phase 4 — Distillation retraining and candidate selection
 
