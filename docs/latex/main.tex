@@ -130,11 +130,14 @@ pruning axes -- depth (\cref{sec:pruning-sweep}), experts
 (\cref{sec:expert-pruning-sweep}), and attention heads
 (\cref{sec:head-pruning-sweep}) -- have each been characterized in
 isolation and combined with each other zero-shot
-(\cref{sec:combined-pruning-sweep}); the teacher has been corrected on the
-TypeScript retraining pool and evaluated downstream, where it regresses
-on the primary benchmark despite improved validation loss
-(\cref{sec:teacher-correction,sec:teacher-correction-eval}); but no
-pruned candidate has been retrained or finalized yet.
+(\cref{sec:combined-pruning-sweep}); the teacher has been corrected two
+ways (full-parameter and LoRA) and evaluated downstream, where both
+regress on the primary benchmark despite improved validation loss, a
+data-quality defect in the retraining pool has been found and fixed, and
+neither the method change nor the fix closes the gap to the uncorrected
+baseline
+(\cref{sec:teacher-correction,sec:teacher-correction-eval,sec:teacher-correction-lora});
+but no pruned candidate has been retrained or finalized yet.
 
 \section{Related Work}
 \label{sec:related}
@@ -1014,13 +1017,102 @@ as an untested ``interesting topic for future work,'' not something
 they validated as safe. A much smaller, more concentrated update may be
 more prone to generation instability (repetition, duplicate
 declarations) than a properly-averaged large-scale one, not just to
-sharper off-target forgetting. Not proven -- this remains open until
-tested directly, and it changes what the still-outstanding
-Figure-4-style ablation (corrected vs.\ uncorrected teacher on a fixed
-\emph{pruned} candidate, \citet{minitron2024practice}'s own comparison)
-needs to settle: not just whether correction helps, but whether it
-helps enough to outweigh a real, measured regression in the uncorrected
-teacher's replacement (\cref{sec:discussion}).
+sharper off-target forgetting. Two candidate explanations follow this
+one directly: whether the retraining \emph{data} itself carried a real
+defect, and whether a lighter-touch fine-tuning \emph{method} avoids the
+instability a full-parameter update introduced. Both were tested.
+
+\subsection{A Data-Quality Defect, and a LoRA Alternative}
+\label{sec:teacher-correction-lora}
+
+\textbf{The retraining data had a real, quantified defect.} Nothing
+before this had checked the actual \emph{content} quality of the
+retraining pool -- only token-length distribution and the
+calibration/retraining split's disjointness. Auditing 300 representative
+samples found two things: no repetition or duplicate declarations
+\emph{within} a training sample (ruling that out as the direct source of
+the model's own repetition/duplication pathologies), but a real
+mechanical defect -- $30.7\%$ of samples exceed the correction run's
+$\texttt{max\_length}{=}512$ and were silently truncated mid-statement,
+with unmasked next-token loss applied right up to that cutoff. Over the
+real 6,000-sample run, roughly 1,800 samples taught the model that
+stopping abruptly mid-expression is a normal, complete training target.
+A secondary finding: $\sim$13\% of the pool is \texttt{node\_modules}
+vendored bundles or \texttt{.d.ts} auto-generated type stubs, diluting
+the signal away from hand-written, function-implementation-style code.
+Fixed for the next run: \texttt{max\_length} raised to $2048$ (checked
+against the real length distribution, this drops truncation to $3.7\%$
+of samples rather than $30.7\%$), that residual dropped rather than
+truncated, and \texttt{node\_modules}/\texttt{.d.ts} paths excluded.
+
+\textbf{LoRA, tested as \citet{minitron2024practice} suggested but never
+tried.} Matched to the full-parameter run on everything except method
+and the data fix above: same 1500 steps, same retraining-pool source,
+same warmup fraction and batch size. Only the base model's attention
+projections (\texttt{q\_proj}/\texttt{k\_proj}/\texttt{v\_proj}/\texttt{o\_proj})
+get trainable rank-16 LoRA adapters ($13.4$M of $30.5$B parameters,
+$0.044\%$); every expert stays frozen, a scope choice for tractability
+given how many experts this MoE model has, not an attempt to cover the
+same surface as full-parameter correction. Adapter merged into the base
+weights after training, so the released checkpoint is a plain dense
+model like any other in this family.
+
+\begin{table}[t]
+\caption{LoRA-corrected teacher vs.\ the full-parameter run and baseline,
+full 159-problem HumanEval-TS set.}
+\label{tab:teacher-correction-lora-humaneval}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lr}
+\toprule
+& pass@1 \\
+\midrule
+baseline (unpruned, uncorrected) & 0.6708 \\
+full-parameter corrected teacher & 0.5660 \\
+LoRA-corrected teacher, raw & 0.5723 \\
+LoRA-corrected teacher, trailing-example-stripped & 0.5849 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A real, if modest, improvement over the full-parameter run
+($+0.0063$ raw), still $8.6$pp below baseline. Two qualitative
+differences from the full-parameter teacher's own failure modes, found
+by inspecting all 159 completions: only $2$ of $159$ contain an
+\texttt{export} statement at all (vs.\ $10$ of $10$ in the
+full-parameter teacher's own diagnostic) -- LoRA's attention-only update
+genuinely does not pick up the file-level export habit full-parameter
+fine-tuning did. A different, new failure mode instead: $4$ completions
+run to $3$,$000$--$6$,$000$ characters (a $731$-character mean) -- not
+verbatim repetition this time, but a complete, plausible implementation
+followed by an ever-growing sequence of \texttt{console.log(fn(...))}
+example calls with incrementing arguments, never stopping until the
+length cap. Stripping text from the first such call onward and
+rescoring the same completions, no regeneration, raised pass@1 to
+$0.5849$ ($93$ of $159$) -- confirmed as a real effect, though coarser
+and less clean to generalize than the export fix (a single legitimate
+\texttt{console.log} is not inherently wrong to have), so not folded into
+the permanent scoring harness, only verified as a diagnostic. General
+knowledge is preserved for LoRA the same way it was for the
+full-parameter run (every MMLU/ARC-Challenge/Winogrande delta within
+$\sim$1pp of baseline) -- neither correction method measurably hurts
+general reasoning; the regression is specific to HumanEval-TS both
+times.
+
+\textbf{Neither fix closes the gap.} Two independent interventions --
+LoRA-as-method plus the data-quality fix together, then the
+trailing-example postprocessing on top -- each moved pass@1 in the right
+direction, by small amounts, without resolving the core finding: this
+project's teacher-correction recipe, however configured so far,
+regresses the primary benchmark it exists to improve. Whether the
+remaining $\sim$8.6pp gap is \citet{minitron2024practice}'s
+$\sim$100B-vs-$\sim$1.9M-token budget gap, something else about the
+recipe, or a combination, is still open -- not yet isolated, and the
+Figure-4-style ablation against a pruned candidate
+(\citet{minitron2024practice}'s own comparison) remains the decisive
+test for whether correction, in some form, is worth keeping for Phase 4
+distillation at all (\cref{sec:discussion}).
 
 \section{Discussion and Open Questions}
 \label{sec:discussion}
@@ -1083,16 +1175,21 @@ resolved prematurely:
   active-parameter MoE; the right budget for this model's retraining
   passes has no direct precedent to scale from.
 \item \textbf{Whether the teacher-correction token budget itself needs
-  revisiting.} \Cref{sec:teacher-correction-eval} finds the corrected
-  teacher's HumanEval-TS pass@1 regresses well below the uncorrected
-  baseline ($0.5660$ vs.\ $0.6708$) despite improved validation loss,
+  revisiting.} \Cref{sec:teacher-correction-eval,sec:teacher-correction-lora}
+  find the corrected teacher's HumanEval-TS pass@1 regresses well below
+  the uncorrected baseline under two different configurations
+  (full-parameter: $0.5660$; LoRA plus a data-quality fix: $0.5849$; both
+  vs.\ $0.6708$) despite improved validation loss in both cases,
   plausibly because a $\sim$1.9M-token correction is roughly five orders
   of magnitude smaller than \citet{minitron2024practice}'s own
   $\sim$100B-token recipe -- a regime they explicitly did not validate.
-  Whether a larger correction budget, a lower learning rate, or a
-  different retraining-data mix would close this gap is untested;
-  right now the project has one data point (this configuration
-  regresses) and no comparison point.
+  Method (LoRA vs.\ full-parameter) and a real retraining-data defect
+  (\cref{sec:teacher-correction-lora}) have now both been tested and
+  each closed part of the gap without resolving it; a larger token
+  budget itself has not yet been tried directly. The project has three
+  data points now (full-parameter regresses most, LoRA regresses less,
+  neither closes the gap), still no configuration that matches or beats
+  the uncorrected baseline.
 \end{itemize}
 
 No results are reported for these open questions; they are listed to make
