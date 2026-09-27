@@ -22,6 +22,12 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 
+from bonsai.eval.checkpoint import (
+    count_completed_tasks,
+    intermediate_generations_path,
+    load_intermediate_generations,
+)
+
 from bigcode_eval.tasks.multiple import GeneralMultiPLE
 from datasets import load_dataset
 
@@ -133,6 +139,9 @@ __all__ = [
     "ExportStrippingMultiPLE",
     "MbppMultiPLE",
     "TsMultiPLE",
+    "count_completed_tasks",
+    "intermediate_generations_path",
+    "load_intermediate_generations",
     "register",
     "strip_module_exports",
 ]

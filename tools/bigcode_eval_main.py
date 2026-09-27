@@ -23,6 +23,11 @@ import warnings
 # subprocess -- a notebook cell that already called bonsai.eval.register() in its
 # own kernel process never reaches this one.
 from bonsai.eval import register
+from bonsai.eval.checkpoint import (
+    count_completed_tasks,
+    intermediate_generations_path,
+    load_intermediate_generations,
+)
 
 register()
 
@@ -233,7 +238,40 @@ def parse_args():
         action="store_true",
         help="Don't run generation but benchmark groundtruth (useful for debugging)",
     )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Resume generation from the intermediate checkpoint file for each task "
+        "(see --save_generations_path). Enables periodic checkpoint writes when "
+        "--save_every_k_tasks is still at its default (-1).",
+    )
     return parser.parse_args()
+
+
+def _apply_resume_defaults(args) -> None:
+    """Wire --resume to bigcode-eval's existing intermediate checkpoint machinery."""
+    if args.load_generations_path:
+        return
+    if args.save_every_k_tasks < 1 and (args.resume or args.save_generations):
+        # One dataloader step ~= one batch of problems; flush often enough to survive crashes.
+        args.save_every_k_tasks = 1
+
+
+def _resolve_intermediate_for_task(args, task_name: str):
+    explicit = args.load_generations_intermediate_paths
+    if explicit:
+        return None
+    if not args.resume:
+        return None
+    path = intermediate_generations_path(args.save_generations_path, task_name)
+    intermediate = load_intermediate_generations(path)
+    if intermediate is None:
+        if args.resume:
+            print(f"resume: no checkpoint at {path}, starting from scratch for {task_name}")
+        return None
+    done = count_completed_tasks(intermediate)
+    print(f"resume: loaded {done} completed task(s) from {path}")
+    return intermediate
 
 
 def pattern_match(patterns, source_list):
@@ -254,6 +292,7 @@ def get_gpus_max_memory(max_memory, num_gpus):
 
 def main():
     args = parse_args()
+    _apply_resume_defaults(args)
     transformers.logging.set_verbosity_error()
     datasets.logging.set_verbosity_error()
 
@@ -401,6 +440,8 @@ def main():
                     # intermediate_generations: list[list[str | None]] of len n_tasks
                     # where list[i] = generated codes or empty
                     intermediate_generations = json.load(f_in)
+            else:
+                intermediate_generations = _resolve_intermediate_for_task(args, task)
 
             if args.generation_only:
                 if accelerator.is_main_process:

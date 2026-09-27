@@ -1139,15 +1139,20 @@ Consistent picture across both: neither correction method measurably
 hurts general knowledge/reasoning -- the regression is specific to
 HumanEval-TS, the metric the project actually gates on.
 
-MBPP-TS (390 problems, the largest of the queued suite) still deferred
-to a later session regardless of how 3.3 turns out.
+**MBPP-TS (390 problems), done (2026-09-27).** DigitalOcean 1x H100,
+resumable harness (`--resume`, checkpoints every batch). Run dir
+`runs/20260926T143533Z-572b8e-teacher-corrected-lora-eval` on the GPU
+box; metrics pulled locally under the same path (gitignored). **pass@1 =
+0.6077** (237/390). Base model: 0.7333 -- **~12.6pp below base**, wider
+gap than HumanEval-TS (~9.8pp raw). Same picture as 3.3: LoRA correction
++ data-quality fix does not restore primary benchmark accuracy vs.
+uncorrected base, though MBPP-TS is closer to base than HumanEval-TS.
+*Notebook:* `11d_teacher_corrected_lora_mbpp_ts.ipynb`.
 
 ## MISSION BRIEF
 
-**Written 2026-09-26 for whichever Claude session picks this up next.**
-This section is self-contained -- you don't need the rest of this file
-to execute it, though the surrounding Phase 3 sections (3.1-3.4, just
-above) have the full backstory if you want it.
+**Written 2026-09-26; completed 2026-09-27.** Kept for history -- task
+is done (see MBPP-TS paragraph above and `11d`).
 
 **The task, in one sentence:** run the MBPP-TS benchmark against the
 LoRA-corrected teacher checkpoint, using the GPU you already have
@@ -1220,30 +1225,11 @@ running:**
    apply, but budget the same 10-11 hours regardless and don't kill it
    early on an impatient read of the first few percent.
 
-**Status as of this handoff:** two attempts already made on a different
-GPU provider (Lambda Cloud), both killed before completion by the
-previous session -- once from the 1-hour-timeout mistake above (on the
-HumanEval-TS run, not this one), once deliberately to switch providers.
-Nothing was salvageable from either, for the reason in lesson 2 above.
-This DigitalOcean attempt is a clean restart from problem 0, not a
-resume.
-
-**Comparison point, once this lands:** base (unpruned, uncorrected)
-model scored 0.7333 on MBPP-TS (`runs/20260918T171357Z-8b1038-baseline-eval/mbpp-ts.json`
-in this repo's history). No full-parameter-corrected-teacher number
-exists for MBPP-TS -- never run, for the reason above.
-
-**When it's done:** save `mbpp-ts.json` and the generations file
-somewhere durable, and report the `pass@1` number back. If you want to
-commit results back to this project the way prior runs have been
-(see any `notebooks/1*_*.ipynb` for the pattern -- a notebook that
-actually executed the run, carrying its real output, committed via a
-branch + PR), a scaffolded-but-unexecuted notebook for this exact task
-already exists at `notebooks/11d_teacher_corrected_lora_mbpp_ts.ipynb`
-on the `handoff/mbpp-ts-lora` branch of this repo -- run that notebook
-via `jupyter nbconvert --execute --inplace` (with the timeout flag from
-lesson 2 above) rather than the bare CLI command if you want committable
-output in the established format.
+**Result:** pass@1 = **0.6077** (LoRA-corrected teacher) vs base **0.7333**
+(`02b` / `runs/20260918T171357Z-8b1038-baseline-eval/mbpp-ts.json`).
+Notebook `11d_teacher_corrected_lora_mbpp_ts.ipynb` committed with
+outputs; full generations on GPU at
+`runs/20260926T143533Z-572b8e-teacher-corrected-lora-eval/`.
 
 ### Phase 4 — Distillation retraining and candidate selection
 
