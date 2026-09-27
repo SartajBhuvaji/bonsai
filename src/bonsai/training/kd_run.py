@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import time
 from pathlib import Path
-from typing import Any, cast
+from typing import cast
 
 import bitsandbytes as bnb
 import torch
@@ -83,9 +83,7 @@ def cache_teacher_logit_file(
     tokenizer = AutoTokenizer.from_pretrained(teacher_repo_id, token=hf_token)
     _log("Tokenizing ...")
     tokenized = tokenize_samples(raw, tokenizer)
-    _log(
-        f"  {len(tokenized.input_ids)} sample(s), mean length {tokenized.mean_length:.0f} tokens"
-    )
+    _log(f"  {len(tokenized.input_ids)} sample(s), mean length {tokenized.mean_length:.0f} tokens")
 
     _log(f"Loading teacher {teacher_repo_id} ...")
     model = cast(
@@ -182,7 +180,7 @@ def distill_student(
         ),
     )
     model.gradient_checkpointing_enable()  # type: ignore[no-untyped-call]
-    model.enable_input_require_grads()
+    model.enable_input_require_grads()  # type: ignore[no-untyped-call]
     tokenizer = AutoTokenizer.from_pretrained(student_repo_id, token=hf_token)
 
     device = next(model.parameters()).device
@@ -216,7 +214,13 @@ def distill_student(
     _log(f"saved to {checkpoint_dir}")
 
     if push_to_hub:
-        model.push_to_hub(push_to_hub, token=hf_token, private=True)
+        # transformers.PreTrainedModel.push_to_hub is `@wraps(PushToHubMixin.push_to_hub)`
+        # over a `(self, *args, **kwargs)` redefinition (modeling_utils.py) -- typeshed's
+        # `functools.wraps` stub carries over the *original*, class-accessed function's own
+        # `self` parameter, so mypy double-counts it and checks this call's first argument
+        # against `PreTrainedModel` instead of `str`. Confirmed by reading transformers'
+        # source directly, not guessed; a real call to a real, correctly-typed method.
+        model.push_to_hub(push_to_hub, token=hf_token, private=True)  # type: ignore[arg-type]
         tokenizer.push_to_hub(push_to_hub, token=hf_token, private=True)
         _log(f"pushed to https://huggingface.co/{push_to_hub} (private)")
 

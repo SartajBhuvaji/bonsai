@@ -81,12 +81,16 @@ def main() -> None:
         val = df.dropna(subset=["val_loss"])
         summaries[label] = {
             "run_id": run_id,
-            "steps_logged": int(len(df)),
+            "steps_logged": len(df),
             "last_step": int(final["step"]),
             "complete": int(final["step"]) >= cfg.get("total_steps", 500) - 1,
             "final_train_loss": float(final["train_loss"]),
             "final_val_loss": float(val.iloc[-1]["val_loss"]) if len(val) else None,
-            **{k: cfg[k] for k in ("peak_lr", "total_steps", "batch_size", "warmup_steps") if k in cfg},
+            **{
+                k: cfg[k]
+                for k in ("peak_lr", "total_steps", "batch_size", "warmup_steps")
+                if k in cfg
+            },
         }
 
     # Per-arm loss curves
@@ -114,7 +118,9 @@ def main() -> None:
     ax.grid(True, alpha=0.3)
     fig.tight_layout()
     for ext in ("pdf", "png"):
-        fig.savefig(FIG / f"distill_teacher_ablation_comparison.{ext}", dpi=160, bbox_inches="tight")
+        fig.savefig(
+            FIG / f"distill_teacher_ablation_comparison.{ext}", dpi=160, bbox_inches="tight"
+        )
     plt.close(fig)
 
     # Final val_loss bar (where available)
@@ -135,7 +141,9 @@ def main() -> None:
     plt.close(fig2)
 
     results = {
-        "updated_utc": subprocess.check_output(["date", "-u", "+%Y-%m-%dT%H:%M:%SZ"], text=True).strip(),
+        "updated_utc": subprocess.check_output(
+            ["date", "-u", "+%Y-%m-%dT%H:%M:%SZ"], text=True
+        ).strip(),
         "runs": summaries,
     }
     (FIG / "results.json").write_text(json.dumps(results, indent=2))
@@ -185,9 +193,9 @@ Auto-updated by `tools/refresh_phase4_kd_artifacts.py` ({results["updated_utc"]}
     df_b = frames["vs_baseline"]
     console_tail = "metrics.jsonl tail (baseline arm):\n" + df_b.tail(6).to_string(index=False)
     if "vs_corrected" in frames:
-        console_tail += "\n\nmetrics.jsonl tail (corrected arm):\n" + frames["vs_corrected"].tail(6).to_string(
-            index=False
-        )
+        console_tail += "\n\nmetrics.jsonl tail (corrected arm):\n" + frames["vs_corrected"].tail(
+            6
+        ).to_string(index=False)
 
     buf = BytesIO()
     fig, ax = plt.subplots(figsize=(8, 4))
@@ -201,9 +209,8 @@ Auto-updated by `tools/refresh_phase4_kd_artifacts.py` ({results["updated_utc"]}
     plt.close(fig)
     plot_b64 = base64.b64encode(buf.getvalue()).decode("ascii")
 
-    compare_msg = (
-        "Generated comparison figures under docs/latex/figures/phase4_kd/\n"
-        + json.dumps(summaries, indent=2)
+    compare_msg = "Generated comparison figures under docs/latex/figures/phase4_kd/\n" + json.dumps(
+        summaries, indent=2
     )
 
     nb = json.loads(NOTEBOOK.read_text())
@@ -252,7 +259,9 @@ Auto-updated by `tools/refresh_phase4_kd_artifacts.py` ({results["updated_utc"]}
                 {
                     "name": "stdout",
                     "output_type": "stream",
-                    "text": ["Comparison plot refreshed via tools/refresh_phase4_kd_artifacts.py\n"],
+                    "text": [
+                        "Comparison plot refreshed via tools/refresh_phase4_kd_artifacts.py\n"
+                    ],
                 }
             ]
 

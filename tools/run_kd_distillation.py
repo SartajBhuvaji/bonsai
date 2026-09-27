@@ -58,6 +58,14 @@ Flags (see also `--help`):
     --hf-token         Hugging Face token (or set HF_TOKEN / HUGGING_FACE_HUB_TOKEN)
 """
 
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+
+from bonsai.training import TrainConfig
+from bonsai.training.kd_run import cache_teacher_logit_file, distill_student, repo_slug
+
 _FLAG_REFERENCE = """
 Flag reference
 --------------
@@ -75,14 +83,6 @@ Training:
 Output:
   --run-name, --push-to-hub, --hf-token
 """
-
-from __future__ import annotations
-
-import argparse
-from pathlib import Path
-
-from bonsai.training import TrainConfig
-from bonsai.training.kd_run import cache_teacher_logit_file, distill_student, repo_slug
 
 DEFAULT_DATASET = "bigcode/the-stack-dedup"
 DEFAULT_DATA_DIR = "data/typescript"
@@ -119,7 +119,9 @@ def main() -> None:
     )
     parser.add_argument("--run-name", help="Run directory name prefix (auto-generated if omitted)")
 
-    parser.add_argument("--num-samples", type=int, default=6000, help="Training/calibration pool size")
+    parser.add_argument(
+        "--num-samples", type=int, default=6000, help="Training/calibration pool size"
+    )
     parser.add_argument("--seed", type=int, default=11, help="Shuffle seed for sample draw")
     parser.add_argument("--top-k", type=int, default=20, help="Teacher top-k support per token")
     parser.add_argument("--dataset-id", default=DEFAULT_DATASET)
@@ -132,7 +134,9 @@ def main() -> None:
     parser.add_argument("--warmup-steps", type=int, default=75)
     parser.add_argument("--weight-decay", type=float, default=0.0)
     parser.add_argument("--val-fraction", type=float, default=0.05)
-    parser.add_argument("--val-every", type=int, default=10, help="Validation KD loss every N steps")
+    parser.add_argument(
+        "--val-every", type=int, default=10, help="Validation KD loss every N steps"
+    )
 
     parser.add_argument("--push-to-hub", help="Private HF repo id for the distilled student")
     parser.add_argument("--hf-token", default=None)
