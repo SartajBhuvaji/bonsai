@@ -143,8 +143,13 @@ regress on the primary benchmark despite improved validation loss, a
 data-quality defect in the retraining pool has been found and fixed, and
 neither the method change nor the fix closes the gap to the uncorrected
 baseline
-(\cref{sec:teacher-correction,sec:teacher-correction-eval,sec:teacher-correction-lora});
-but no pruned candidate has been retrained or finalized yet.
+(\cref{sec:teacher-correction,sec:teacher-correction-eval,sec:teacher-correction-lora}).
+A first real pruned candidate has been built and distilled against both
+teacher variants, but the result is a negative one: both distilled
+students degenerate into repetition rather than working code at the
+token budget tested, leaving the corrected-vs-uncorrected question open
+and pointing instead to a real, unmet lower bound on retraining budget
+(\cref{sec:phase4-negative}); no candidate has been finalized yet.
 
 \section{Related Work}
 \label{sec:related}
@@ -1155,6 +1160,83 @@ step: it is the only way to test the thing that actually matters for
 Phase 4, instead of continuing to relitigate the corrected teacher's own
 benchmark scores (\cref{sec:discussion}).
 
+\section{Distillation Retraining: A Negative Result}
+\label{sec:phase4-negative}
+
+Motivated directly by the question raised at the end of
+\cref{sec:teacher-correction-lora} -- whether the corrected teacher's own
+regressed benchmark scores actually predict a worse (or better) distilled
+student, rather than continuing to only compare the teachers' own scores
+-- we built one real pruned candidate and distilled it against both
+teacher variants under matched conditions.
+
+\subsection{Candidate and Setup}
+
+We use the aggressive-tier depth+experts candidate already characterized
+zero-shot in \cref{sec:combined-pruning-sweep} (16 of 48 layers removed by
+Block Importance, 80 of 128 experts removed per surviving layer by
+\cref{eq:expert}, the three Super Experts exempted): 8.48B parameters
+(27.8\% of the unpruned 30.5B), the cheapest pairwise combination in that
+sweep. We cache each teacher's top-20 per-token logits once, over an
+identical, fresh 6,000-sample slice of the retraining pool (disjoint from
+every prior draw), then train the candidate via forward-KL distillation
+against each cache in turn -- same student initialization, same 500-step,
+8-bit-AdamW schedule (peak LR $2\times10^{-4}$, 75-step warmup), differing
+only in which teacher's logits it targets.
+
+\subsection{Result}
+
+Final KD loss is a near-exact tie between the two teachers: validation
+loss 0.5350 (baseline teacher) vs.\ 0.5339 (LoRA-corrected teacher) -- a
+0.0011 gap, well within noise, though training loss favors the baseline
+teacher more clearly (0.5573 vs.\ 0.5810). A downstream check on the
+metric that actually matters, HumanEval-TS pass@1 on a matched $n{=}40$
+sample (same 40 problems, same temperature-0.2/top-$p$-0.95 settings as
+every other run in this paper), settles nothing further: \textbf{both
+distilled students score pass@1 $=$ 0.0}.
+
+Manual inspection of the raw completions, not just the aggregate score,
+rules out the generation-postprocessing artifacts this project found
+earlier (\cref{sec:teacher-correction-lora}'s trailing \texttt{export}
+statements, runaway \texttt{console.log} loops): instead, both students
+degenerate into outright repetition almost immediately after the function
+signature -- runs of single repeated or near-repeated tokens (e.g.\
+\texttt{ambioambioambio...}, \texttt{-stream-index-index-index...})
+continuing for thousands of characters until the generation length cap,
+on both teacher arms alike. Three further candidate causes were checked
+and ruled out without needing to re-run anything: the pushed checkpoints'
+files are complete; their \texttt{generation\_config.json} settings
+(\texttt{do\_sample: false}) match the unpruned baseline and
+LoRA-corrected teacher checkpoints exactly, both of which score correctly
+under the identical harness; and their chat-template file is likewise
+present on the LoRA-corrected teacher's own checkpoint, which also scores
+correctly.
+
+\subsection{Interpretation}
+
+This ablation does not answer the question it was built to answer. With
+both arms failing identically on KD loss and downstream pass@1 alike,
+there is no signal left to compare the two teachers by --
+\textbf{this is a negative result, not a null result in either teacher's
+favor}. The most likely explanation is budget, not method: this candidate
+lost 16 of 48 layers and 80 of 128 experts per surviving layer in one
+step (a 72\% parameter cut), then received only 500 optimization steps
+($\sim$2,000 training sequences) before evaluation. For comparison,
+\cref{sec:teacher-correction}'s full-parameter correction run -- a far
+smaller perturbation, fine-tuning an otherwise-untouched 30.5B model --
+still showed real generation instability (repetition, duplicate
+declarations) after 1,500 steps. A model missing three-quarters of its
+parameters, given fewer than half as many steps, degenerating into
+repetition is the expected failure mode of an undertrained model, not
+evidence of anything about teacher correction specifically.
+
+The corrected-vs-uncorrected teacher question from
+\cref{sec:teacher-correction-lora} therefore remains open. What this
+experiment does establish is a real data point for a different open
+question (\cref{sec:discussion}): the lightweight-retrain token budget
+for combined, aggressive pruning on this model is higher than 500 steps
+-- how much higher is untested.
+
 \section{Discussion and Open Questions}
 \label{sec:discussion}
 
@@ -1214,7 +1296,12 @@ resolved prematurely:
 \item \textbf{Lightweight-retrain token budget.} \citet{minitron2024}'s
   1.8B-token budget was calibrated for a 15B dense model, not a $\sim$3.35B
   active-parameter MoE; the right budget for this model's retraining
-  passes has no direct precedent to scale from.
+  passes has no direct precedent to scale from. \Cref{sec:phase4-negative}
+  now gives a real lower bound, not just an absence of precedent: 500
+  steps ($\sim$2,000 sequences) left an aggressively-pruned candidate
+  (72\% of parameters cut) still degenerating into repetition on every
+  completion, so the true requirement is higher than 500 steps -- how
+  much higher is itself untested.
 \item \textbf{Whether the teacher-correction token budget itself needs
   revisiting.} \Cref{sec:teacher-correction-eval,sec:teacher-correction-lora}
   find the corrected teacher's HumanEval-TS pass@1 regresses well below
