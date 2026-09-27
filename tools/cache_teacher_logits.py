@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import argparse
 
-from bonsai.training.kd_run import cache_teacher_logit_file
+from pathlib import Path
+
+from bonsai.training.kd_run import cache_teacher_logit_file, push_teacher_cache_to_hub
 
 PRESET_TEACHERS = {
     "baseline": "Qwen/Qwen3-30B-A3B-Base",
@@ -39,6 +41,11 @@ def main() -> None:
     parser.add_argument("--dataset-id", default=DATASET_ID)
     parser.add_argument("--data-dir", default=DATA_DIR)
     parser.add_argument("--hf-token", default=None)
+    parser.add_argument(
+        "--push-to-hub",
+        default=None,
+        help="Private HF dataset repo id (uploads the .pt as e.g. baseline-topk-logits.pt)",
+    )
     args = parser.parse_args()
 
     repo_id = args.teacher_model or PRESET_TEACHERS[args.teacher]
@@ -46,7 +53,7 @@ def main() -> None:
     if args.teacher and not args.teacher_model:
         run_name = f"cache-teacher-logits-{args.teacher}"
 
-    cache_teacher_logit_file(
+    _run_dir, cache_path = cache_teacher_logit_file(
         repo_id,
         num_samples=args.num_samples,
         seed=args.seed,
@@ -56,6 +63,8 @@ def main() -> None:
         hf_token=args.hf_token,
         run_name=run_name,
     )
+    if args.push_to_hub:
+        push_teacher_cache_to_hub(Path(cache_path), args.push_to_hub, hf_token=args.hf_token)
 
 
 if __name__ == "__main__":

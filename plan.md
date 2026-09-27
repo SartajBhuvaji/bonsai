@@ -1473,19 +1473,32 @@ candidate** being insufficient for downstream pass@1, so this ablation
 **fails to reject** "correction carries through" but also **doesn't show a
 directional win for correction." n=40 CI is ~±16pp per plan.md 3.3 — treat
 as directional only. Full 159-problem eval optional if a tighter estimate is
-needed before writing up.
+needed before writing up. Raw n=40 generations showed **empty bodies and
+repetition loops** (see `docs/debug/phase4_distill_humaneval_generations_problems_0-2.txt`), not a harness artifact.
+
+**Incremental rerun — baseline teacher only (2026-09-27, in progress):** 500-step
+KD was too short (pass@1 0/40, degenerate code). Re-distill **same** aggressive
+candidate vs **same** baseline logit cache with **3000 steps** (else unchanged:
+8-bit AdamW, peak_lr=2e-4, warmup 75, batch 4). Reuse local cache
+`runs/20260927T163225Z-91fcb3-…/baseline-topk-logits.pt` when the GPU box still
+has it; on re-cache, push to private dataset
+`sartajbhuvaji/bonsai-teacher-logits-baseline` (`--push-to-hub` on
+`cache_teacher_logits.py`). Student Hub target:
+`sartajbhuvaji/bonsai-distilled-aggressive-vs-baseline-3k`. Orchestration:
+`tools/run_phase4_baseline_kd_3k.sh`, log `/root/phase4_baseline_kd_3k.log`,
+tmux + `metrics.jsonl` per step. Then n=40 HumanEval-TS on the 3k checkpoint.
+**Do not** run the LoRA teacher arm until this result is reviewed.
 
 **Backlog (when there is time, post-ablation): persist teacher logit caches on
 Hub and teach the trainer to fetch them.** The cache is reusable across every
 future candidate (keyed by teacher + sample set, not by which student is being
 trained), so paying the ~1h×2 inference cost once per teacher and reusing beats
 re-caching on every ablation.
-1. Add `--push-to-hub` to `tools/cache_teacher_logits.py`: upload the resulting
-   `.pt` to a **private** HF **dataset** repo, creating it if missing
-   (`private=True`). Naming convention:
-   `sartajbhuvaji/bonsai-teacher-logits-<teacher>` (e.g. `baseline`,
-   `lora-corrected`). Use when caching both teachers on the next full cache run
-   (or backfill from the Phase 4 run dirs if still on disk).
+1. ~~Add `--push-to-hub` to `tools/cache_teacher_logits.py`~~ **done (2026-09-27)** —
+   uploads the `.pt` to a private HF dataset repo (`private=True`). Target for
+   baseline re-cache: `sartajbhuvaji/bonsai-teacher-logits-baseline`. Still TODO:
+   optional one-time backfill upload of the existing Phase 4 baseline cache file
+   without re-running inference.
 2. Extend `tools/train_distilled_candidate.py`'s `--teacher-cache` to accept
    either a local path **or** that HF dataset repo id — local path first, then
    `hf_hub_download` fallback the same way `tools/build_candidate.py` already
