@@ -1430,6 +1430,31 @@ running:**
    script sets `private=True`), per plan.md 4.0's decided policy: only
    candidates that survive get saved at all, never publicly by default.
 
+**Execution progress (2026-09-27, DO H100 `107.170.17.174`, tmux `phase4`):**
+- Step 1 **done** — candidate built (zero-shot loss 1.5891, layer list matched;
+  warned-not-failed on sweep loss drift), pushed private
+  `sartajbhuvaji/bonsai-candidate-aggressive-depth-experts`;
+  `runs/20260927T161454Z-e94ad0-build-candidate-aggressive-depth-experts/`.
+- Step 3a smoke **done** — 10-step KD vs 50-sample baseline cache OK
+  (`train_loss` ~1.40, `val_loss` ~1.59).
+- Step 2b **done** — baseline 6000-sample cache in **1229s** (~0.20 s/sample);
+  `runs/20260927T163225Z-91fcb3-…/baseline-topk-logits.pt` (**563 MB**).
+- Step 2c **done** — LoRA-corrected 6000-sample cache;
+  `runs/20260927T165332Z-4b256d-…/lora-corrected-topk-logits.pt`.
+- Step 3b **done** — distill vs baseline teacher: final **train KD 0.5573**,
+  **val KD 0.5350** (`20260927T171637Z-3ddb90-distill-aggressive-vs-baseline`);
+  pushed private `sartajbhuvaji/bonsai-distilled-aggressive-vs-baseline`.
+- Step 3c **done** — distill vs LoRA teacher: final **train KD 0.5810**,
+  **val KD 0.5339** (`20260927T175820Z-2e6846-distill-aggressive-vs-corrected`);
+  pushed private `sartajbhuvaji/bonsai-distilled-aggressive-vs-corrected`.
+  Pipeline finished **2026-09-27T18:39:22Z**.
+- Orchestration: `tools/run_phase4_ablation_from_cache.sh` (resume after smoke);
+  log `/root/phase4_pipeline.log`; monitor via `12a` (pipeline log), `12b` +
+  `tools/refresh_phase4_kd_artifacts.py` (training curves → `docs/latex/figures/phase4_kd/`).
+- Fixes landed during run: KD device mismatch (`load_teacher_cache` +
+  `make_kd_loss_fn`); `cache_teacher_logits.py` progress logging + data-before-model;
+  `PYTHONUNBUFFERED=1` on pipeline scripts.
+
 **When both training runs are done:** compare final `train_loss`/`val_loss`
 between the baseline-teacher and corrected-teacher runs (both logged to
 `runs/<run>/metrics.jsonl` via `log_metric`). That comparison alone answers
@@ -1440,6 +1465,26 @@ better answer if there's GPU time left, since loss alone doesn't confirm
 which one is actually better at the thing the project cares about. Update
 this section with real numbers once you have them, same as every other
 MISSION BRIEF in this file.
+
+**Backlog (when there is time, post-ablation): persist teacher logit caches on
+Hub and teach the trainer to fetch them.** The cache is reusable across every
+future candidate (keyed by teacher + sample set, not by which student is being
+trained), so paying the ~1h×2 inference cost once per teacher and reusing beats
+re-caching on every ablation.
+1. Add `--push-to-hub` to `tools/cache_teacher_logits.py`: upload the resulting
+   `.pt` to a **private** HF **dataset** repo, creating it if missing
+   (`private=True`). Naming convention:
+   `sartajbhuvaji/bonsai-teacher-logits-<teacher>` (e.g. `baseline`,
+   `lora-corrected`). Use when caching both teachers on the next full cache run
+   (or backfill from the Phase 4 run dirs if still on disk).
+2. Extend `tools/train_distilled_candidate.py`'s `--teacher-cache` to accept
+   either a local path **or** that HF dataset repo id — local path first, then
+   `hf_hub_download` fallback the same way `tools/build_candidate.py` already
+   does for `sartajbhuvaji/bonsai-importance-scores` / `importance-scores.pt`.
+
+**General KD CLI (2026-09-27):** `tools/run_kd_distillation.py` — any `--teacher`
+/ `--student` repo (no pruning), `--teacher-cache`, `--cache-only` / `--train-only`,
+and hyperparameter flags; implementation in `bonsai.training.kd_run`.
 
 ### Phase 4 — Distillation retraining and candidate selection
 

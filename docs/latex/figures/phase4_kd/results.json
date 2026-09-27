@@ -1,0 +1,29 @@
+{
+  "updated_utc": "2026-09-27T18:39:50Z",
+  "runs": {
+    "vs_baseline": {
+      "run_id": "20260927T171637Z-3ddb90-distill-aggressive-vs-baseline",
+      "steps_logged": 500,
+      "last_step": 499,
+      "complete": true,
+      "final_train_loss": 0.5572705641388891,
+      "final_val_loss": 0.5350065913299721,
+      "peak_lr": 0.0002,
+      "total_steps": 500,
+      "batch_size": 4,
+      "warmup_steps": 75
+    },
+    "vs_corrected": {
+      "run_id": "20260927T175820Z-2e6846-distill-aggressive-vs-corrected",
+      "steps_logged": 500,
+      "last_step": 499,
+      "complete": true,
+      "final_train_loss": 0.5810125991702081,
+      "final_val_loss": 0.533891138657927,
+      "peak_lr": 0.0002,
+      "total_steps": 500,
+      "batch_size": 4,
+      "warmup_steps": 75
+    }
+  }
+}

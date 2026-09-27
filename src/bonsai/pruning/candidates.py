@@ -22,6 +22,27 @@ import torch
 
 from bonsai.pruning.experts import select_experts_to_prune
 
+# Locked by `tests/test_pruning_candidates.py` against the committed importance
+# scores -- aggressive tier, depth+experts (depth_n=16, expert_n=80).
+AGGRESSIVE_DEPTH_EXPERTS_LAYERS_TO_PRUNE = [
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    19,
+    22,
+    23,
+    24,
+    33,
+    34,
+    36,
+]
+
 
 def select_depth_experts_candidate(
     depth_scores: torch.Tensor,
@@ -66,4 +87,7 @@ def select_depth_experts_candidate(
     return layers_to_prune, expert_indices_by_new_layer
 
 
-__all__ = ["select_depth_experts_candidate"]
+__all__ = [
+    "AGGRESSIVE_DEPTH_EXPERTS_LAYERS_TO_PRUNE",
+    "select_depth_experts_candidate",
+]

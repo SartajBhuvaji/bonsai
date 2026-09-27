@@ -56,8 +56,9 @@ def make_kd_loss_fn(cache: dict[int, tuple[torch.Tensor, torch.Tensor]]) -> Loss
         # own shift inside the model's built-in loss -- made explicit here since KD
         # never goes through that built-in loss at all.
         student_logits = model(input_ids=input_ids).logits[0, :-1]  # [seq_len-1, vocab]
-        topk_ids = teacher_topk_ids[1:]  # [seq_len-1, k]
-        topk_logprobs = teacher_topk_logprobs[1:]  # [seq_len-1, k]
+        dev = student_logits.device
+        topk_ids = teacher_topk_ids[1:].to(dev)  # [seq_len-1, k]
+        topk_logprobs = teacher_topk_logprobs[1:].to(dev)  # [seq_len-1, k]
 
         student_topk_logits = torch.gather(student_logits, -1, topk_ids)
         student_topk_logprobs = torch.log_softmax(student_topk_logits, dim=-1)

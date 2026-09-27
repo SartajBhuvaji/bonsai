@@ -12,7 +12,10 @@ from pathlib import Path
 import pytest
 import torch
 
-from bonsai.pruning.candidates import select_depth_experts_candidate
+from bonsai.pruning.candidates import (
+    AGGRESSIVE_DEPTH_EXPERTS_LAYERS_TO_PRUNE,
+    select_depth_experts_candidate,
+)
 
 IMPORTANCE_SCORES_PATH = Path("runs/20260919T150941Z-ff00be-importance-scores/importance-scores.pt")
 
@@ -122,7 +125,7 @@ def test_reproduces_the_papers_aggressive_tier_depth_experts_selection() -> None
         protected=protected,
     )
 
-    assert layers_to_prune == [9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 22, 23, 24, 33, 34, 36]
+    assert layers_to_prune == AGGRESSIVE_DEPTH_EXPERTS_LAYERS_TO_PRUNE
     assert len(experts_by_layer) == 32
     assert all(len(experts) == 80 for experts in experts_by_layer.values())
 
