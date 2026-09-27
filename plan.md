@@ -1455,16 +1455,25 @@ running:**
   `make_kd_loss_fn`); `cache_teacher_logits.py` progress logging + data-before-model;
   `PYTHONUNBUFFERED=1` on pipeline scripts.
 
-**When both training runs are done:** compare final `train_loss`/`val_loss`
-between the baseline-teacher and corrected-teacher runs (both logged to
-`runs/<run>/metrics.jsonl` via `log_metric`). That comparison alone answers
-the loss-based half of the question this brief opened with. A downstream
-eval (even a small n=40 HumanEval-TS sample per distilled candidate, same
-pattern as `11a_teacher_corrected_lora_humaneval_ts_sample.ipynb`) is the
-better answer if there's GPU time left, since loss alone doesn't confirm
-which one is actually better at the thing the project cares about. Update
-this section with real numbers once you have them, same as every other
-MISSION BRIEF in this file.
+**Ablation answer (2026-09-27, complete):** KD val loss was a **tie** (baseline
+teacher **0.5350** vs LoRA teacher **0.5339**). HumanEval-TS **n=40** on both
+distilled students (same first-40 problems, temp 0.2 / top-p 0.95,
+`notebooks/12c_phase4_distilled_humaneval_ts_sample.ipynb`):
+- vs baseline teacher: **pass@1 = 0.0**
+  (`runs/20260927T191055Z-263aa6-distill-vs-baseline-humaneval-ts-n40`)
+- vs LoRA teacher: **pass@1 = 0.0**
+  (`runs/20260927T204350Z-02fcbc-distill-vs-corrected-humaneval-ts-n40`)
+
+**Interpretation:** teacher correction neither helps nor hurts this distilled
+student on the project's primary coding metric at this sample size — both arms
+are equally bad (0/40), and KD couldn't separate them either. That is **not**
+evidence that distillation "washed out" the teachers' HumanEval gap (base ~0.67
+vs corrected ~0.57); it likely reflects **500-step KD on one aggressive
+candidate** being insufficient for downstream pass@1, so this ablation
+**fails to reject** "correction carries through" but also **doesn't show a
+directional win for correction." n=40 CI is ~±16pp per plan.md 3.3 — treat
+as directional only. Full 159-problem eval optional if a tighter estimate is
+needed before writing up.
 
 **Backlog (when there is time, post-ablation): persist teacher logit caches on
 Hub and teach the trainer to fetch them.** The cache is reusable across every

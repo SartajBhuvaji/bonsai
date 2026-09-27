@@ -42,10 +42,20 @@ Auto-updated by `tools/refresh_phase4_kd_artifacts.py` (2026-09-27T18:39:50Z).
 }
 ```
 
-## Interpretation (loss-only; eval still needed)
+## HumanEval-TS n=40 (2026-09-27)
+
+| Distilled student (teacher) | pass@1 |
+|-----------------------------|--------|
+| vs baseline Qwen3-30B | **0.0** (0/40) |
+| vs LoRA-corrected teacher | **0.0** (0/40) |
+
+KD val tied (~0.535 vs ~0.534); downstream sample also tied. Neither arm beats
+the other on this slice — both are far below unpruned base (~0.67).
+
+## Interpretation
 
 - Lower **val KD** on the matched holdout means the student matched that teacher's distribution better.
-- This does **not** by itself prove HumanEval/MBPP ranking — add eval bars when available.
+- KD tie + HumanEval tie: **no evidence** that teacher correction changes the distilled student on either proxy at this training budget.
 
 ## Figures in this directory
 
