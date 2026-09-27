@@ -112,6 +112,13 @@ warn_unreachable = true
 pretty = true
 
 [[tool.mypy.overrides]]
+# bitsandbytes ships no py.typed marker / stubs, and (like bigcode-eval) the
+# type env doesn't install it -- it's only needed on the GPU instance
+# actually running 8-bit-AdamW training (bonsai.training.kd_run).
+module = "bitsandbytes.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
 # accelerate ships no py.typed marker / stubs as of the version this project pins.
 module = "accelerate.*"
 ignore_missing_imports = true

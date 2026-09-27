@@ -105,14 +105,21 @@ the same recipe under a more realistic constraint -- no access to the
 original pretraining data -- and introduced teacher correction and a
 downstream-task-based depth-pruning criterion.
 
-Both papers prune exclusively dense transformers. Every weight in a dense
-model's MLP is applied to every token that passes through it. This is not
-true of a Mixture-of-Experts (MoE) model: an MoE layer routes each token to a
-small subset of experts (8 of 128, in the model we study here), so
-most of the model's parameters are never touched by any given token. This
-work asks what happens when the Minitron recipe is applied to a model with
-this property, and in particular, how to score the importance of an axis --
-expert pruning -- that has no precedent in either source paper.
+Both papers prune exclusively dense transformers, along three axes: depth,
+width (MLP neurons and embedding channels), and attention heads. Every
+weight in a dense model's MLP is applied to every token that passes through
+it. This is not true of a Mixture-of-Experts (MoE) model: an MoE layer
+routes each token to a small subset of experts (8 of 128, in the model we
+study here), so most of the model's parameters are never touched by any
+given token -- and, more fundamentally, this model has no separate dense
+FFN for Minitron's width axis to prune at all: every one of its MLP
+parameters lives inside its experts. Expert pruning is therefore this
+model's structural stand-in for width, not a fourth axis alongside the
+original three, and it is the one axis neither source paper offers a
+formula for. This work asks what happens when the Minitron recipe is
+applied to a model with this property, and in particular, how to score the
+importance of this axis -- expert pruning -- that has no precedent in
+either source paper.
 
 Our target model is Qwen3-30B-A3B-Base
 \cite{qwen3moe}: 48 decoder layers, 32 query / 4 key-value attention heads
