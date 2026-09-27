@@ -1,9 +1,12 @@
 # bonsai: an MoE Minitron
 
 > **If you were pointed at this file to run something on a rented GPU:**
-> search for `## MISSION BRIEF` below (Phase 3, just after 3.3/3.4) --
-> that section is a complete, standalone task. You don't need to read
-> the rest of this file first.
+> search for `## MISSION BRIEF` below -- there are two, each a complete,
+> standalone task. Use the one with the **latest date** in its heading
+> (currently `## MISSION BRIEF (2026-09-27)`, just before Phase 4) unless
+> you were told otherwise; the older, undated one (Phase 3, just after
+> 3.3/3.4) is marked as history, already completed. You don't need to
+> read the rest of this file first.
 
 Status: draft, exploratory. No customer, no deadline. We pick a public MoE
 model, apply the Minitron pruning + distillation recipe to it, specialize the
@@ -1316,6 +1319,127 @@ also what motivated the resumable-eval fix described above. The
 DigitalOcean run that actually finished was a clean restart from
 problem 0, not a resume; `--resume` didn't exist yet when it started.
 The result and comparison numbers are above, not repeated here.
+
+## MISSION BRIEF (2026-09-27) — corrected-vs-uncorrected teacher ablation
+
+**Written for whichever Claude session picks this up next, possibly on a
+different account/GPU than the one that wrote it** (same handoff pattern
+as the MISSION BRIEF above, which worked -- see 2026-09-27's MBPP-TS
+result). Self-contained: states the task, exact scripts, exact commands,
+and a real blocker to resolve first, so a fresh session with no prior
+conversation context can act on it directly.
+
+**The question, in one sentence:** does the teacher-correction regression
+found in secs. teacher-correction/teacher-correction-lora (both correction
+methods score *worse* than the uncorrected baseline on HumanEval-TS/MBPP-TS,
+despite improved validation loss) actually carry through to a real
+distilled student, or does distillation wash it out? Nobody knows yet --
+this is the first real test, not a zero-shot loss proxy.
+
+**What's already built and tested (2026-09-27, this session, no GPU used):**
+- `src/bonsai/pruning/candidates.py` -- `select_depth_experts_candidate`,
+  pure index arithmetic, reproduces `08_combined_pruning_sweep.ipynb`'s
+  aggressive-tier depth+experts selection from real importance scores.
+  Tested against synthetic tensors (`tests/test_pruning_candidates.py`,
+  4 tests) plus one regression test against the real committed scores
+  (5th test, skipped automatically if that file's missing -- see blocker
+  below).
+- `src/bonsai/training/distillation.py` -- `make_kd_loss_fn`, a forward-KL
+  loss against cached top-k teacher logits, built to drop straight into
+  `bonsai.training.train`/`train_step` unchanged (their own docstring
+  already anticipated this exact seam). Tested with real tiny-model
+  forward/backward passes on CPU (`tests/test_distillation.py`, 4 tests,
+  including a real gradient-descent-reduces-loss check).
+- `tools/build_candidate.py` -- loads `Qwen/Qwen3-30B-A3B-Base`, applies
+  the aggressive depth+experts selection, verifies the result's zero-shot
+  loss lands at the sweep's own 1.8479815144091845 (tolerance 0.01) before
+  saving anything, so a selection/pruning drift is caught before any GPU
+  time goes into distillation. **Never run for real -- needs a GPU.**
+- `tools/cache_teacher_logits.py` -- one inference-only pass per teacher
+  (`--teacher baseline` or `--teacher lora-corrected`), same fresh
+  retraining-pool sample set (seed=11, disjoint from every prior draw's
+  seed) for both, top-20 logits saved per token. **Never run for real.**
+- `tools/train_distilled_candidate.py` -- trains the candidate against one
+  cached teacher's logits, 8-bit AdamW, 500 steps. Run this twice, once
+  per teacher's cache, identical everything else. **Never run for real.**
+
+All four new/changed files pass `ruff check .`, `ruff format --check .`,
+`mypy` (note: `tools/` isn't in mypy's checked path per `pyproject.toml`'s
+`[tool.mypy] files`, but was checked manually anyway), and the full
+`pytest` suite (158+ tests, all passing) as of this writing -- verified
+*before* handoff, not left for whoever runs this next to discover broken.
+
+**BLOCKER -- resolved (2026-09-27).** `runs/` is entirely gitignored, so
+the real forward-hook importance scores `build_candidate.py` needs
+(`runs/20260919T150941Z-ff00be-importance-scores/importance-scores.pt`)
+only ever existed on the machine that originally computed them, not in
+this repo, not on a fresh clone. Fixed: uploaded to a **private** HF
+dataset repo, `sartajbhuvaji/bonsai-importance-scores`
+(`importance-scores.pt`, same content, verified byte-for-byte via the
+same tensor shapes/dtypes after download), with explicit human approval
+before creating it. `build_candidate.py`'s `load_importance_scores()` now
+tries the local path first and falls back to `hf_hub_download` from that
+repo automatically -- confirmed working end-to-end (downloaded, loaded,
+`depth_scores`/`expert_scores` shapes matched) before this note was
+written. No action needed on the GPU side beyond having HF Hub read
+access to that repo, which the project's usual token already has.
+
+**Once unblocked, the exact commands, in order:**
+```bash
+# 1. Build and save the candidate (needs the importance-scores.pt above)
+python tools/build_candidate.py --push-to-hub sartajbhuvaji/bonsai-candidate-aggressive-depth-experts
+
+# 2. Cache both teachers' logits against the same sample set (run both)
+python tools/cache_teacher_logits.py --teacher baseline
+python tools/cache_teacher_logits.py --teacher lora-corrected
+
+# 3. Train the candidate against each cache (run both, same candidate both times)
+python tools/train_distilled_candidate.py \
+    --candidate <checkpoint dir from step 1, or the pushed HF repo> \
+    --teacher-cache <cache dir from step 2's baseline run>/checkpoints/baseline-topk-logits.pt \
+    --run-name distill-aggressive-vs-baseline \
+    --push-to-hub sartajbhuvaji/bonsai-distilled-aggressive-vs-baseline
+
+python tools/train_distilled_candidate.py \
+    --candidate <same checkpoint as above> \
+    --teacher-cache <cache dir from step 2's lora-corrected run>/checkpoints/lora-corrected-topk-logits.pt \
+    --run-name distill-aggressive-vs-corrected \
+    --push-to-hub sartajbhuvaji/bonsai-distilled-aggressive-vs-corrected
+```
+
+**Hard-learned lessons from every prior run in this project -- read before
+running:**
+1. **Smoke-test with a handful of steps before the real run.** Every real
+   training run in this project (3.1, 3.3) found a real bug this way
+   (frozen-base+LoRA gradient checkpointing needing
+   `enable_input_require_grads`, GPU-side LoRA merge OOMing). Run
+   `train_distilled_candidate.py` against a tiny slice first if practical,
+   or at minimum watch the first ~10 steps' loss before trusting an
+   unattended multi-hour run.
+2. **Time the first ~50 samples of `cache_teacher_logits.py` and
+   extrapolate before committing to the full 6,000-sample run** -- this
+   project has twice discovered a run was going to take far longer than
+   assumed only after wasting real GPU-hours on it (MBPP-TS's two failed
+   Lambda attempts, 2026-09-24/25). No real pace estimate exists yet for
+   this specific inference-only caching workload.
+3. **`bitsandbytes` isn't a declared project dependency** (checked
+   `pyproject.toml` -- it isn't there; every prior 8-bit-AdamW run in this
+   project installed it ad hoc on the GPU instance). `pip install
+   bitsandbytes` before running `train_distilled_candidate.py`.
+4. Push everything with `--push-to-hub` -- **private by default** (this
+   script sets `private=True`), per plan.md 4.0's decided policy: only
+   candidates that survive get saved at all, never publicly by default.
+
+**When both training runs are done:** compare final `train_loss`/`val_loss`
+between the baseline-teacher and corrected-teacher runs (both logged to
+`runs/<run>/metrics.jsonl` via `log_metric`). That comparison alone answers
+the loss-based half of the question this brief opened with. A downstream
+eval (even a small n=40 HumanEval-TS sample per distilled candidate, same
+pattern as `11a_teacher_corrected_lora_humaneval_ts_sample.ipynb`) is the
+better answer if there's GPU time left, since loss alone doesn't confirm
+which one is actually better at the thing the project cares about. Update
+this section with real numbers once you have them, same as every other
+MISSION BRIEF in this file.
 
 ### Phase 4 — Distillation retraining and candidate selection
 
