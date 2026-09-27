@@ -1058,20 +1058,23 @@ weights after training, so the released checkpoint is a plain dense
 model like any other in this family.
 
 \begin{table}[t]
-\caption{LoRA-corrected teacher vs.\ the full-parameter run and baseline,
-full 159-problem HumanEval-TS set.}
+\caption{Both gating benchmarks, all three checkpoints. HumanEval-TS is
+the full 159-problem set, MBPP-TS the full 390-problem set. No
+full-parameter-corrected MBPP-TS number exists -- never run, since that
+checkpoint predates the 3.4 data-quality fix and its score would not be
+a fair comparison point.}
 \label{tab:teacher-correction-lora-humaneval}
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{lr}
+\begin{tabular}{lrr}
 \toprule
-& pass@1 \\
+& HumanEval-TS & MBPP-TS \\
 \midrule
-baseline (unpruned, uncorrected) & 0.6708 \\
-full-parameter corrected teacher & 0.5660 \\
-LoRA-corrected teacher, raw & 0.5723 \\
-LoRA-corrected teacher, trailing-example-stripped & 0.5849 \\
+baseline (uncorrected) & 0.6708 & 0.7333 \\
+full-parameter corrected & 0.5660 & -- \\
+LoRA-corrected, raw & 0.5723 & 0.6077 \\
+LoRA-corrected, ex.-stripped & 0.5849 & -- \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1100,19 +1103,53 @@ $\sim$1pp of baseline) -- neither correction method measurably hurts
 general reasoning; the regression is specific to HumanEval-TS both
 times.
 
+\textbf{MBPP-TS confirms the regression on a second gating benchmark --
+and it is not smaller there.} Run against the LoRA-corrected teacher
+only (the full-parameter checkpoint predates the data-quality fix, so
+its MBPP-TS score would not be comparable): pass@1$=0.6077$ (237 of
+390) vs.\ the baseline's $0.7333$, a $12.6$pp gap -- wider than
+HumanEval-TS's $9.85$pp, both in absolute percentage points and in
+relative terms ($17.1\%$ below baseline vs.\ $14.7\%$). Two
+benchmarks now agree: this project's teacher-correction recipe, in
+every configuration tested so far, measurably regresses the model's own
+TypeScript code-generation accuracy.
+
 \textbf{Neither fix closes the gap.} Two independent interventions --
 LoRA-as-method plus the data-quality fix together, then the
 trailing-example postprocessing on top -- each moved pass@1 in the right
 direction, by small amounts, without resolving the core finding: this
 project's teacher-correction recipe, however configured so far,
-regresses the primary benchmark it exists to improve. Whether the
-remaining $\sim$8.6pp gap is \citet{minitron2024practice}'s
+regresses the primary benchmarks it exists to improve. Whether the
+remaining gap is \citet{minitron2024practice}'s
 $\sim$100B-vs-$\sim$1.9M-token budget gap, something else about the
-recipe, or a combination, is still open -- not yet isolated, and the
-Figure-4-style ablation against a pruned candidate
-(\citet{minitron2024practice}'s own comparison) remains the decisive
-test for whether correction, in some form, is worth keeping for Phase 4
-distillation at all (\cref{sec:discussion}).
+recipe, or a combination, is still open -- not yet isolated.
+
+\textbf{Does the teacher's own accuracy even predict distillation
+quality?} A real question raised by these two regressions, and one
+this project did not need to answer from first principles -- it is an
+established, if counter-intuitive, finding in the broader knowledge
+distillation literature that it does not, reliably.
+\citet{choharihan2019} found that more accurate (and larger) teachers
+often make \emph{worse} distillation teachers: a ``capacity gap'' effect
+where a student cannot represent a mapping too different from what it
+can express, and where a less-converged, lower-accuracy teacher
+sometimes distills into a better student than a fully-trained one.
+\citet{teachercalib2025} found something more specific and more directly
+actionable: a teacher's \emph{calibration error} -- how well its
+predicted confidence matches its actual correctness, not its raw
+accuracy -- is the more reliable predictor of distillation success,
+and a less accurate but better-calibrated teacher can outdistill a more
+accurate but overconfident one. Neither result tells us which way our
+own corrected teacher will go once distilled into an actual pruned
+student -- this project's own accuracy measurements are not a
+calibration study, and we have not run one -- but together they are a
+real, citable reason not to treat teacher accuracy as a proxy for
+teacher \emph{usefulness}, and a reason the Figure-4-style ablation
+against a pruned candidate (\citet{minitron2024practice}'s own
+comparison) is the right next experiment rather than an optional extra
+step: it is the only way to test the thing that actually matters for
+Phase 4, instead of continuing to relitigate the corrected teacher's own
+benchmark scores (\cref{sec:discussion}).
 
 \section{Discussion and Open Questions}
 \label{sec:discussion}
