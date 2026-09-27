@@ -25,6 +25,12 @@ from typing import TYPE_CHECKING
 from bigcode_eval.tasks.multiple import GeneralMultiPLE
 from datasets import load_dataset
 
+from bonsai.eval.checkpoint import (
+    count_completed_tasks,
+    intermediate_generations_path,
+    load_intermediate_generations,
+)
+
 if TYPE_CHECKING:
     from datasets import DatasetDict
 
@@ -133,6 +139,9 @@ __all__ = [
     "ExportStrippingMultiPLE",
     "MbppMultiPLE",
     "TsMultiPLE",
+    "count_completed_tasks",
+    "intermediate_generations_path",
+    "load_intermediate_generations",
     "register",
     "strip_module_exports",
 ]

@@ -9,6 +9,8 @@ always-run test.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 bigcode_eval = pytest.importorskip("bigcode_eval")
@@ -19,6 +21,9 @@ from bonsai.eval import (  # noqa: E402
     TASK_NAME,
     MbppMultiPLE,
     TsMultiPLE,
+    count_completed_tasks,
+    intermediate_generations_path,
+    load_intermediate_generations,
     register,
     strip_module_exports,
 )
@@ -84,6 +89,25 @@ def test_requires_execution() -> None:
     task = MbppMultiPLE(dataset=fixture_dataset())
 
     assert task.requires_execution is True
+
+
+def test_intermediate_generations_path_matches_bigcode_eval(tmp_path: Path) -> None:
+    save_path = tmp_path / "runs" / "foo" / "mbpp-ts-generations.json"
+    expected = tmp_path / "runs" / "foo" / "mbpp-ts-generations_multiple-mbpp-ts_intermediate.json"
+
+    assert intermediate_generations_path(save_path, "multiple-mbpp-ts") == expected
+
+
+def test_load_intermediate_generations_missing_returns_none(tmp_path: Path) -> None:
+    path = tmp_path / "missing.json"
+
+    assert load_intermediate_generations(path) is None
+
+
+def test_count_completed_tasks_skips_empty_slots() -> None:
+    intermediate = [[], ["code"], [], ["a", "b"]]
+
+    assert count_completed_tasks(intermediate) == 2
 
 
 def test_register_adds_task_to_the_harness_registry() -> None:
