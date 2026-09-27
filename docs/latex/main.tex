@@ -859,36 +859,10 @@ was terminated, so we report the sweep's qualitative outcome here rather
 than fabricate the missing numbers -- an oversight in this run's
 logistics, not a gap in what was measured.
 
-\subsection{Multi-GPU Utilization: A Negative Result Worth Reporting}
-\label{sec:fsdp-negative-result}
-
-While tuning the sweep above, \texttt{nvidia-smi} showed only one of 8
-GPUs active at a time (42\% utilization on one device, 0--8\% on the
-rest) despite the model being sharded across all 8. The cause:
-\texttt{device\_map="auto"} shards \emph{layers} across devices, not
-\emph{parameters} -- forward and backward each walk the same
-layer-by-layer chain in sequence, so only one GPU computes at any given
-instant while the rest wait their turn in the pipeline.
-
-We implemented Fully Sharded Data Parallel (FSDP, via
-\texttt{accelerate}) as a fix: FSDP shards parameters instead of layers,
-so every GPU holds a slice of every layer and computes on every step,
-all at once. After resolving two real out-of-memory failures --
-FSDP's own parameter-broadcast step during initialization, and a missing
-\texttt{use\_orig\_params=True} flag breaking 8-bit AdamW's
-per-parameter quantization -- a real 8-GPU run confirmed genuinely high
-utilization (55--89\% across all 8 GPUs).
-
-It was also $2.7\times$ \emph{slower} in wall-clock time than the naive
-single-GPU-active approach ($\sim$11 sec/step vs.\ $\sim$4 sec/step).
-For this workload -- a small per-step batch and an MoE model where most
-layers do little compute per token -- FSDP's per-layer
-all-gather/reduce-scatter communication overhead outweighs the benefit
-of computing on every GPU at once. Higher literal utilization did not
-mean faster or cheaper training here; we report this as a caution against
-treating GPU utilization as a proxy for training efficiency without
-also checking wall-clock cost, and used the naive (lower-utilization,
-faster) approach for the real run below.
+While tuning the sweep above, we also tried fixing a multi-GPU
+utilization problem with FSDP; it made utilization genuinely better and
+training genuinely slower, so we kept the naive approach instead and
+moved the full writeup to \cref{app:fsdp}.
 
 \subsection{Real Correction Run}
 
@@ -1079,6 +1053,29 @@ LoRA-corrected, ex.-stripped & 0.5849 & -- \\
 \end{tabular}
 \end{table}
 
+\begin{table}[t]
+\caption{Complete benchmark parity: baseline vs.\ the LoRA-corrected
+teacher, the checkpoint carried forward. Unlike the full-parameter
+checkpoint (\cref{tab:teacher-correction-lora-humaneval}), every metric
+in this project's suite has been run for both.}
+\label{tab:teacher-correction-lora-full-suite}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrr}
+\toprule
+Task (setting) & Baseline & LoRA-corrected \\
+\midrule
+HumanEval-TS pass@1 & 0.6708 & 0.5723 \\
+MBPP-TS pass@1 & 0.7333 & 0.6077 \\
+MMLU (5-shot, acc) & 0.8101 & 0.8070 \\
+ARC-C (25-shot, acc) & 0.6536 & 0.6485 \\
+ARC-C (25-shot, acc\_norm) & 0.6749 & 0.6715 \\
+Winogrande (5-shot, acc) & 0.7798 & 0.7845 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 A real, if modest, improvement over the full-parameter run
 ($+0.0063$ raw), still $8.6$pp below baseline. Two qualitative
 differences from the full-parameter teacher's own failure modes, found
@@ -1237,5 +1234,46 @@ This is an independent research project with no external funding.
 
 \bibliography{references}
 \bibliographystyle{icml2025}
+
+\appendix
+\section{Approaches That Did Not Work}
+\label{app:negative-results}
+
+The main text reports the project's actual findings; this appendix
+collects attempted approaches that were tried, measured, and abandoned
+in favor of something simpler or more effective, kept here rather than
+in the main narrative so they don't interrupt it.
+
+\subsection{Multi-GPU Utilization via FSDP}
+\label{app:fsdp}
+
+While tuning the teacher-correction hyperparameter sweep
+(\cref{sec:teacher-correction}), \texttt{nvidia-smi} showed only one of
+8 GPUs active at a time (42\% utilization on one device, 0--8\% on the
+rest) despite the model being sharded across all 8. The cause:
+\texttt{device\_map="auto"} shards \emph{layers} across devices, not
+\emph{parameters} -- forward and backward each walk the same
+layer-by-layer chain in sequence, so only one GPU computes at any given
+instant while the rest wait their turn in the pipeline.
+
+We implemented Fully Sharded Data Parallel (FSDP, via
+\texttt{accelerate}) as a fix: FSDP shards parameters instead of layers,
+so every GPU holds a slice of every layer and computes on every step,
+all at once. After resolving two real out-of-memory failures --
+FSDP's own parameter-broadcast step during initialization, and a missing
+\texttt{use\_orig\_params=True} flag breaking 8-bit AdamW's
+per-parameter quantization -- a real 8-GPU run confirmed genuinely high
+utilization (55--89\% across all 8 GPUs).
+
+It was also $2.7\times$ \emph{slower} in wall-clock time than the naive
+single-GPU-active approach ($\sim$11 sec/step vs.\ $\sim$4 sec/step).
+For this workload -- a small per-step batch and an MoE model where most
+layers do little compute per token -- FSDP's per-layer
+all-gather/reduce-scatter communication overhead outweighs the benefit
+of computing on every GPU at once. Higher literal utilization did not
+mean faster or cheaper training here; we report this as a caution against
+treating GPU utilization as a proxy for training efficiency without
+also checking wall-clock cost, and used the naive (lower-utilization,
+faster) approach for the real correction run in the main text.
 
 \end{document}
