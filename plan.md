@@ -1170,6 +1170,61 @@ mistake, one provider switch) -- both restarted from problem 0 because
 nothing survived a kill. Every future long eval run should use
 `--resume` from the start.
 
+**Full results table, both gating benchmarks, all three checkpoints:**
+
+| | HumanEval-TS pass@1 | MBPP-TS pass@1 |
+|---|---|---|
+| baseline (uncorrected) | 0.6708 | 0.7333 |
+| full-parameter corrected | 0.5660 | -- (never run, predates 3.4's fix) |
+| LoRA-corrected, raw | 0.5723 | 0.6077 |
+| LoRA-corrected, export/example-stripped | 0.5849 | -- (not checked yet) |
+
+MBPP-TS's gap (12.6pp, 17.1% relative) is wider than HumanEval-TS's
+(9.85pp, 14.7% relative) -- both benchmarks now agree that this
+project's teacher-correction recipe, in every configuration tested,
+regresses the model's own TypeScript code-generation accuracy.
+
+**What the broader literature says about this (checked 2026-09-27,
+not just our own two papers).** 2408.11796 itself only acknowledges the
+effect ("minor," "some tasks improving and some degrading," "an
+artifact of the dataset") without investigating it -- 2407.14679 never
+needs teacher correction at all, so says nothing. The wider knowledge
+distillation literature has a real, established answer to the question
+this raises (does the teacher's own regressed accuracy mean it's a
+worse *distillation* teacher?): not necessarily.
+
+- **Cho \& Hariharan, "On the Efficacy of Knowledge Distillation"
+  (ICCV 2019, arXiv:1910.01348).** Found that more accurate/larger
+  teachers often make *worse* distillation teachers -- a "capacity gap"
+  effect where a student can't represent a mapping too different from
+  what it can express. They found a less-converged, lower-accuracy
+  teacher sometimes distills into a *better* student than a
+  fully-trained one, and note that stopping a teacher's training early
+  is one way to exploit this.
+- **Kim, Park, Lee \& Kwak, "The Role of Teacher Calibration in
+  Knowledge Distillation" (2025, arXiv:2508.20224).** A teacher's
+  *calibration error* -- how well its confidence matches its actual
+  correctness, not its raw accuracy -- predicts distillation success
+  better than accuracy does. A less accurate but better-calibrated
+  teacher can outdistill a more accurate but overconfident one.
+- Domain-adaptation-specific work (found via search, not read in full)
+  surfaces a two-sided nuance: a domain-adapted teacher's narrower,
+  more target-focused behavior can help distillation into that domain,
+  but unconstrained on-policy distillation from a narrowly fine-tuned
+  teacher can also act as an over-conservative anchor limiting how much
+  the student adapts. Which effect wins seems to depend on specifics
+  this project hasn't tested.
+
+Neither paper tells us which way *our* corrected teacher will go once
+distilled into an actual pruned student -- our accuracy measurements
+aren't a calibration study, and we haven't run one. But they're a real,
+citable reason not to treat teacher accuracy as a stand-in for teacher
+usefulness, and they directly support the plan already in place: the
+Figure-4-style ablation against a pruned candidate is the right next
+experiment, not an optional extra step, because it's the only way to
+test the thing that actually matters for Phase 4 instead of continuing
+to relitigate the corrected teacher's own benchmark scores.
+
 ## MISSION BRIEF
 
 **Written 2026-09-26 for whichever Claude session picks this up next;
