@@ -30,6 +30,38 @@ def repo_slug(repo_id: str) -> str:
     return repo_id.replace("/", "--")
 
 
+DEFAULT_TEACHER_CACHE_FILENAME = "baseline-topk-logits.pt"
+
+
+def resolve_teacher_cache_path(spec: str, *, hf_token: str | None) -> Path:
+    """Local `.pt` path, or download from a private HF dataset repo id (`org/name`)."""
+    path = Path(spec)
+    if path.is_file():
+        return path
+    if path.exists() and not path.is_dir():
+        raise FileNotFoundError(path)
+    if path.exists() and path.is_dir():
+        candidate = path / DEFAULT_TEACHER_CACHE_FILENAME
+        if candidate.is_file():
+            return candidate
+        raise FileNotFoundError(f"no {DEFAULT_TEACHER_CACHE_FILENAME} under {path}")
+
+    if "/" in spec and not spec.startswith("runs/"):
+        from huggingface_hub import hf_hub_download
+
+        _log(f"teacher cache not local; downloading from dataset {spec} ...")
+        return Path(
+            hf_hub_download(
+                spec,
+                DEFAULT_TEACHER_CACHE_FILENAME,
+                repo_type="dataset",
+                token=hf_token,
+            )
+        )
+
+    raise FileNotFoundError(f"teacher cache not found: {spec}")
+
+
 def load_teacher_cache(
     path: Path, *, device: torch.device
 ) -> tuple[dict[int, tuple[torch.Tensor, torch.Tensor]], list[torch.Tensor]]:
@@ -253,4 +285,5 @@ __all__ = [
     "load_teacher_cache",
     "push_teacher_cache_to_hub",
     "repo_slug",
+    "resolve_teacher_cache_path",
 ]
