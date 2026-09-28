@@ -1473,19 +1473,49 @@ candidate** being insufficient for downstream pass@1, so this ablation
 **fails to reject** "correction carries through" but also **doesn't show a
 directional win for correction." n=40 CI is ~±16pp per plan.md 3.3 — treat
 as directional only. Full 159-problem eval optional if a tighter estimate is
-needed before writing up.
+needed before writing up. Raw n=40 generations showed **empty bodies and
+repetition loops** (see `docs/debug/phase4_distill_humaneval_generations_problems_0-2.txt`), not a harness artifact.
+
+**Incremental rerun — baseline teacher only (2026-09-27 → 2026-09-28, complete):**
+500-step KD was too short (pass@1 0/40, degenerate code). Re-distilled **same**
+aggressive candidate vs **same** baseline logit cache with **3000 steps** (else
+unchanged: 8-bit AdamW, peak_lr=2e-4, warmup 75, batch 4). Reused local cache
+`runs/20260927T163225Z-91fcb3-cache-teacher-logits-baseline/checkpoints/baseline-topk-logits.pt`
+(no re-cache). Student pushed private
+`sartajbhuvaji/bonsai-distilled-aggressive-vs-baseline-3k`. Orchestration:
+`tools/run_phase4_baseline_kd_3k.sh`, log `/root/phase4_baseline_kd_3k.log`, tmux
+`phase4_baseline_3k`; finished **2026-09-28T03:29:31Z**.
+- **KD run:** `runs/20260927T224944Z-2dd5db-distill-aggressive-vs-baseline-3000/`
+  — final **train KD 1.2002**, **val KD 1.5719** (step 2999); best val **0.6572**
+  @ step 179. Full log: `docs/debug/phase4_baseline_kd_3k_metrics.jsonl`; per-100
+  val summary: `docs/debug/phase4_baseline_kd_3k_val_trajectory.txt`.
+  **Loss shape:** same metric as the 500-step arm (not apples-to-oranges). This
+  rerun **tracked the 500-step curve through ~step 199** (val ~0.67), then
+  **diverged** (500-step run had val **0.535** @ 499; this run had val **1.869**
+  @ 499), **spiked ~1.89 @ step 399**, then **plateaued ~1.58–1.87** with slow
+  drift to **1.57** at 3000 — i.e. a mid-training instability / non-deterministic
+  fork, not monotonic improvement past 500 steps. Compare side-by-side @499 in
+  the trajectory file vs `20260927T171637Z-3ddb90-distill-aggressive-vs-baseline`.
+- **HumanEval-TS n=40:** **pass@1 = 0.0**
+  (`runs/20260928T020351Z-d6de7d-distill-vs-baseline-humaneval-ts-n40-3k`;
+  scored JSON `docs/debug/phase4_baseline_kd_3k_humaneval_ts_n40.json`). Raw
+  completions (problems 0–2):
+  `docs/debug/phase4_baseline_kd_3k_humaneval_generations_problems_0-2.txt`
+  — **`ilege` repetition loops** (~10k chars/problem), not empty bodies.
+  Longer KD did **not** fix downstream pass@1 vs the 500-step checkpoint.
+**Do not** run the LoRA teacher 3k arm until this result is reviewed (instability
++ eval still 0/40).
 
 **Backlog (when there is time, post-ablation): persist teacher logit caches on
 Hub and teach the trainer to fetch them.** The cache is reusable across every
 future candidate (keyed by teacher + sample set, not by which student is being
 trained), so paying the ~1h×2 inference cost once per teacher and reusing beats
 re-caching on every ablation.
-1. Add `--push-to-hub` to `tools/cache_teacher_logits.py`: upload the resulting
-   `.pt` to a **private** HF **dataset** repo, creating it if missing
-   (`private=True`). Naming convention:
-   `sartajbhuvaji/bonsai-teacher-logits-<teacher>` (e.g. `baseline`,
-   `lora-corrected`). Use when caching both teachers on the next full cache run
-   (or backfill from the Phase 4 run dirs if still on disk).
+1. ~~Add `--push-to-hub` to `tools/cache_teacher_logits.py`~~ **done (2026-09-27)** —
+   uploads the `.pt` to a private HF dataset repo (`private=True`). Target for
+   baseline re-cache: `sartajbhuvaji/bonsai-teacher-logits-baseline`. Still TODO:
+   optional one-time backfill upload of the existing Phase 4 baseline cache file
+   without re-running inference.
 2. Extend `tools/train_distilled_candidate.py`'s `--teacher-cache` to accept
    either a local path **or** that HF dataset repo id — local path first, then
    `hf_hub_download` fallback the same way `tools/build_candidate.py` already

@@ -144,6 +144,26 @@ def cache_teacher_logit_file(
     return run_dir, out_path
 
 
+def push_teacher_cache_to_hub(
+    cache_path: Path,
+    repo_id: str,
+    *,
+    hf_token: str | None,
+) -> None:
+    """Upload a cached top-k logits file to a private HF dataset repo."""
+    from huggingface_hub import HfApi
+
+    api = HfApi(token=hf_token)
+    api.create_repo(repo_id, repo_type="dataset", private=True, exist_ok=True)
+    api.upload_file(
+        path_or_fileobj=str(cache_path),
+        path_in_repo=cache_path.name,
+        repo_id=repo_id,
+        repo_type="dataset",
+    )
+    _log(f"pushed cache to https://huggingface.co/datasets/{repo_id}/{cache_path.name} (private)")
+
+
 def distill_student(
     student_repo_id: str,
     teacher_cache: Path,
@@ -231,5 +251,6 @@ __all__ = [
     "cache_teacher_logit_file",
     "distill_student",
     "load_teacher_cache",
+    "push_teacher_cache_to_hub",
     "repo_slug",
 ]
