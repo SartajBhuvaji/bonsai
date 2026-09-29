@@ -33,6 +33,11 @@ def main() -> None:
     parser.add_argument("--run-name", required=True, help="e.g. distill-aggressive-vs-baseline")
     parser.add_argument("--val-fraction", type=float, default=0.05)
     parser.add_argument("--push-to-hub", default=None)
+    parser.add_argument(
+        "--push-to-hub-best",
+        default=None,
+        help="HF repo for lowest-val checkpoint (default: <push-to-hub>-best)",
+    )
     parser.add_argument("--hf-token", default=None)
     parser.add_argument("--steps", type=int, default=DEFAULT_CONFIG.total_steps)
     parser.add_argument("--batch-size", type=int, default=DEFAULT_CONFIG.batch_size)
@@ -56,6 +61,7 @@ def main() -> None:
         config=config,
         val_fraction=args.val_fraction,
         push_to_hub=args.push_to_hub,
+        push_to_hub_best=args.push_to_hub_best,
         hf_token=args.hf_token,
     )
 

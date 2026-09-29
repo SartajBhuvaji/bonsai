@@ -116,6 +116,7 @@ def train(
     optimizer: torch.optim.Optimizer | None = None,
     val_every: int = 10,
     run_dir: Path | None = None,
+    on_val: Callable[[int, float], None] | None = None,
 ) -> list[dict[str, Any]]:
     """Run `config.total_steps` optimizer steps, periodically checking validation loss.
 
@@ -175,6 +176,8 @@ def train(
                 )
             model.train()
             record["val_loss"] = val_loss
+            if on_val is not None:
+                on_val(step, val_loss)
 
         history.append(record)
         if run_dir is not None:

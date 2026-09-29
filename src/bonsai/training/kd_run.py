@@ -6,6 +6,7 @@ Teacher and student are Hugging Face repo ids or local checkpoint paths.
 
 from __future__ import annotations
 
+import json
 import time
 from pathlib import Path
 from typing import cast
@@ -205,11 +206,15 @@ def distill_student(
     val_fraction: float = 0.05,
     val_every: int = 10,
     push_to_hub: str | None = None,
+    push_to_hub_best: str | None = None,
     hf_token: str | None = None,
     teacher_repo_id: str | None = None,
 ) -> Path:
     """Train `student_repo_id` against a cached teacher; returns `run_dir`."""
     from dataclasses import asdict
+
+    if push_to_hub_best is None and push_to_hub is not None:
+        push_to_hub_best = f"{push_to_hub}-best"
 
     run_dir = new_run(run_name)
     save_config_snapshot(
@@ -246,6 +251,21 @@ def distill_student(
 
     loss_fn = make_kd_loss_fn(cache)
     optimizer = bnb.optim.AdamW8bit(model.parameters(), lr=config.peak_lr)
+    best_val = float("inf")
+    best_step = -1
+    best_dir = run_dir / "checkpoints" / "distilled-best"
+
+    def on_val(step: int, val_loss: float) -> None:
+        nonlocal best_val, best_step
+        if val_loss >= best_val:
+            return
+        best_val = val_loss
+        best_step = step
+        best_dir.mkdir(parents=True, exist_ok=True)
+        model.save_pretrained(best_dir)
+        tokenizer.save_pretrained(best_dir)
+        _log(f"new best val_loss={val_loss:.4f} at step {step} -> {best_dir}")
+
     history = train(
         model,
         train_ids,
@@ -255,15 +275,25 @@ def distill_student(
         optimizer=optimizer,
         val_every=val_every,
         run_dir=run_dir,
+        on_val=on_val,
     )
     _log(f"final train_loss={history[-1]['train_loss']:.4f}")
     if "val_loss" in history[-1]:
         _log(f"final val_loss={history[-1]['val_loss']:.4f}")
+    if best_step >= 0:
+        _log(f"best val_loss={best_val:.4f} at step {best_step}")
+        (run_dir / "best_checkpoint.json").write_text(
+            json.dumps(
+                {"best_step": best_step, "best_val_loss": best_val, "path": str(best_dir)},
+                indent=2,
+            )
+            + "\n"
+        )
 
     checkpoint_dir = run_dir / "checkpoints" / "distilled"
     model.save_pretrained(checkpoint_dir)
     tokenizer.save_pretrained(checkpoint_dir)
-    _log(f"saved to {checkpoint_dir}")
+    _log(f"saved final weights to {checkpoint_dir}")
 
     if push_to_hub:
         # transformers.PreTrainedModel.push_to_hub is `@wraps(PushToHubMixin.push_to_hub)`
@@ -274,7 +304,17 @@ def distill_student(
         # source directly, not guessed; a real call to a real, correctly-typed method.
         model.push_to_hub(push_to_hub, token=hf_token, private=True)  # type: ignore[arg-type]
         tokenizer.push_to_hub(push_to_hub, token=hf_token, private=True)
-        _log(f"pushed to https://huggingface.co/{push_to_hub} (private)")
+        _log(f"pushed final to https://huggingface.co/{push_to_hub} (private)")
+
+    if push_to_hub_best and best_dir.is_dir() and any(best_dir.iterdir()):
+        best_model = AutoModelForCausalLM.from_pretrained(
+            best_dir, dtype=torch.bfloat16, device_map="cpu", token=hf_token
+        )
+        best_tok = AutoTokenizer.from_pretrained(best_dir, token=hf_token)
+        best_model.push_to_hub(push_to_hub_best, token=hf_token, private=True)  # type: ignore[arg-type]
+        best_tok.push_to_hub(push_to_hub_best, token=hf_token, private=True)
+        _log(f"pushed best-val to https://huggingface.co/{push_to_hub_best} (private)")
+        del best_model
 
     return run_dir
 

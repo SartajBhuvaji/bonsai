@@ -1534,6 +1534,15 @@ Orchestration: `tools/run_phase4_baseline_kd_3k_warmup450.sh`, GPU
   **Next isolated test:** lower **peak_lr** with warmup450 fixed (or stop/eval
   ~500-step checkpoint); LoRA 3k still on hold.
 
+**Schedule fix attempt — warmup450 + peak_lr 1e-4 (2026-09-29, in progress):**
+Single-variable after warmup450: **peak_lr=1e-4** (half of 2e-4), **warmup_steps=450**,
+else unchanged. **`distill_student` now saves/pushes best-val checkpoint** (`checkpoints/
+distilled-best`, `best_checkpoint.json`, Hub `…-best` sibling repo). Final Hub:
+`sartajbhuvaji/bonsai-distilled-aggressive-vs-baseline-3k-warmup450-lr1e4`; best-val:
+`…-lr1e4-best`. HumanEval-TS n=40 on **both** final and best. Orchestration:
+`tools/run_phase4_baseline_kd_3k_warmup450_lr1e4.sh`, GPU `192.241.246.60`, log
+`/root/phase4_baseline_kd_3k_warmup450_lr1e4.log`, tmux `phase4_lr1e4`.
+
 **Backlog (when there is time, post-ablation): persist teacher logit caches on
 Hub and teach the trainer to fetch them.** The cache is reusable across every
 future candidate (keyed by teacher + sample set, not by which student is being
