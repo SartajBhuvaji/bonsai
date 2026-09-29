@@ -1,0 +1,44 @@
+Phase 4 baseline teacher KD — 3000 steps, warmup_steps=450
+run: 20260928T195145Z-4eaf33-distill-aggressive-vs-baseline-3000-warmup450
+hub: sartajbhuvaji/bonsai-distilled-aggressive-vs-baseline-3k-warmup450
+
+Compare: 3k warmup75 final val~1.57; 500-step val@499=0.535
+
+Per validation checkpoint (val every 10 steps; rows at step % 100 == 99):
+step   train_loss   val_loss
+   99     1.174242     1.171516
+  199     0.902123     0.741079
+  299     0.790340     0.648120
+  399     0.651216     0.625792
+  499     0.641766     0.626769
+  599     0.684695     0.633770
+  699     1.065372     0.890073
+  799     1.744497     1.878907
+  899     1.648660     1.868744
+  999     1.995375     1.861703
+ 1099     1.777869     1.869251
+ 1199     1.974821     1.858845
+ 1299     1.620169     1.851006
+ 1399     2.043813     1.845822
+ 1499     2.210086     1.844934
+ 1599     1.945018     1.842573
+ 1699     2.107427     1.845263
+ 1799     1.868164     1.840459
+ 1899     1.784334     1.838765
+ 1999     2.059442     1.839194
+ 2099     1.940059     1.836216
+ 2199     1.880300     1.835880
+ 2299     1.834536     1.833353
+ 2399     1.875317     1.834231
+ 2499     1.866624     1.830555
+ 2599     1.604045     1.828514
+ 2699     1.777412     1.827177
+ 2799     1.605081     1.825554
+ 2899     1.708552     1.824379
+ 2999     1.629358     1.823531
+
+Best val: step 489 val_loss=0.617941
+Final (step 2999): val_loss=1.823531 train_loss=1.6293582618236542
+
+Shape: healthy val ~0.62-0.64 through ~step 600 (warmup450 fixed early step-400 spike);
+second instability ~step 700+, spike ~1.88 by ~800, plateau to final val~1.82.
