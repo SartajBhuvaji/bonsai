@@ -1,0 +1,1844 @@
+=== Phase 4 baseline KD 3k warmup450 + HumanEval n=40 start 2026-09-28T19:51:39Z ===
+CANDIDATE=sartajbhuvaji/bonsai-candidate-aggressive-depth-experts
+TEACHER_CACHE=sartajbhuvaji/bonsai-teacher-logits-baseline
+STEPS=3000 WARMUP=450 peak_lr=2e-4 (default)
+DISTILL_HUB=sartajbhuvaji/bonsai-distilled-aggressive-vs-baseline-3k-warmup450
+--- distill vs baseline teacher (3000 steps, warmup 450) ---
+teacher cache not local; downloading from dataset sartajbhuvaji/bonsai-teacher-logits-baseline ...
+Loading student sartajbhuvaji/bonsai-candidate-aggressive-depth-experts ...
+Loading weights:   0%|          | 0/355 [00:00<?, ?it/s]Loading weights:   4%|▍         | 15/355 [00:00<00:02, 127.18it/s]Loading weights:  10%|█         | 37/355 [00:00<00:02, 154.73it/s]Loading weights:  17%|█▋        | 59/355 [00:00<00:01, 162.92it/s]Loading weights:  23%|██▎       | 81/355 [00:00<00:01, 166.93it/s]Loading weights:  29%|██▉       | 103/355 [00:00<00:01, 169.22it/s]Loading weights:  35%|███▌      | 125/355 [00:00<00:01, 170.30it/s]Loading weights:  41%|████▏     | 147/355 [00:00<00:01, 170.88it/s]Loading weights:  48%|████▊     | 169/355 [00:01<00:01, 171.65it/s]Loading weights:  54%|█████▍    | 191/355 [00:01<00:00, 172.15it/s]Loading weights:  60%|██████    | 213/355 [00:01<00:00, 171.87it/s]Loading weights:  66%|██████▌   | 235/355 [00:01<00:00, 169.37it/s]Loading weights:  72%|███████▏  | 257/355 [00:01<00:00, 170.85it/s]Loading weights:  79%|███████▊  | 279/355 [00:01<00:00, 171.55it/s]Loading weights:  85%|████████▍ | 301/355 [00:01<00:00, 172.13it/s]Loading weights:  91%|█████████ | 323/355 [00:01<00:00, 171.92it/s]Loading weights:  97%|█████████▋| 345/355 [00:02<00:00, 171.86it/s]Loading weights: 100%|██████████| 355/355 [00:02<00:00, 173.91it/s]
+5700 train samples, 300 val samples (metrics: runs/20260928T195145Z-4eaf33-distill-aggressive-vs-baseline-3000-warmup450/metrics.jsonl)
+[transformers] `use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`.
+final train_loss=1.6294
+final val_loss=1.8235
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:15<00:00, 15.34s/it]Writing model shards: 100%|██████████| 1/1 [00:15<00:00, 15.34s/it]
+saved to runs/20260928T195145Z-4eaf33-distill-aggressive-vs-baseline-3000-warmup450/checkpoints/distilled
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:08<00:00,  8.95s/it]Writing model shards: 100%|██████████| 1/1 [00:08<00:00,  8.95s/it]
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+New Data Upload               : |          |  0.00B /  0.00B            [A
+
+  ..._ut9_6e/model.safetensors:   0%|          |  576kB / 17.0GB            [A[A
+
+  ..._ut9_6e/model.safetensors:   0%|          |  576kB / 17.0GB            [A[AProcessing Files (0 / 1)      :   0%|          |  576kB / 17.0GB,   ???B/s  
+
+  ..._ut9_6e/model.safetensors:   0%|          |  576kB / 17.0GB            [A[A
+
+  ..._ut9_6e/model.safetensors:   0%|          | 1.18MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   0%|          | 1.18MB / 17.0GB,  116kB/s  
+New Data Upload               :   1%|          |  603kB / 67.1MB, 59.7kB/s  [A
+
+  ..._ut9_6e/model.safetensors:   0%|          | 36.1MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   0%|          | 36.1MB / 17.0GB, 3.57MB/s  
+New Data Upload               :  27%|██▋       | 35.6MB /  134MB, 3.51MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   0%|          | 67.6MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   0%|          | 67.6MB / 17.0GB, 6.64MB/s  
+New Data Upload               :  50%|█████     | 67.1MB /  134MB, 6.58MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   0%|          | 80.3MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   0%|          | 80.3MB / 17.0GB, 7.81MB/s  
+New Data Upload               :  59%|█████▉    | 79.7MB /  134MB, 7.76MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   1%|          |  114MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   1%|          |  114MB / 17.0GB, 11.0MB/s  
+New Data Upload               :  56%|█████▋    |  114MB /  201MB, 11.0MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   1%|          |  140MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   1%|          |  140MB / 17.0GB, 13.5MB/s  
+New Data Upload               :  69%|██████▉   |  140MB /  201MB, 13.4MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   1%|          |  177MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   1%|          |  177MB / 17.0GB, 17.0MB/s  
+New Data Upload               :  66%|██████▌   |  177MB /  268MB, 16.9MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   1%|          |  202MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   1%|          |  202MB / 17.0GB, 19.2MB/s  
+New Data Upload               :  75%|███████▌  |  202MB /  268MB, 19.2MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   1%|▏         |  234MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   1%|▏         |  234MB / 17.0GB, 22.1MB/s  
+New Data Upload               :  70%|██████▉   |  234MB /  335MB, 22.1MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   2%|▏         |  266MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   2%|▏         |  266MB / 17.0GB, 25.0MB/s  
+New Data Upload               :  79%|███████▉  |  266MB /  335MB, 25.0MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   2%|▏         |  315MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   2%|▏         |  315MB / 17.0GB, 29.5MB/s  
+New Data Upload               :  78%|███████▊  |  315MB /  402MB, 29.4MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   2%|▏         |  336MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   2%|▏         |  336MB / 17.0GB, 31.2MB/s  
+New Data Upload               :  83%|████████▎ |  335MB /  402MB, 31.1MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   2%|▏         |  377MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   2%|▏         |  377MB / 17.0GB, 34.8MB/s  
+New Data Upload               :  80%|████████  |  376MB /  469MB, 34.8MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   2%|▏         |  403MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   2%|▏         |  403MB / 17.0GB, 37.0MB/s  
+New Data Upload               :  86%|████████▌ |  402MB /  469MB, 36.9MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   3%|▎         |  425MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   3%|▎         |  425MB / 17.0GB, 38.7MB/s  
+New Data Upload               :  79%|███████▉  |  423MB /  536MB, 38.6MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   3%|▎         |  464MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   3%|▎         |  464MB / 17.0GB, 42.1MB/s  
+New Data Upload               :  86%|████████▋ |  463MB /  536MB, 42.0MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   3%|▎         |  500MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   3%|▎         |  500MB / 17.0GB, 45.0MB/s  
+New Data Upload               :  83%|████████▎ |  498MB /  604MB, 44.9MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   3%|▎         |  528MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   3%|▎         |  528MB / 17.0GB, 47.3MB/s  
+New Data Upload               :  87%|████████▋ |  526MB /  604MB, 47.1MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   3%|▎         |  572MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   3%|▎         |  572MB / 17.0GB, 51.0MB/s  
+New Data Upload               :  85%|████████▌ |  570MB /  671MB, 50.8MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   4%|▎         |  606MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   4%|▎         |  606MB / 17.0GB, 53.7MB/s  
+New Data Upload               :  90%|█████████ |  604MB /  671MB, 53.5MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   4%|▎         |  634MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   4%|▎         |  634MB / 17.0GB, 55.8MB/s  
+New Data Upload               :  86%|████████▌ |  632MB /  738MB, 55.6MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   4%|▍         |  667MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   4%|▍         |  667MB / 17.0GB, 58.4MB/s  
+New Data Upload               :  90%|█████████ |  665MB /  738MB, 58.2MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   4%|▍         |  704MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   4%|▍         |  704MB / 17.0GB, 61.2MB/s  
+New Data Upload               :  87%|████████▋ |  701MB /  805MB, 61.1MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   4%|▍         |  740MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   4%|▍         |  740MB / 17.0GB, 64.0MB/s  
+New Data Upload               :  92%|█████████▏|  738MB /  805MB, 63.9MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   4%|▍         |  759MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   4%|▍         |  759MB / 17.0GB, 65.2MB/s  
+New Data Upload               :  87%|████████▋ |  756MB /  872MB, 65.0MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   5%|▍         |  798MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   5%|▍         |  798MB / 17.0GB, 68.3MB/s  
+New Data Upload               :  91%|█████████▏|  796MB /  872MB, 68.1MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   5%|▍         |  826MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   5%|▍         |  826MB / 17.0GB, 70.2MB/s  
+New Data Upload               :  94%|█████████▍|  823MB /  872MB, 70.0MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   5%|▌         |  869MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   5%|▌         |  869MB / 17.0GB, 73.5MB/s  
+New Data Upload               :  92%|█████████▏|  866MB /  939MB, 73.3MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   5%|▌         |  884MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   5%|▌         |  884MB / 17.0GB, 74.2MB/s  
+New Data Upload               :  94%|█████████▍|  882MB /  939MB, 74.1MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   5%|▌         |  924MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   5%|▌         |  924MB / 17.0GB, 77.2MB/s  
+New Data Upload               :  92%|█████████▏|  922MB / 1.01GB, 77.0MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   6%|▌         |  945MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   6%|▌         |  945MB / 17.0GB, 78.4MB/s  
+New Data Upload               :  94%|█████████▍|  943MB / 1.01GB, 78.3MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   6%|▌         |  993MB / 17.0GB            [A[AProcessing Files (0 / 1)      :   6%|▌         |  993MB / 17.0GB, 82.0MB/s  
+New Data Upload               :  92%|█████████▏|  990MB / 1.07GB, 81.8MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   6%|▌         | 1.02GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   6%|▌         | 1.02GB / 17.0GB, 83.4MB/s  
+New Data Upload               :  94%|█████████▍| 1.01GB / 1.07GB, 83.1MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   6%|▋         | 1.06GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   6%|▋         | 1.06GB / 17.0GB, 86.8MB/s  
+New Data Upload               :  99%|█████████▊| 1.06GB / 1.07GB, 86.4MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   6%|▋         | 1.08GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   6%|▋         | 1.08GB / 17.0GB, 87.4MB/s  
+New Data Upload               : 100%|█████████▉| 1.07GB / 1.07GB, 87.1MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   6%|▋         | 1.08GB / 17.0GB            [A[A
+
+  ..._ut9_6e/model.safetensors:   6%|▋         | 1.08GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   6%|▋         | 1.08GB / 17.0GB, 85.8MB/s  
+New Data Upload               : 100%|█████████▉| 1.07GB / 1.07GB, 85.5MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   6%|▋         | 1.08GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   6%|▋         | 1.08GB / 17.0GB, 85.0MB/s  
+New Data Upload               : 100%|█████████▉| 1.07GB / 1.07GB, 84.7MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   6%|▋         | 1.08GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   6%|▋         | 1.08GB / 17.0GB, 84.3MB/s  
+New Data Upload               : 100%|█████████▉| 1.07GB / 1.07GB, 84.0MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   6%|▋         | 1.08GB / 17.0GB            [A[A
+
+  ..._ut9_6e/model.safetensors:   6%|▋         | 1.08GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   6%|▋         | 1.08GB / 17.0GB, 82.8MB/s  
+New Data Upload               : 100%|██████████| 1.07GB / 1.07GB, 82.5MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   6%|▋         | 1.08GB / 17.0GB            [A[A
+
+  ..._ut9_6e/model.safetensors:   6%|▋         | 1.08GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   6%|▋         | 1.08GB / 17.0GB, 81.6MB/s  
+
+  ..._ut9_6e/model.safetensors:   6%|▋         | 1.09GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   6%|▋         | 1.09GB / 17.0GB, 81.4MB/s  
+New Data Upload               :  94%|█████████▍| 1.08GB / 1.14GB, 80.6MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   7%|▋         | 1.13GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   7%|▋         | 1.13GB / 17.0GB, 84.3MB/s  
+New Data Upload               :  92%|█████████▏| 1.11GB / 1.21GB, 82.6MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   7%|▋         | 1.16GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   7%|▋         | 1.16GB / 17.0GB, 86.4MB/s  
+New Data Upload               :  94%|█████████▍| 1.14GB / 1.21GB, 84.8MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   7%|▋         | 1.20GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   7%|▋         | 1.20GB / 17.0GB, 89.0MB/s  
+New Data Upload               :  92%|█████████▏| 1.17GB / 1.27GB, 87.1MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   7%|▋         | 1.23GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   7%|▋         | 1.23GB / 17.0GB, 91.1MB/s  
+New Data Upload               :  95%|█████████▍| 1.21GB / 1.27GB, 89.2MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   7%|▋         | 1.26GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   7%|▋         | 1.26GB / 17.0GB, 92.9MB/s  
+New Data Upload               :  92%|█████████▏| 1.24GB / 1.34GB, 91.0MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   8%|▊         | 1.29GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   8%|▊         | 1.29GB / 17.0GB, 94.9MB/s  
+New Data Upload               :  95%|█████████▍| 1.27GB / 1.34GB, 93.0MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   8%|▊         | 1.32GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   8%|▊         | 1.32GB / 17.0GB, 96.7MB/s  
+New Data Upload               :  92%|█████████▏| 1.30GB / 1.41GB, 94.8MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   8%|▊         | 1.36GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   8%|▊         | 1.36GB / 17.0GB, 98.9MB/s  
+New Data Upload               :  95%|█████████▍| 1.33GB / 1.41GB, 97.0MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   8%|▊         | 1.38GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   8%|▊         | 1.38GB / 17.0GB,  100MB/s  
+New Data Upload               :  92%|█████████▏| 1.36GB / 1.48GB, 98.4MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   8%|▊         | 1.42GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   8%|▊         | 1.42GB / 17.0GB,  102MB/s  
+New Data Upload               :  94%|█████████▍| 1.39GB / 1.48GB,  101MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   9%|▊         | 1.47GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   9%|▊         | 1.47GB / 17.0GB,  106MB/s  
+New Data Upload               :  94%|█████████▍| 1.45GB / 1.54GB,  104MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   9%|▉         | 1.50GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   9%|▉         | 1.50GB / 17.0GB,  108MB/s  
+New Data Upload               :  96%|█████████▌| 1.48GB / 1.54GB,  106MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   9%|▉         | 1.53GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   9%|▉         | 1.53GB / 17.0GB,  109MB/s  
+New Data Upload               :  93%|█████████▎| 1.50GB / 1.61GB,  108MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   9%|▉         | 1.56GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   9%|▉         | 1.56GB / 17.0GB,  112MB/s  
+New Data Upload               :  96%|█████████▌| 1.54GB / 1.61GB,  110MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   9%|▉         | 1.57GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   9%|▉         | 1.57GB / 17.0GB,  111MB/s  
+New Data Upload               :  93%|█████████▎| 1.55GB / 1.68GB,  110MB/s  [A
+
+  ..._ut9_6e/model.safetensors:   9%|▉         | 1.61GB / 17.0GB            [A[AProcessing Files (0 / 1)      :   9%|▉         | 1.61GB / 17.0GB,  114MB/s  
+New Data Upload               :  95%|█████████▍| 1.59GB / 1.68GB,  112MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  10%|▉         | 1.66GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  10%|▉         | 1.66GB / 17.0GB,  117MB/s  
+New Data Upload               :  94%|█████████▍| 1.64GB / 1.74GB,  115MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  10%|█         | 1.70GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  10%|█         | 1.70GB / 17.0GB,  119MB/s  
+New Data Upload               :  96%|█████████▌| 1.67GB / 1.74GB,  117MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  10%|█         | 1.73GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  10%|█         | 1.73GB / 17.0GB,  121MB/s  
+New Data Upload               :  95%|█████████▍| 1.71GB / 1.81GB,  120MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  10%|█         | 1.77GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  10%|█         | 1.77GB / 17.0GB,  123MB/s  
+New Data Upload               :  96%|█████████▋| 1.74GB / 1.81GB,  121MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  11%|█         | 1.79GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  11%|█         | 1.79GB / 17.0GB,  124MB/s  
+New Data Upload               :  94%|█████████▍| 1.77GB / 1.88GB,  123MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  11%|█         | 1.83GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  11%|█         | 1.83GB / 17.0GB,  126MB/s  
+New Data Upload               :  96%|█████████▋| 1.81GB / 1.88GB,  125MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  11%|█         | 1.85GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  11%|█         | 1.85GB / 17.0GB,  127MB/s  
+New Data Upload               :  94%|█████████▍| 1.83GB / 1.94GB,  125MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  11%|█         | 1.89GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  11%|█         | 1.89GB / 17.0GB,  129MB/s  
+New Data Upload               :  96%|█████████▌| 1.87GB / 1.94GB,  128MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  11%|█▏        | 1.93GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  11%|█▏        | 1.93GB / 17.0GB,  131MB/s  
+New Data Upload               :  95%|█████████▍| 1.90GB / 2.01GB,  130MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  12%|█▏        | 1.96GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  12%|█▏        | 1.96GB / 17.0GB,  133MB/s  
+New Data Upload               :  96%|█████████▋| 1.94GB / 2.01GB,  132MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  12%|█▏        | 1.98GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  12%|█▏        | 1.98GB / 17.0GB,  134MB/s  
+New Data Upload               :  97%|█████████▋| 1.96GB / 2.01GB,  132MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  12%|█▏        | 2.01GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  12%|█▏        | 2.01GB / 17.0GB,  135MB/s  
+New Data Upload               :  96%|█████████▌| 1.99GB / 2.08GB,  134MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  12%|█▏        | 2.05GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  12%|█▏        | 2.05GB / 17.0GB,  137MB/s  
+New Data Upload               :  98%|█████████▊| 2.03GB / 2.08GB,  136MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  12%|█▏        | 2.09GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  12%|█▏        | 2.09GB / 17.0GB,  140MB/s  
+New Data Upload               :  96%|█████████▋| 2.07GB / 2.15GB,  138MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  12%|█▏        | 2.11GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  12%|█▏        | 2.11GB / 17.0GB,  140MB/s  
+New Data Upload               :  97%|█████████▋| 2.08GB / 2.15GB,  138MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  13%|█▎        | 2.13GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  13%|█▎        | 2.13GB / 17.0GB,  141MB/s  
+New Data Upload               :  95%|█████████▌| 2.11GB / 2.21GB,  139MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  13%|█▎        | 2.15GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  13%|█▎        | 2.15GB / 17.0GB,  141MB/s  
+New Data Upload               :  96%|█████████▋| 2.13GB / 2.21GB,  140MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  13%|█▎        | 2.21GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  13%|█▎        | 2.21GB / 17.0GB,  145MB/s  
+New Data Upload               :  96%|█████████▌| 2.19GB / 2.28GB,  143MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  13%|█▎        | 2.24GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  13%|█▎        | 2.24GB / 17.0GB,  146MB/s  
+New Data Upload               :  97%|█████████▋| 2.21GB / 2.28GB,  144MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  13%|█▎        | 2.28GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  13%|█▎        | 2.28GB / 17.0GB,  148MB/s  
+New Data Upload               :  96%|█████████▌| 2.26GB / 2.35GB,  147MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  14%|█▎        | 2.30GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  14%|█▎        | 2.30GB / 17.0GB,  149MB/s  
+New Data Upload               :  97%|█████████▋| 2.28GB / 2.35GB,  147MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  14%|█▍        | 2.34GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  14%|█▍        | 2.34GB / 17.0GB,  151MB/s  
+New Data Upload               :  96%|█████████▌| 2.32GB / 2.41GB,  149MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  14%|█▍        | 2.37GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  14%|█▍        | 2.37GB / 17.0GB,  152MB/s  
+New Data Upload               :  97%|█████████▋| 2.35GB / 2.41GB,  151MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  14%|█▍        | 2.39GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  14%|█▍        | 2.39GB / 17.0GB,  152MB/s  
+New Data Upload               :  95%|█████████▌| 2.37GB / 2.48GB,  151MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  14%|█▍        | 2.42GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  14%|█▍        | 2.42GB / 17.0GB,  153MB/s  
+New Data Upload               :  96%|█████████▋| 2.39GB / 2.48GB,  152MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  15%|█▍        | 2.46GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  15%|█▍        | 2.46GB / 17.0GB,  156MB/s  
+New Data Upload               :  96%|█████████▌| 2.44GB / 2.55GB,  154MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  15%|█▍        | 2.50GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  15%|█▍        | 2.50GB / 17.0GB,  158MB/s  
+New Data Upload               :  97%|█████████▋| 2.48GB / 2.55GB,  156MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  15%|█▍        | 2.53GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  15%|█▍        | 2.53GB / 17.0GB,  159MB/s  
+New Data Upload               :  96%|█████████▌| 2.51GB / 2.62GB,  157MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  15%|█▌        | 2.56GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  15%|█▌        | 2.56GB / 17.0GB,  160MB/s  
+New Data Upload               :  97%|█████████▋| 2.54GB / 2.62GB,  159MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  15%|█▌        | 2.60GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  15%|█▌        | 2.60GB / 17.0GB,  162MB/s  
+New Data Upload               :  96%|█████████▌| 2.57GB / 2.68GB,  160MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  16%|█▌        | 2.63GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  16%|█▌        | 2.63GB / 17.0GB,  163MB/s  
+New Data Upload               :  97%|█████████▋| 2.61GB / 2.68GB,  162MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  16%|█▌        | 2.66GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  16%|█▌        | 2.66GB / 17.0GB,  164MB/s  
+New Data Upload               :  96%|█████████▌| 2.63GB / 2.75GB,  162MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  16%|█▌        | 2.69GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  16%|█▌        | 2.69GB / 17.0GB,  165MB/s  
+New Data Upload               :  97%|█████████▋| 2.66GB / 2.75GB,  164MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  16%|█▌        | 2.72GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  16%|█▌        | 2.72GB / 17.0GB,  167MB/s  
+New Data Upload               :  96%|█████████▌| 2.70GB / 2.82GB,  165MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  16%|█▋        | 2.76GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  16%|█▋        | 2.76GB / 17.0GB,  168MB/s  
+New Data Upload               :  97%|█████████▋| 2.73GB / 2.82GB,  167MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  16%|█▋        | 2.79GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  16%|█▋        | 2.79GB / 17.0GB,  169MB/s  
+New Data Upload               :  96%|█████████▌| 2.77GB / 2.88GB,  168MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  17%|█▋        | 2.83GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  17%|█▋        | 2.83GB / 17.0GB,  171MB/s  
+New Data Upload               :  97%|█████████▋| 2.81GB / 2.88GB,  170MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  17%|█▋        | 2.85GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  17%|█▋        | 2.85GB / 17.0GB,  171MB/s  
+New Data Upload               :  96%|█████████▌| 2.82GB / 2.95GB,  170MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  17%|█▋        | 2.87GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  17%|█▋        | 2.87GB / 17.0GB,  172MB/s  
+New Data Upload               :  97%|█████████▋| 2.85GB / 2.95GB,  171MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  17%|█▋        | 2.92GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  17%|█▋        | 2.92GB / 17.0GB,  174MB/s  
+New Data Upload               :  96%|█████████▌| 2.89GB / 3.02GB,  173MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  17%|█▋        | 2.95GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  17%|█▋        | 2.95GB / 17.0GB,  176MB/s  
+New Data Upload               :  97%|█████████▋| 2.93GB / 3.02GB,  174MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  18%|█▊        | 2.99GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  18%|█▊        | 2.99GB / 17.0GB,  177MB/s  
+New Data Upload               :  98%|█████████▊| 2.97GB / 3.02GB,  176MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  18%|█▊        | 3.02GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  18%|█▊        | 3.02GB / 17.0GB,  178MB/s  
+New Data Upload               :  97%|█████████▋| 3.00GB / 3.09GB,  177MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  18%|█▊        | 3.06GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  18%|█▊        | 3.06GB / 17.0GB,  180MB/s  
+New Data Upload               :  98%|█████████▊| 3.04GB / 3.09GB,  179MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  18%|█▊        | 3.10GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  18%|█▊        | 3.10GB / 17.0GB,  181MB/s  
+New Data Upload               :  97%|█████████▋| 3.07GB / 3.15GB,  180MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  18%|█▊        | 3.12GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  18%|█▊        | 3.12GB / 17.0GB,  182MB/s  
+New Data Upload               :  98%|█████████▊| 3.09GB / 3.15GB,  180MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  19%|█▊        | 3.15GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  19%|█▊        | 3.15GB / 17.0GB,  183MB/s  
+New Data Upload               :  97%|█████████▋| 3.13GB / 3.22GB,  182MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  19%|█▉        | 3.19GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  19%|█▉        | 3.19GB / 17.0GB,  184MB/s  
+New Data Upload               :  98%|█████████▊| 3.16GB / 3.22GB,  183MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  19%|█▉        | 3.21GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  19%|█▉        | 3.21GB / 17.0GB,  185MB/s  
+New Data Upload               :  97%|█████████▋| 3.19GB / 3.29GB,  184MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  19%|█▉        | 3.23GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  19%|█▉        | 3.23GB / 17.0GB,  185MB/s  
+New Data Upload               :  98%|█████████▊| 3.21GB / 3.29GB,  184MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  19%|█▉        | 3.28GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  19%|█▉        | 3.28GB / 17.0GB,  187MB/s  
+New Data Upload               :  97%|█████████▋| 3.26GB / 3.35GB,  186MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  20%|█▉        | 3.32GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  20%|█▉        | 3.32GB / 17.0GB,  189MB/s  
+New Data Upload               :  98%|█████████▊| 3.30GB / 3.35GB,  188MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  20%|█▉        | 3.36GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  20%|█▉        | 3.36GB / 17.0GB,  190MB/s  
+New Data Upload               :  97%|█████████▋| 3.33GB / 3.42GB,  189MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  20%|██        | 3.39GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  20%|██        | 3.39GB / 17.0GB,  192MB/s  
+New Data Upload               :  98%|█████████▊| 3.37GB / 3.42GB,  191MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  20%|██        | 3.43GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  20%|██        | 3.43GB / 17.0GB,  193MB/s  
+New Data Upload               :  98%|█████████▊| 3.41GB / 3.49GB,  192MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  20%|██        | 3.45GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  20%|██        | 3.45GB / 17.0GB,  193MB/s  
+New Data Upload               :  98%|█████████▊| 3.43GB / 3.49GB,  192MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  21%|██        | 3.49GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  21%|██        | 3.49GB / 17.0GB,  195MB/s  
+New Data Upload               :  97%|█████████▋| 3.46GB / 3.55GB,  194MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  21%|██        | 3.51GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  21%|██        | 3.51GB / 17.0GB,  195MB/s  
+New Data Upload               :  98%|█████████▊| 3.49GB / 3.55GB,  194MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  21%|██        | 3.55GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  21%|██        | 3.55GB / 17.0GB,  197MB/s  
+New Data Upload               :  97%|█████████▋| 3.53GB / 3.62GB,  196MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  21%|██        | 3.58GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  21%|██        | 3.58GB / 17.0GB,  197MB/s  
+New Data Upload               :  98%|█████████▊| 3.55GB / 3.62GB,  196MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  21%|██▏       | 3.60GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  21%|██▏       | 3.60GB / 17.0GB,  198MB/s  
+New Data Upload               :  97%|█████████▋| 3.58GB / 3.69GB,  197MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  21%|██▏       | 3.64GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  21%|██▏       | 3.64GB / 17.0GB,  199MB/s  
+New Data Upload               :  98%|█████████▊| 3.61GB / 3.69GB,  198MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  22%|██▏       | 3.68GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  22%|██▏       | 3.68GB / 17.0GB,  201MB/s  
+New Data Upload               :  97%|█████████▋| 3.66GB / 3.76GB,  200MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  22%|██▏       | 3.71GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  22%|██▏       | 3.71GB / 17.0GB,  202MB/s  
+New Data Upload               :  98%|█████████▊| 3.69GB / 3.76GB,  201MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  22%|██▏       | 3.75GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  22%|██▏       | 3.75GB / 17.0GB,  203MB/s  
+New Data Upload               :  97%|█████████▋| 3.72GB / 3.82GB,  202MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  22%|██▏       | 3.78GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  22%|██▏       | 3.78GB / 17.0GB,  204MB/s  
+New Data Upload               :  98%|█████████▊| 3.76GB / 3.82GB,  203MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  23%|██▎       | 3.82GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  23%|██▎       | 3.82GB / 17.0GB,  205MB/s  
+New Data Upload               :  98%|█████████▊| 3.79GB / 3.89GB,  204MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  23%|██▎       | 3.85GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  23%|██▎       | 3.85GB / 17.0GB,  206MB/s  
+New Data Upload               :  98%|█████████▊| 3.82GB / 3.89GB,  205MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  23%|██▎       | 3.88GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  23%|██▎       | 3.88GB / 17.0GB,  207MB/s  
+New Data Upload               :  97%|█████████▋| 3.86GB / 3.96GB,  206MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  23%|██▎       | 3.91GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  23%|██▎       | 3.91GB / 17.0GB,  207MB/s  
+New Data Upload               :  98%|█████████▊| 3.88GB / 3.96GB,  206MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  23%|██▎       | 3.93GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  23%|██▎       | 3.93GB / 17.0GB,  207MB/s  
+New Data Upload               :  97%|█████████▋| 3.91GB / 4.02GB,  207MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  23%|██▎       | 3.97GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  23%|██▎       | 3.97GB / 17.0GB,  209MB/s  
+New Data Upload               :  98%|█████████▊| 3.94GB / 4.02GB,  208MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  24%|██▎       | 4.00GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  24%|██▎       | 4.00GB / 17.0GB,  210MB/s  
+New Data Upload               :  97%|█████████▋| 3.98GB / 4.09GB,  209MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  24%|██▍       | 4.03GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  24%|██▍       | 4.03GB / 17.0GB,  210MB/s  
+New Data Upload               :  98%|█████████▊| 4.01GB / 4.09GB,  210MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  24%|██▍       | 4.06GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  24%|██▍       | 4.06GB / 17.0GB,  211MB/s  
+New Data Upload               :  99%|█████████▊| 4.04GB / 4.09GB,  210MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  24%|██▍       | 4.09GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  24%|██▍       | 4.09GB / 17.0GB,  212MB/s  
+New Data Upload               :  98%|█████████▊| 4.07GB / 4.16GB,  211MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  24%|██▍       | 4.13GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  24%|██▍       | 4.13GB / 17.0GB,  213MB/s  
+New Data Upload               :  99%|█████████▊| 4.10GB / 4.16GB,  212MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  25%|██▍       | 4.17GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  25%|██▍       | 4.17GB / 17.0GB,  215MB/s  
+New Data Upload               :  98%|█████████▊| 4.15GB / 4.23GB,  214MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  25%|██▍       | 4.20GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  25%|██▍       | 4.20GB / 17.0GB,  215MB/s  
+New Data Upload               :  99%|█████████▉| 4.17GB / 4.23GB,  214MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  25%|██▍       | 4.23GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  25%|██▍       | 4.23GB / 17.0GB,  216MB/s  
+New Data Upload               :  98%|█████████▊| 4.21GB / 4.29GB,  215MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  25%|██▌       | 4.27GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  25%|██▌       | 4.27GB / 17.0GB,  217MB/s  
+New Data Upload               :  99%|█████████▉| 4.24GB / 4.29GB,  216MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  25%|██▌       | 4.31GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  25%|██▌       | 4.31GB / 17.0GB,  219MB/s  
+New Data Upload               :  98%|█████████▊| 4.28GB / 4.36GB,  218MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  26%|██▌       | 4.33GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  26%|██▌       | 4.33GB / 17.0GB,  219MB/s  
+New Data Upload               :  97%|█████████▋| 4.30GB / 4.43GB,  218MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  26%|██▌       | 4.36GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  26%|██▌       | 4.36GB / 17.0GB,  219MB/s  
+New Data Upload               :  98%|█████████▊| 4.34GB / 4.43GB,  219MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  26%|██▌       | 4.40GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  26%|██▌       | 4.40GB / 17.0GB,  221MB/s  
+New Data Upload               :  99%|█████████▉| 4.38GB / 4.43GB,  220MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  26%|██▌       | 4.43GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  26%|██▌       | 4.43GB / 17.0GB,  222MB/s  
+New Data Upload               :  98%|█████████▊| 4.41GB / 4.49GB,  221MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  26%|██▋       | 4.46GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  26%|██▋       | 4.46GB / 17.0GB,  222MB/s  
+New Data Upload               :  99%|█████████▉| 4.44GB / 4.49GB,  221MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  27%|██▋       | 4.49GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  27%|██▋       | 4.49GB / 17.0GB,  223MB/s  
+New Data Upload               :  98%|█████████▊| 4.47GB / 4.56GB,  222MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  27%|██▋       | 4.52GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  27%|██▋       | 4.52GB / 17.0GB,  223MB/s  
+New Data Upload               :  99%|█████████▊| 4.50GB / 4.56GB,  222MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  27%|██▋       | 4.56GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  27%|██▋       | 4.56GB / 17.0GB,  225MB/s  
+New Data Upload               :  98%|█████████▊| 4.54GB / 4.63GB,  224MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  27%|██▋       | 4.58GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  27%|██▋       | 4.58GB / 17.0GB,  225MB/s  
+New Data Upload               :  99%|█████████▊| 4.56GB / 4.63GB,  224MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  27%|██▋       | 4.60GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  27%|██▋       | 4.60GB / 17.0GB,  224MB/s  
+New Data Upload               :  98%|█████████▊| 4.58GB / 4.69GB,  224MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  27%|██▋       | 4.64GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  27%|██▋       | 4.64GB / 17.0GB,  226MB/s  
+New Data Upload               :  98%|█████████▊| 4.62GB / 4.69GB,  225MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  28%|██▊       | 4.69GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  28%|██▊       | 4.69GB / 17.0GB,  228MB/s  
+New Data Upload               :  98%|█████████▊| 4.67GB / 4.76GB,  227MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  28%|██▊       | 4.72GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  28%|██▊       | 4.72GB / 17.0GB,  228MB/s  
+New Data Upload               :  99%|█████████▊| 4.69GB / 4.76GB,  227MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  28%|██▊       | 4.76GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  28%|██▊       | 4.76GB / 17.0GB,  229MB/s  
+New Data Upload               :  98%|█████████▊| 4.73GB / 4.83GB,  228MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  28%|██▊       | 4.78GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  28%|██▊       | 4.78GB / 17.0GB,  229MB/s  
+New Data Upload               :  99%|█████████▊| 4.76GB / 4.83GB,  229MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  28%|██▊       | 4.81GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  28%|██▊       | 4.81GB / 17.0GB,  230MB/s  
+New Data Upload               :  98%|█████████▊| 4.79GB / 4.90GB,  229MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  29%|██▊       | 4.84GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  29%|██▊       | 4.84GB / 17.0GB,  230MB/s  
+New Data Upload               :  98%|█████████▊| 4.82GB / 4.90GB,  230MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  29%|██▉       | 4.88GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  29%|██▉       | 4.88GB / 17.0GB,  232MB/s  
+New Data Upload               :  98%|█████████▊| 4.86GB / 4.96GB,  231MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  29%|██▉       | 4.92GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  29%|██▉       | 4.92GB / 17.0GB,  233MB/s  
+New Data Upload               :  99%|█████████▊| 4.90GB / 4.96GB,  232MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  29%|██▉       | 4.95GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  29%|██▉       | 4.95GB / 17.0GB,  233MB/s  
+New Data Upload               :  98%|█████████▊| 4.93GB / 5.03GB,  233MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  29%|██▉       | 4.98GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  29%|██▉       | 4.98GB / 17.0GB,  234MB/s  
+New Data Upload               :  99%|█████████▊| 4.96GB / 5.03GB,  233MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  30%|██▉       | 5.01GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  30%|██▉       | 5.01GB / 17.0GB,  234MB/s  
+New Data Upload               :  98%|█████████▊| 4.98GB / 5.10GB,  233MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  30%|██▉       | 5.04GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  30%|██▉       | 5.04GB / 17.0GB,  235MB/s  
+New Data Upload               :  98%|█████████▊| 5.02GB / 5.10GB,  234MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  30%|███       | 5.09GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  30%|███       | 5.09GB / 17.0GB,  237MB/s  
+New Data Upload               :  98%|█████████▊| 5.07GB / 5.16GB,  236MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  30%|███       | 5.12GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  30%|███       | 5.12GB / 17.0GB,  237MB/s  
+New Data Upload               :  99%|█████████▊| 5.09GB / 5.16GB,  236MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  30%|███       | 5.14GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  30%|███       | 5.14GB / 17.0GB,  237MB/s  
+New Data Upload               :  98%|█████████▊| 5.11GB / 5.23GB,  236MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  31%|███       | 5.17GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  31%|███       | 5.17GB / 17.0GB,  238MB/s  
+New Data Upload               :  98%|█████████▊| 5.15GB / 5.23GB,  237MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  31%|███       | 5.22GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  31%|███       | 5.22GB / 17.0GB,  239MB/s  
+New Data Upload               :  98%|█████████▊| 5.19GB / 5.30GB,  239MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  31%|███       | 5.25GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  31%|███       | 5.25GB / 17.0GB,  240MB/s  
+New Data Upload               :  99%|█████████▊| 5.23GB / 5.30GB,  239MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  31%|███       | 5.27GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  31%|███       | 5.27GB / 17.0GB,  240MB/s  
+New Data Upload               :  98%|█████████▊| 5.25GB / 5.37GB,  239MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  31%|███▏      | 5.30GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  31%|███▏      | 5.30GB / 17.0GB,  240MB/s  
+New Data Upload               :  98%|█████████▊| 5.28GB / 5.37GB,  239MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  32%|███▏      | 5.35GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  32%|███▏      | 5.35GB / 17.0GB,  242MB/s  
+New Data Upload               :  98%|█████████▊| 5.33GB / 5.43GB,  241MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  32%|███▏      | 5.38GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  32%|███▏      | 5.38GB / 17.0GB,  243MB/s  
+New Data Upload               :  99%|█████████▊| 5.36GB / 5.43GB,  242MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  32%|███▏      | 5.40GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  32%|███▏      | 5.40GB / 17.0GB,  242MB/s  
+New Data Upload               :  98%|█████████▊| 5.38GB / 5.50GB,  242MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  32%|███▏      | 5.42GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  32%|███▏      | 5.42GB / 17.0GB,  242MB/s  
+New Data Upload               :  98%|█████████▊| 5.40GB / 5.50GB,  241MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  32%|███▏      | 5.46GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  32%|███▏      | 5.46GB / 17.0GB,  243MB/s  
+New Data Upload               :  98%|█████████▊| 5.44GB / 5.57GB,  242MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  32%|███▏      | 5.51GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  32%|███▏      | 5.51GB / 17.0GB,  245MB/s  
+New Data Upload               :  98%|█████████▊| 5.48GB / 5.57GB,  244MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  33%|███▎      | 5.54GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  33%|███▎      | 5.54GB / 17.0GB,  245MB/s  
+New Data Upload               :  99%|█████████▉| 5.51GB / 5.57GB,  244MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  33%|███▎      | 5.58GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  33%|███▎      | 5.58GB / 17.0GB,  247MB/s  
+New Data Upload               :  99%|█████████▊| 5.56GB / 5.63GB,  246MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  33%|███▎      | 5.60GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  33%|███▎      | 5.60GB / 17.0GB,  246MB/s  
+New Data Upload               :  99%|█████████▉| 5.58GB / 5.63GB,  246MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  33%|███▎      | 5.63GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  33%|███▎      | 5.63GB / 17.0GB,  247MB/s  
+New Data Upload               :  98%|█████████▊| 5.61GB / 5.70GB,  246MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  33%|███▎      | 5.66GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  33%|███▎      | 5.66GB / 17.0GB,  247MB/s  
+New Data Upload               :  99%|█████████▉| 5.64GB / 5.70GB,  246MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  34%|███▎      | 5.70GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  34%|███▎      | 5.70GB / 17.0GB,  248MB/s  
+New Data Upload               :  98%|█████████▊| 5.68GB / 5.77GB,  247MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  34%|███▍      | 5.73GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  34%|███▍      | 5.73GB / 17.0GB,  248MB/s  
+New Data Upload               :  99%|█████████▉| 5.70GB / 5.77GB,  248MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  34%|███▍      | 5.76GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  34%|███▍      | 5.76GB / 17.0GB,  249MB/s  
+New Data Upload               :  98%|█████████▊| 5.74GB / 5.83GB,  249MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  34%|███▍      | 5.79GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  34%|███▍      | 5.79GB / 17.0GB,  249MB/s  
+New Data Upload               :  99%|█████████▉| 5.77GB / 5.83GB,  249MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  34%|███▍      | 5.83GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  34%|███▍      | 5.83GB / 17.0GB,  251MB/s  
+New Data Upload               :  98%|█████████▊| 5.81GB / 5.90GB,  250MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  35%|███▍      | 5.86GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  35%|███▍      | 5.86GB / 17.0GB,  251MB/s  
+New Data Upload               :  99%|█████████▉| 5.84GB / 5.90GB,  250MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  35%|███▍      | 5.89GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  35%|███▍      | 5.89GB / 17.0GB,  251MB/s  
+New Data Upload               :  98%|█████████▊| 5.87GB / 5.97GB,  251MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  35%|███▍      | 5.93GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  35%|███▍      | 5.93GB / 17.0GB,  252MB/s  
+New Data Upload               :  99%|█████████▉| 5.91GB / 5.97GB,  252MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  35%|███▌      | 5.96GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  35%|███▌      | 5.96GB / 17.0GB,  253MB/s  
+New Data Upload               :  98%|█████████▊| 5.94GB / 6.04GB,  252MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  35%|███▌      | 5.99GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  35%|███▌      | 5.99GB / 17.0GB,  253MB/s  
+New Data Upload               :  99%|█████████▉| 5.97GB / 6.04GB,  252MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  35%|███▌      | 6.01GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  35%|███▌      | 6.01GB / 17.0GB,  252MB/s  
+New Data Upload               :  98%|█████████▊| 5.99GB / 6.10GB,  252MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  36%|███▌      | 6.06GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  36%|███▌      | 6.06GB / 17.0GB,  254MB/s  
+New Data Upload               :  99%|█████████▉| 6.03GB / 6.10GB,  253MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  36%|███▌      | 6.09GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  36%|███▌      | 6.09GB / 17.0GB,  255MB/s  
+New Data Upload               :  98%|█████████▊| 6.07GB / 6.17GB,  254MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  36%|███▌      | 6.13GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  36%|███▌      | 6.13GB / 17.0GB,  256MB/s  
+New Data Upload               :  99%|█████████▉| 6.10GB / 6.17GB,  255MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  36%|███▌      | 6.14GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  36%|███▌      | 6.14GB / 17.0GB,  255MB/s  
+New Data Upload               :  98%|█████████▊| 6.12GB / 6.24GB,  254MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  36%|███▋      | 6.18GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  36%|███▋      | 6.18GB / 17.0GB,  256MB/s  
+New Data Upload               :  99%|█████████▊| 6.16GB / 6.24GB,  255MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  37%|███▋      | 6.21GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  37%|███▋      | 6.21GB / 17.0GB,  256MB/s  
+New Data Upload               :  99%|█████████▉| 6.18GB / 6.24GB,  255MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  37%|███▋      | 6.24GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  37%|███▋      | 6.24GB / 17.0GB,  256MB/s  
+New Data Upload               :  99%|█████████▊| 6.22GB / 6.30GB,  256MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  37%|███▋      | 6.27GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  37%|███▋      | 6.27GB / 17.0GB,  257MB/s  
+New Data Upload               :  99%|█████████▉| 6.25GB / 6.30GB,  256MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  37%|███▋      | 6.31GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  37%|███▋      | 6.31GB / 17.0GB,  258MB/s  
+New Data Upload               :  99%|█████████▊| 6.29GB / 6.37GB,  257MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  37%|███▋      | 6.34GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  37%|███▋      | 6.34GB / 17.0GB,  258MB/s  
+New Data Upload               :  99%|█████████▉| 6.31GB / 6.37GB,  257MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  38%|███▊      | 6.37GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  38%|███▊      | 6.37GB / 17.0GB,  259MB/s  
+New Data Upload               :  99%|█████████▊| 6.35GB / 6.44GB,  258MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  38%|███▊      | 6.40GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  38%|███▊      | 6.40GB / 17.0GB,  258MB/s  
+New Data Upload               :  99%|█████████▉| 6.37GB / 6.44GB,  258MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  38%|███▊      | 6.45GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  38%|███▊      | 6.45GB / 17.0GB,  260MB/s  
+New Data Upload               :  99%|█████████▊| 6.42GB / 6.51GB,  260MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  38%|███▊      | 6.47GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  38%|███▊      | 6.47GB / 17.0GB,  260MB/s  
+New Data Upload               :  99%|█████████▉| 6.44GB / 6.51GB,  259MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  38%|███▊      | 6.50GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  38%|███▊      | 6.50GB / 17.0GB,  260MB/s  
+New Data Upload               :  99%|█████████▊| 6.48GB / 6.57GB,  260MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  39%|███▊      | 6.54GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  39%|███▊      | 6.54GB / 17.0GB,  261MB/s  
+New Data Upload               :  99%|█████████▉| 6.52GB / 6.57GB,  261MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  39%|███▉      | 6.58GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  39%|███▉      | 6.58GB / 17.0GB,  263MB/s  
+New Data Upload               :  99%|█████████▉| 6.56GB / 6.64GB,  262MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  39%|███▉      | 6.61GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  39%|███▉      | 6.61GB / 17.0GB,  262MB/s  
+New Data Upload               :  99%|█████████▉| 6.58GB / 6.64GB,  262MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  39%|███▉      | 6.65GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  39%|███▉      | 6.65GB / 17.0GB,  263MB/s  
+New Data Upload               :  99%|█████████▉| 6.62GB / 6.71GB,  263MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  39%|███▉      | 6.67GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  39%|███▉      | 6.67GB / 17.0GB,  263MB/s  
+New Data Upload               :  99%|█████████▉| 6.64GB / 6.71GB,  262MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  40%|███▉      | 6.71GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  40%|███▉      | 6.71GB / 17.0GB,  264MB/s  
+New Data Upload               :  99%|█████████▊| 6.68GB / 6.77GB,  263MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  40%|███▉      | 6.73GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  40%|███▉      | 6.73GB / 17.0GB,  264MB/s  
+New Data Upload               :  99%|█████████▉| 6.71GB / 6.77GB,  263MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  40%|███▉      | 6.77GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  40%|███▉      | 6.77GB / 17.0GB,  265MB/s  
+New Data Upload               :  99%|█████████▊| 6.75GB / 6.84GB,  264MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  40%|████      | 6.80GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  40%|████      | 6.80GB / 17.0GB,  265MB/s  
+New Data Upload               :  99%|█████████▉| 6.77GB / 6.84GB,  264MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  40%|████      | 6.83GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  40%|████      | 6.83GB / 17.0GB,  265MB/s  
+New Data Upload               :  99%|█████████▊| 6.81GB / 6.91GB,  265MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  40%|████      | 6.86GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  40%|████      | 6.86GB / 17.0GB,  266MB/s  
+New Data Upload               :  99%|█████████▉| 6.84GB / 6.91GB,  265MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  41%|████      | 6.90GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  41%|████      | 6.90GB / 17.0GB,  266MB/s  
+New Data Upload               :  99%|█████████▊| 6.87GB / 6.97GB,  266MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  41%|████      | 6.92GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  41%|████      | 6.92GB / 17.0GB,  266MB/s  
+New Data Upload               :  99%|█████████▉| 6.90GB / 6.97GB,  266MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  41%|████      | 6.97GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  41%|████      | 6.97GB / 17.0GB,  267MB/s  
+New Data Upload               :  99%|█████████▊| 6.94GB / 7.04GB,  267MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  41%|████▏     | 7.00GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  41%|████▏     | 7.00GB / 17.0GB,  268MB/s  
+New Data Upload               :  99%|█████████▉| 6.97GB / 7.04GB,  267MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  41%|████▏     | 7.03GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  41%|████▏     | 7.03GB / 17.0GB,  268MB/s  
+New Data Upload               :  99%|█████████▊| 7.01GB / 7.11GB,  268MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  42%|████▏     | 7.06GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  42%|████▏     | 7.06GB / 17.0GB,  268MB/s  
+New Data Upload               :  99%|█████████▉| 7.04GB / 7.11GB,  268MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  42%|████▏     | 7.09GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  42%|████▏     | 7.09GB / 17.0GB,  269MB/s  
+New Data Upload               :  98%|█████████▊| 7.07GB / 7.18GB,  268MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  42%|████▏     | 7.12GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  42%|████▏     | 7.12GB / 17.0GB,  269MB/s  
+New Data Upload               :  99%|█████████▉| 7.10GB / 7.18GB,  269MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  42%|████▏     | 7.16GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  42%|████▏     | 7.16GB / 17.0GB,  270MB/s  
+New Data Upload               :  98%|█████████▊| 7.13GB / 7.24GB,  269MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  42%|████▏     | 7.19GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  42%|████▏     | 7.19GB / 17.0GB,  270MB/s  
+New Data Upload               :  99%|█████████▉| 7.16GB / 7.24GB,  269MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  43%|████▎     | 7.23GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  43%|████▎     | 7.23GB / 17.0GB,  271MB/s  
+New Data Upload               :  99%|█████████▊| 7.20GB / 7.31GB,  270MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  43%|████▎     | 7.26GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  43%|████▎     | 7.26GB / 17.0GB,  271MB/s  
+New Data Upload               :  99%|█████████▉| 7.24GB / 7.31GB,  271MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  43%|████▎     | 7.28GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  43%|████▎     | 7.28GB / 17.0GB,  270MB/s  
+New Data Upload               :  99%|█████████▉| 7.26GB / 7.31GB,  270MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  43%|████▎     | 7.32GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  43%|████▎     | 7.32GB / 17.0GB,  272MB/s  
+New Data Upload               :  99%|█████████▉| 7.30GB / 7.38GB,  271MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  43%|████▎     | 7.35GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  43%|████▎     | 7.35GB / 17.0GB,  272MB/s  
+New Data Upload               :  98%|█████████▊| 7.33GB / 7.44GB,  271MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  44%|████▎     | 7.38GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  44%|████▎     | 7.38GB / 17.0GB,  272MB/s  
+New Data Upload               :  99%|█████████▉| 7.36GB / 7.44GB,  272MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  44%|████▎     | 7.42GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  44%|████▎     | 7.42GB / 17.0GB,  273MB/s  
+New Data Upload               :  98%|█████████▊| 7.39GB / 7.51GB,  272MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  44%|████▍     | 7.45GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  44%|████▍     | 7.45GB / 17.0GB,  273MB/s  
+New Data Upload               :  99%|█████████▉| 7.43GB / 7.51GB,  273MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  44%|████▍     | 7.49GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  44%|████▍     | 7.49GB / 17.0GB,  274MB/s  
+New Data Upload               :  99%|█████████▉| 7.47GB / 7.51GB,  274MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  44%|████▍     | 7.53GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  44%|████▍     | 7.53GB / 17.0GB,  275MB/s  
+New Data Upload               :  99%|█████████▉| 7.50GB / 7.58GB,  274MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  45%|████▍     | 7.55GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  45%|████▍     | 7.55GB / 17.0GB,  274MB/s  
+New Data Upload               :  99%|█████████▉| 7.52GB / 7.58GB,  274MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  45%|████▍     | 7.58GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  45%|████▍     | 7.58GB / 17.0GB,  275MB/s  
+New Data Upload               :  99%|█████████▉| 7.56GB / 7.65GB,  274MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  45%|████▍     | 7.61GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  45%|████▍     | 7.61GB / 17.0GB,  274MB/s  
+New Data Upload               :  99%|█████████▉| 7.58GB / 7.65GB,  274MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  45%|████▌     | 7.64GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  45%|████▌     | 7.64GB / 17.0GB,  275MB/s  
+New Data Upload               :  99%|█████████▉| 7.62GB / 7.71GB,  275MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  45%|████▌     | 7.69GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  45%|████▌     | 7.69GB / 17.0GB,  276MB/s  
+New Data Upload               :  99%|█████████▉| 7.67GB / 7.71GB,  276MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  46%|████▌     | 7.73GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  46%|████▌     | 7.73GB / 17.0GB,  277MB/s  
+New Data Upload               :  99%|█████████▉| 7.70GB / 7.78GB,  277MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  46%|████▌     | 7.75GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  46%|████▌     | 7.75GB / 17.0GB,  277MB/s  
+New Data Upload               :  99%|█████████▉| 7.72GB / 7.78GB,  276MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  46%|████▌     | 7.78GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  46%|████▌     | 7.78GB / 17.0GB,  277MB/s  
+New Data Upload               :  99%|█████████▉| 7.76GB / 7.85GB,  277MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  46%|████▌     | 7.81GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  46%|████▌     | 7.81GB / 17.0GB,  277MB/s  
+New Data Upload               :  99%|█████████▉| 7.79GB / 7.85GB,  277MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  46%|████▋     | 7.85GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  46%|████▋     | 7.85GB / 17.0GB,  278MB/s  
+New Data Upload               :  99%|█████████▉| 7.82GB / 7.91GB,  277MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  46%|████▋     | 7.88GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  46%|████▋     | 7.88GB / 17.0GB,  278MB/s  
+New Data Upload               :  99%|█████████▉| 7.86GB / 7.91GB,  278MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  47%|████▋     | 7.92GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  47%|████▋     | 7.92GB / 17.0GB,  279MB/s  
+New Data Upload               :  99%|█████████▉| 7.89GB / 7.98GB,  279MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  47%|████▋     | 7.94GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  47%|████▋     | 7.94GB / 17.0GB,  279MB/s  
+New Data Upload               :  99%|█████████▉| 7.92GB / 7.98GB,  278MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  47%|████▋     | 7.98GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  47%|████▋     | 7.98GB / 17.0GB,  279MB/s  
+New Data Upload               :  99%|█████████▉| 7.96GB / 8.05GB,  279MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  47%|████▋     | 8.01GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  47%|████▋     | 8.01GB / 17.0GB,  279MB/s  
+New Data Upload               :  99%|█████████▉| 7.98GB / 8.05GB,  279MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  47%|████▋     | 8.05GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  47%|████▋     | 8.05GB / 17.0GB,  280MB/s  
+New Data Upload               :  99%|█████████▉| 8.02GB / 8.11GB,  280MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  48%|████▊     | 8.08GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  48%|████▊     | 8.08GB / 17.0GB,  280MB/s  
+New Data Upload               :  99%|█████████▉| 8.05GB / 8.11GB,  280MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  48%|████▊     | 8.10GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  48%|████▊     | 8.10GB / 17.0GB,  280MB/s  
+New Data Upload               :  99%|█████████▊| 8.08GB / 8.18GB,  280MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  48%|████▊     | 8.13GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  48%|████▊     | 8.13GB / 17.0GB,  280MB/s  
+New Data Upload               :  99%|█████████▉| 8.11GB / 8.18GB,  280MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  48%|████▊     | 8.19GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  48%|████▊     | 8.19GB / 17.0GB,  282MB/s  
+New Data Upload               :  99%|█████████▉| 8.17GB / 8.25GB,  282MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  48%|████▊     | 8.21GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  48%|████▊     | 8.21GB / 17.0GB,  281MB/s  
+New Data Upload               :  99%|█████████▉| 8.18GB / 8.25GB,  281MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  49%|████▊     | 8.23GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  49%|████▊     | 8.23GB / 17.0GB,  281MB/s  
+New Data Upload               :  99%|█████████▊| 8.21GB / 8.32GB,  281MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  49%|████▉     | 8.27GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  49%|████▉     | 8.27GB / 17.0GB,  282MB/s  
+New Data Upload               :  99%|█████████▉| 8.24GB / 8.32GB,  281MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  49%|████▉     | 8.30GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  49%|████▉     | 8.30GB / 17.0GB,  282MB/s  
+New Data Upload               :  99%|█████████▊| 8.27GB / 8.38GB,  282MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  49%|████▉     | 8.32GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  49%|████▉     | 8.32GB / 17.0GB,  282MB/s  
+New Data Upload               :  99%|█████████▉| 8.30GB / 8.38GB,  282MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  49%|████▉     | 8.37GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  49%|████▉     | 8.37GB / 17.0GB,  283MB/s  
+New Data Upload               :  99%|█████████▉| 8.35GB / 8.45GB,  283MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  50%|████▉     | 8.40GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  50%|████▉     | 8.40GB / 17.0GB,  283MB/s  
+New Data Upload               :  99%|█████████▉| 8.38GB / 8.45GB,  283MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  50%|████▉     | 8.43GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  50%|████▉     | 8.43GB / 17.0GB,  284MB/s  
+New Data Upload               :  99%|█████████▊| 8.41GB / 8.52GB,  283MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  50%|████▉     | 8.45GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  50%|████▉     | 8.45GB / 17.0GB,  283MB/s  
+New Data Upload               :  99%|█████████▉| 8.43GB / 8.52GB,  283MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  50%|█████     | 8.50GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  50%|█████     | 8.50GB / 17.0GB,  285MB/s  
+New Data Upload               :  99%|█████████▉| 8.48GB / 8.58GB,  284MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  50%|█████     | 8.53GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  50%|█████     | 8.53GB / 17.0GB,  285MB/s  
+New Data Upload               :  99%|█████████▉| 8.51GB / 8.58GB,  284MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  51%|█████     | 8.58GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  51%|█████     | 8.58GB / 17.0GB,  286MB/s  
+New Data Upload               :  99%|█████████▉| 8.55GB / 8.65GB,  285MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  51%|█████     | 8.61GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  51%|█████     | 8.61GB / 17.0GB,  286MB/s  
+New Data Upload               :  99%|█████████▉| 8.58GB / 8.65GB,  286MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  51%|█████     | 8.64GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  51%|█████     | 8.64GB / 17.0GB,  286MB/s  
+New Data Upload               :  99%|█████████▉| 8.62GB / 8.72GB,  286MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  51%|█████     | 8.67GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  51%|█████     | 8.67GB / 17.0GB,  286MB/s  
+New Data Upload               :  99%|█████████▉| 8.64GB / 8.72GB,  286MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  51%|█████▏    | 8.71GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  51%|█████▏    | 8.71GB / 17.0GB,  287MB/s  
+New Data Upload               :  99%|█████████▉| 8.69GB / 8.79GB,  287MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  52%|█████▏    | 8.74GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  52%|█████▏    | 8.74GB / 17.0GB,  287MB/s  
+New Data Upload               :  99%|█████████▉| 8.72GB / 8.79GB,  287MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  52%|█████▏    | 8.77GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  52%|█████▏    | 8.77GB / 17.0GB,  287MB/s  
+New Data Upload               :  99%|█████████▉| 8.75GB / 8.85GB,  287MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  52%|█████▏    | 8.81GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  52%|█████▏    | 8.81GB / 17.0GB,  288MB/s  
+New Data Upload               :  99%|█████████▉| 8.78GB / 8.85GB,  287MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  52%|█████▏    | 8.84GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  52%|█████▏    | 8.84GB / 17.0GB,  288MB/s  
+New Data Upload               :  99%|█████████▉| 8.82GB / 8.92GB,  288MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  52%|█████▏    | 8.87GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  52%|█████▏    | 8.87GB / 17.0GB,  288MB/s  
+New Data Upload               :  99%|█████████▉| 8.85GB / 8.92GB,  288MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  52%|█████▏    | 8.90GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  52%|█████▏    | 8.90GB / 17.0GB,  288MB/s  
+New Data Upload               :  99%|█████████▉| 8.87GB / 8.92GB,  288MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  53%|█████▎    | 8.93GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  53%|█████▎    | 8.93GB / 17.0GB,  289MB/s  
+New Data Upload               :  99%|█████████▉| 8.91GB / 8.99GB,  288MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  53%|█████▎    | 8.95GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  53%|█████▎    | 8.95GB / 17.0GB,  288MB/s  
+New Data Upload               :  99%|█████████▉| 8.93GB / 8.99GB,  288MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  53%|█████▎    | 8.99GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  53%|█████▎    | 8.99GB / 17.0GB,  289MB/s  
+New Data Upload               :  99%|█████████▉| 8.97GB / 9.05GB,  288MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  53%|█████▎    | 9.02GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  53%|█████▎    | 9.02GB / 17.0GB,  288MB/s  
+New Data Upload               :  99%|█████████▉| 8.99GB / 9.05GB,  288MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  53%|█████▎    | 9.05GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  53%|█████▎    | 9.05GB / 17.0GB,  289MB/s  
+New Data Upload               :  99%|█████████▉| 9.03GB / 9.12GB,  289MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  54%|█████▎    | 9.08GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  54%|█████▎    | 9.08GB / 17.0GB,  289MB/s  
+New Data Upload               :  99%|█████████▉| 9.05GB / 9.12GB,  288MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  54%|█████▍    | 9.12GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  54%|█████▍    | 9.12GB / 17.0GB,  290MB/s  
+New Data Upload               :  99%|█████████▉| 9.10GB / 9.19GB,  289MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  54%|█████▍    | 9.14GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  54%|█████▍    | 9.14GB / 17.0GB,  289MB/s  
+New Data Upload               :  99%|█████████▉| 9.12GB / 9.19GB,  289MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  54%|█████▍    | 9.18GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  54%|█████▍    | 9.18GB / 17.0GB,  290MB/s  
+New Data Upload               :  99%|█████████▉| 9.16GB / 9.26GB,  290MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  54%|█████▍    | 9.21GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  54%|█████▍    | 9.21GB / 17.0GB,  290MB/s  
+New Data Upload               :  99%|█████████▉| 9.18GB / 9.26GB,  289MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  55%|█████▍    | 9.24GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  55%|█████▍    | 9.24GB / 17.0GB,  290MB/s  
+New Data Upload               :  99%|█████████▉| 9.22GB / 9.32GB,  290MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  55%|█████▍    | 9.27GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  55%|█████▍    | 9.27GB / 17.0GB,  290MB/s  
+New Data Upload               :  99%|█████████▉| 9.25GB / 9.32GB,  290MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  55%|█████▍    | 9.31GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  55%|█████▍    | 9.31GB / 17.0GB,  291MB/s  
+New Data Upload               :  99%|█████████▉| 9.29GB / 9.39GB,  290MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  55%|█████▌    | 9.34GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  55%|█████▌    | 9.34GB / 17.0GB,  291MB/s  
+New Data Upload               :  99%|█████████▉| 9.32GB / 9.39GB,  290MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  55%|█████▌    | 9.38GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  55%|█████▌    | 9.38GB / 17.0GB,  291MB/s  
+New Data Upload               :  99%|█████████▉| 9.35GB / 9.46GB,  291MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  55%|█████▌    | 9.40GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  55%|█████▌    | 9.40GB / 17.0GB,  291MB/s  
+New Data Upload               :  99%|█████████▉| 9.38GB / 9.46GB,  290MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  56%|█████▌    | 9.44GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  56%|█████▌    | 9.44GB / 17.0GB,  292MB/s  
+New Data Upload               :  99%|█████████▉| 9.42GB / 9.52GB,  292MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  56%|█████▌    | 9.47GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  56%|█████▌    | 9.47GB / 17.0GB,  292MB/s  
+New Data Upload               :  99%|█████████▉| 9.45GB / 9.52GB,  292MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  56%|█████▌    | 9.51GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  56%|█████▌    | 9.51GB / 17.0GB,  292MB/s  
+New Data Upload               :  99%|█████████▉| 9.48GB / 9.59GB,  292MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  56%|█████▋    | 9.54GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  56%|█████▋    | 9.54GB / 17.0GB,  293MB/s  
+New Data Upload               :  99%|█████████▉| 9.52GB / 9.59GB,  292MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  56%|█████▋    | 9.58GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  56%|█████▋    | 9.58GB / 17.0GB,  293MB/s  
+New Data Upload               :  99%|█████████▉| 9.55GB / 9.66GB,  293MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  57%|█████▋    | 9.61GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  57%|█████▋    | 9.61GB / 17.0GB,  294MB/s  
+New Data Upload               :  99%|█████████▉| 9.59GB / 9.66GB,  293MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  57%|█████▋    | 9.62GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  57%|█████▋    | 9.62GB / 17.0GB,  292MB/s  
+New Data Upload               :  99%|█████████▊| 9.60GB / 9.72GB,  292MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  57%|█████▋    | 9.66GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  57%|█████▋    | 9.66GB / 17.0GB,  292MB/s  
+New Data Upload               :  99%|█████████▉| 9.63GB / 9.72GB,  292MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  57%|█████▋    | 9.71GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  57%|█████▋    | 9.71GB / 17.0GB,  294MB/s  
+New Data Upload               :  99%|█████████▉| 9.69GB / 9.79GB,  294MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  57%|█████▋    | 9.74GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  57%|█████▋    | 9.74GB / 17.0GB,  294MB/s  
+New Data Upload               :  99%|█████████▉| 9.72GB / 9.79GB,  294MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  58%|█████▊    | 9.77GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  58%|█████▊    | 9.77GB / 17.0GB,  294MB/s  
+New Data Upload               :  99%|█████████▉| 9.75GB / 9.86GB,  294MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  58%|█████▊    | 9.80GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  58%|█████▊    | 9.80GB / 17.0GB,  294MB/s  
+New Data Upload               :  99%|█████████▉| 9.78GB / 9.86GB,  294MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  58%|█████▊    | 9.85GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  58%|█████▊    | 9.85GB / 17.0GB,  295MB/s  
+New Data Upload               :  99%|█████████▉| 9.82GB / 9.93GB,  295MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  58%|█████▊    | 9.88GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  58%|█████▊    | 9.88GB / 17.0GB,  295MB/s  
+New Data Upload               :  99%|█████████▉| 9.85GB / 9.93GB,  295MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  58%|█████▊    | 9.90GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  58%|█████▊    | 9.90GB / 17.0GB,  295MB/s  
+New Data Upload               :  99%|█████████▉| 9.88GB / 9.99GB,  295MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  59%|█████▊    | 9.94GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  59%|█████▊    | 9.94GB / 17.0GB,  295MB/s  
+New Data Upload               :  99%|█████████▉| 9.91GB / 9.99GB,  295MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  59%|█████▉    | 9.96GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  59%|█████▉    | 9.96GB / 17.0GB,  295MB/s  
+New Data Upload               :  99%|█████████▉| 9.94GB / 9.99GB,  295MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  59%|█████▉    | 10.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  59%|█████▉    | 10.0GB / 17.0GB,  296MB/s  
+New Data Upload               :  99%|█████████▉| 9.98GB / 10.1GB,  296MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  59%|█████▉    | 10.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  59%|█████▉    | 10.0GB / 17.0GB,  295MB/s  
+New Data Upload               :  99%|█████████▉| 10.0GB / 10.1GB,  295MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  59%|█████▉    | 10.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  59%|█████▉    | 10.1GB / 17.0GB,  296MB/s  
+New Data Upload               :  99%|█████████▉| 10.0GB / 10.1GB,  295MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  59%|█████▉    | 10.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  59%|█████▉    | 10.1GB / 17.0GB,  296MB/s  
+New Data Upload               :  99%|█████████▉| 10.1GB / 10.1GB,  295MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  60%|█████▉    | 10.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  60%|█████▉    | 10.1GB / 17.0GB,  296MB/s  
+New Data Upload               :  99%|█████████▉| 10.1GB / 10.2GB,  296MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  60%|█████▉    | 10.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  60%|█████▉    | 10.2GB / 17.0GB,  296MB/s  
+New Data Upload               :  99%|█████████▉| 10.1GB / 10.2GB,  296MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  60%|██████    | 10.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  60%|██████    | 10.2GB / 17.0GB,  296MB/s  
+New Data Upload               :  99%|█████████▉| 10.2GB / 10.3GB,  296MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  60%|██████    | 10.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  60%|██████    | 10.2GB / 17.0GB,  297MB/s  
+New Data Upload               :  99%|█████████▉| 10.2GB / 10.3GB,  297MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  60%|██████    | 10.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  60%|██████    | 10.3GB / 17.0GB,  297MB/s  
+New Data Upload               :  99%|█████████▉| 10.2GB / 10.3GB,  297MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  61%|██████    | 10.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  61%|██████    | 10.3GB / 17.0GB,  297MB/s  
+New Data Upload               :  99%|█████████▉| 10.3GB / 10.3GB,  297MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  61%|██████    | 10.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  61%|██████    | 10.3GB / 17.0GB,  298MB/s  
+New Data Upload               :  99%|█████████▉| 10.3GB / 10.4GB,  298MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  61%|██████    | 10.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  61%|██████    | 10.4GB / 17.0GB,  298MB/s  
+New Data Upload               :  99%|█████████▉| 10.3GB / 10.4GB,  298MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  61%|██████▏   | 10.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  61%|██████▏   | 10.4GB / 17.0GB,  298MB/s  
+New Data Upload               :  99%|█████████▉| 10.4GB / 10.5GB,  298MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  61%|██████▏   | 10.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  61%|██████▏   | 10.4GB / 17.0GB,  298MB/s  
+New Data Upload               :  99%|█████████▉| 10.4GB / 10.5GB,  297MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  62%|██████▏   | 10.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  62%|██████▏   | 10.5GB / 17.0GB,  299MB/s  
+New Data Upload               :  99%|█████████▉| 10.4GB / 10.5GB,  298MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  62%|██████▏   | 10.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  62%|██████▏   | 10.5GB / 17.0GB,  299MB/s  
+New Data Upload               :  99%|█████████▉| 10.5GB / 10.5GB,  299MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  62%|██████▏   | 10.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  62%|██████▏   | 10.5GB / 17.0GB,  299MB/s  
+New Data Upload               :  99%|█████████▉| 10.5GB / 10.6GB,  299MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  62%|██████▏   | 10.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  62%|██████▏   | 10.5GB / 17.0GB,  299MB/s  
+New Data Upload               :  99%|█████████▉| 10.5GB / 10.6GB,  298MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  62%|██████▏   | 10.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  62%|██████▏   | 10.6GB / 17.0GB,  300MB/s  
+New Data Upload               :  99%|█████████▉| 10.6GB / 10.7GB,  299MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  63%|██████▎   | 10.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  63%|██████▎   | 10.6GB / 17.0GB,  300MB/s  
+New Data Upload               :  99%|█████████▉| 10.6GB / 10.7GB,  300MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  63%|██████▎   | 10.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  63%|██████▎   | 10.7GB / 17.0GB,  300MB/s  
+New Data Upload               :  99%|█████████▉| 10.6GB / 10.7GB,  300MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  63%|██████▎   | 10.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  63%|██████▎   | 10.7GB / 17.0GB,  300MB/s  
+New Data Upload               :  99%|█████████▉| 10.7GB / 10.7GB,  300MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  63%|██████▎   | 10.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  63%|██████▎   | 10.7GB / 17.0GB,  300MB/s  
+New Data Upload               :  99%|█████████▉| 10.7GB / 10.8GB,  300MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  63%|██████▎   | 10.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  63%|██████▎   | 10.8GB / 17.0GB,  300MB/s  
+New Data Upload               :  99%|█████████▉| 10.7GB / 10.8GB,  300MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  64%|██████▎   | 10.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  64%|██████▎   | 10.8GB / 17.0GB,  301MB/s  
+New Data Upload               :  99%|█████████▉| 10.8GB / 10.9GB,  301MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  64%|██████▍   | 10.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  64%|██████▍   | 10.8GB / 17.0GB,  301MB/s  
+New Data Upload               :  99%|█████████▉| 10.8GB / 10.9GB,  301MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  64%|██████▍   | 10.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  64%|██████▍   | 10.9GB / 17.0GB,  301MB/s  
+New Data Upload               :  99%|█████████▉| 10.8GB / 10.9GB,  301MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  64%|██████▍   | 10.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  64%|██████▍   | 10.9GB / 17.0GB,  301MB/s  
+New Data Upload               :  99%|█████████▉| 10.9GB / 10.9GB,  301MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  64%|██████▍   | 10.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  64%|██████▍   | 10.9GB / 17.0GB,  302MB/s  
+New Data Upload               :  99%|█████████▉| 10.9GB / 11.0GB,  301MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  65%|██████▍   | 10.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  65%|██████▍   | 10.9GB / 17.0GB,  301MB/s  
+New Data Upload               :  99%|█████████▉| 10.9GB / 11.0GB,  301MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  65%|██████▍   | 11.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  65%|██████▍   | 11.0GB / 17.0GB,  301MB/s  
+New Data Upload               :  99%|█████████▉| 10.9GB / 11.1GB,  301MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  65%|██████▍   | 11.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  65%|██████▍   | 11.0GB / 17.0GB,  301MB/s  
+New Data Upload               :  99%|█████████▉| 11.0GB / 11.1GB,  301MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  65%|██████▌   | 11.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  65%|██████▌   | 11.0GB / 17.0GB,  302MB/s  
+New Data Upload               :  99%|█████████▉| 11.0GB / 11.1GB,  302MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  65%|██████▌   | 11.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  65%|██████▌   | 11.1GB / 17.0GB,  302MB/s  
+New Data Upload               :  99%|█████████▉| 11.1GB / 11.1GB,  302MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  66%|██████▌   | 11.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  66%|██████▌   | 11.1GB / 17.0GB,  302MB/s  
+New Data Upload               :  99%|█████████▉| 11.1GB / 11.2GB,  302MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  66%|██████▌   | 11.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  66%|██████▌   | 11.1GB / 17.0GB,  303MB/s  
+New Data Upload               :  99%|█████████▉| 11.1GB / 11.2GB,  302MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  66%|██████▌   | 11.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  66%|██████▌   | 11.2GB / 17.0GB,  302MB/s  
+New Data Upload               : 100%|█████████▉| 11.2GB / 11.2GB,  302MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  66%|██████▌   | 11.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  66%|██████▌   | 11.2GB / 17.0GB,  303MB/s  
+New Data Upload               :  99%|█████████▉| 11.2GB / 11.3GB,  302MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  66%|██████▌   | 11.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  66%|██████▌   | 11.2GB / 17.0GB,  302MB/s  
+New Data Upload               :  99%|█████████▉| 11.2GB / 11.3GB,  302MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  66%|██████▋   | 11.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  66%|██████▋   | 11.3GB / 17.0GB,  302MB/s  
+New Data Upload               :  99%|█████████▉| 11.2GB / 11.3GB,  302MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  67%|██████▋   | 11.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  67%|██████▋   | 11.3GB / 17.0GB,  302MB/s  
+New Data Upload               :  99%|█████████▉| 11.3GB / 11.3GB,  302MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  67%|██████▋   | 11.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  67%|██████▋   | 11.3GB / 17.0GB,  303MB/s  
+New Data Upload               :  99%|█████████▉| 11.3GB / 11.4GB,  302MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  67%|██████▋   | 11.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  67%|██████▋   | 11.4GB / 17.0GB,  303MB/s  
+New Data Upload               :  99%|█████████▉| 11.3GB / 11.4GB,  303MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  67%|██████▋   | 11.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  67%|██████▋   | 11.4GB / 17.0GB,  304MB/s  
+New Data Upload               :  99%|█████████▉| 11.4GB / 11.5GB,  304MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  67%|██████▋   | 11.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  67%|██████▋   | 11.4GB / 17.0GB,  304MB/s  
+New Data Upload               : 100%|█████████▉| 11.4GB / 11.5GB,  304MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  68%|██████▊   | 11.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  68%|██████▊   | 11.5GB / 17.0GB,  304MB/s  
+New Data Upload               :  99%|█████████▉| 11.4GB / 11.5GB,  304MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  68%|██████▊   | 11.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  68%|██████▊   | 11.5GB / 17.0GB,  304MB/s  
+New Data Upload               :  99%|█████████▉| 11.5GB / 11.5GB,  304MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  68%|██████▊   | 11.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  68%|██████▊   | 11.5GB / 17.0GB,  305MB/s  
+New Data Upload               :  99%|█████████▉| 11.5GB / 11.6GB,  304MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  68%|██████▊   | 11.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  68%|██████▊   | 11.6GB / 17.0GB,  304MB/s  
+New Data Upload               :  99%|█████████▉| 11.5GB / 11.6GB,  304MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  68%|██████▊   | 11.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  68%|██████▊   | 11.6GB / 17.0GB,  304MB/s  
+New Data Upload               :  99%|█████████▉| 11.6GB / 11.7GB,  304MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  69%|██████▊   | 11.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  69%|██████▊   | 11.6GB / 17.0GB,  304MB/s  
+New Data Upload               :  99%|█████████▉| 11.6GB / 11.7GB,  303MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  69%|██████▉   | 11.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  69%|██████▉   | 11.7GB / 17.0GB,  304MB/s  
+New Data Upload               :  99%|█████████▉| 11.6GB / 11.7GB,  304MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  69%|██████▉   | 11.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  69%|██████▉   | 11.7GB / 17.0GB,  304MB/s  
+New Data Upload               :  99%|█████████▉| 11.7GB / 11.7GB,  304MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  69%|██████▉   | 11.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  69%|██████▉   | 11.7GB / 17.0GB,  305MB/s  
+New Data Upload               :  99%|█████████▉| 11.7GB / 11.8GB,  304MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  69%|██████▉   | 11.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  69%|██████▉   | 11.8GB / 17.0GB,  304MB/s  
+New Data Upload               :  99%|█████████▉| 11.7GB / 11.8GB,  304MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  70%|██████▉   | 11.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  70%|██████▉   | 11.8GB / 17.0GB,  305MB/s  
+New Data Upload               :  99%|█████████▉| 11.8GB / 11.9GB,  305MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  70%|██████▉   | 11.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  70%|██████▉   | 11.8GB / 17.0GB,  305MB/s  
+New Data Upload               :  99%|█████████▉| 11.8GB / 11.9GB,  305MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  70%|██████▉   | 11.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  70%|██████▉   | 11.8GB / 17.0GB,  305MB/s  
+New Data Upload               :  99%|█████████▉| 11.8GB / 11.9GB,  305MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  70%|███████   | 11.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  70%|███████   | 11.9GB / 17.0GB,  305MB/s  
+New Data Upload               :  99%|█████████▉| 11.9GB / 11.9GB,  304MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  70%|███████   | 11.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  70%|███████   | 11.9GB / 17.0GB,  305MB/s  
+New Data Upload               : 100%|█████████▉| 11.9GB / 11.9GB,  305MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  70%|███████   | 11.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  70%|███████   | 11.9GB / 17.0GB,  305MB/s  
+New Data Upload               :  99%|█████████▉| 11.9GB / 12.0GB,  305MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  71%|███████   | 12.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  71%|███████   | 12.0GB / 17.0GB,  306MB/s  
+New Data Upload               : 100%|█████████▉| 12.0GB / 12.0GB,  306MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  71%|███████   | 12.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  71%|███████   | 12.0GB / 17.0GB,  306MB/s  
+New Data Upload               :  99%|█████████▉| 12.0GB / 12.1GB,  306MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  71%|███████   | 12.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  71%|███████   | 12.0GB / 17.0GB,  306MB/s  
+New Data Upload               : 100%|█████████▉| 12.0GB / 12.1GB,  306MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  71%|███████   | 12.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  71%|███████   | 12.1GB / 17.0GB,  306MB/s  
+New Data Upload               :  99%|█████████▉| 12.1GB / 12.1GB,  306MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  71%|███████▏  | 12.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  71%|███████▏  | 12.1GB / 17.0GB,  306MB/s  
+New Data Upload               :  99%|█████████▉| 12.1GB / 12.2GB,  306MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  72%|███████▏  | 12.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  72%|███████▏  | 12.1GB / 17.0GB,  306MB/s  
+New Data Upload               :  99%|█████████▉| 12.1GB / 12.2GB,  306MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  72%|███████▏  | 12.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  72%|███████▏  | 12.2GB / 17.0GB,  306MB/s  
+New Data Upload               : 100%|█████████▉| 12.2GB / 12.2GB,  306MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  72%|███████▏  | 12.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  72%|███████▏  | 12.2GB / 17.0GB,  306MB/s  
+New Data Upload               :  99%|█████████▉| 12.2GB / 12.3GB,  306MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  72%|███████▏  | 12.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  72%|███████▏  | 12.2GB / 17.0GB,  306MB/s  
+New Data Upload               : 100%|█████████▉| 12.2GB / 12.3GB,  306MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  72%|███████▏  | 12.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  72%|███████▏  | 12.3GB / 17.0GB,  306MB/s  
+New Data Upload               :  99%|█████████▉| 12.2GB / 12.3GB,  306MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  73%|███████▎  | 12.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  73%|███████▎  | 12.3GB / 17.0GB,  307MB/s  
+New Data Upload               : 100%|█████████▉| 12.3GB / 12.3GB,  306MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  73%|███████▎  | 12.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  73%|███████▎  | 12.3GB / 17.0GB,  307MB/s  
+New Data Upload               :  99%|█████████▉| 12.3GB / 12.4GB,  307MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  73%|███████▎  | 12.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  73%|███████▎  | 12.4GB / 17.0GB,  306MB/s  
+New Data Upload               :  99%|█████████▉| 12.3GB / 12.4GB,  306MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  73%|███████▎  | 12.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  73%|███████▎  | 12.4GB / 17.0GB,  307MB/s  
+New Data Upload               :  99%|█████████▉| 12.4GB / 12.5GB,  307MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  73%|███████▎  | 12.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  73%|███████▎  | 12.4GB / 17.0GB,  307MB/s  
+New Data Upload               :  99%|█████████▉| 12.4GB / 12.5GB,  307MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  74%|███████▎  | 12.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  74%|███████▎  | 12.5GB / 17.0GB,  307MB/s  
+New Data Upload               :  99%|█████████▉| 12.4GB / 12.5GB,  307MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  74%|███████▎  | 12.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  74%|███████▎  | 12.5GB / 17.0GB,  308MB/s  
+New Data Upload               :  99%|█████████▉| 12.5GB / 12.5GB,  307MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  74%|███████▍  | 12.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  74%|███████▍  | 12.5GB / 17.0GB,  308MB/s  
+New Data Upload               :  99%|█████████▉| 12.5GB / 12.6GB,  308MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  74%|███████▍  | 12.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  74%|███████▍  | 12.6GB / 17.0GB,  308MB/s  
+New Data Upload               : 100%|█████████▉| 12.5GB / 12.6GB,  308MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  74%|███████▍  | 12.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  74%|███████▍  | 12.6GB / 17.0GB,  309MB/s  
+New Data Upload               :  99%|█████████▉| 12.6GB / 12.7GB,  309MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  75%|███████▍  | 12.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  75%|███████▍  | 12.6GB / 17.0GB,  308MB/s  
+New Data Upload               : 100%|█████████▉| 12.6GB / 12.7GB,  308MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  75%|███████▍  | 12.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  75%|███████▍  | 12.7GB / 17.0GB,  309MB/s  
+New Data Upload               :  99%|█████████▉| 12.7GB / 12.7GB,  309MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  75%|███████▍  | 12.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  75%|███████▍  | 12.7GB / 17.0GB,  308MB/s  
+New Data Upload               :  99%|█████████▉| 12.7GB / 12.7GB,  308MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  75%|███████▌  | 12.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  75%|███████▌  | 12.7GB / 17.0GB,  309MB/s  
+New Data Upload               :  99%|█████████▉| 12.7GB / 12.8GB,  309MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  75%|███████▌  | 12.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  75%|███████▌  | 12.8GB / 17.0GB,  309MB/s  
+New Data Upload               :  99%|█████████▉| 12.7GB / 12.8GB,  309MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  75%|███████▌  | 12.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  75%|███████▌  | 12.8GB / 17.0GB,  309MB/s  
+New Data Upload               :  99%|█████████▉| 12.8GB / 12.9GB,  308MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  76%|███████▌  | 12.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  76%|███████▌  | 12.8GB / 17.0GB,  308MB/s  
+New Data Upload               :  99%|█████████▉| 12.8GB / 12.9GB,  308MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  76%|███████▌  | 12.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  76%|███████▌  | 12.9GB / 17.0GB,  310MB/s  
+New Data Upload               :  99%|█████████▉| 12.8GB / 12.9GB,  309MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  76%|███████▌  | 12.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  76%|███████▌  | 12.9GB / 17.0GB,  309MB/s  
+New Data Upload               :  99%|█████████▉| 12.9GB / 12.9GB,  309MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  76%|███████▋  | 12.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  76%|███████▋  | 12.9GB / 17.0GB,  310MB/s  
+New Data Upload               :  99%|█████████▉| 12.9GB / 13.0GB,  310MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  76%|███████▋  | 13.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  76%|███████▋  | 13.0GB / 17.0GB,  309MB/s  
+New Data Upload               :  99%|█████████▉| 12.9GB / 13.0GB,  309MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  77%|███████▋  | 13.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  77%|███████▋  | 13.0GB / 17.0GB,  309MB/s  
+New Data Upload               :  99%|█████████▉| 13.0GB / 13.1GB,  309MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  77%|███████▋  | 13.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  77%|███████▋  | 13.0GB / 17.0GB,  310MB/s  
+New Data Upload               :  99%|█████████▉| 13.0GB / 13.1GB,  309MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  77%|███████▋  | 13.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  77%|███████▋  | 13.1GB / 17.0GB,  310MB/s  
+New Data Upload               :  99%|█████████▉| 13.0GB / 13.1GB,  310MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  77%|███████▋  | 13.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  77%|███████▋  | 13.1GB / 17.0GB,  310MB/s  
+New Data Upload               :  99%|█████████▉| 13.1GB / 13.1GB,  310MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  77%|███████▋  | 13.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  77%|███████▋  | 13.1GB / 17.0GB,  309MB/s  
+New Data Upload               : 100%|█████████▉| 13.1GB / 13.1GB,  309MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  78%|███████▊  | 13.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  78%|███████▊  | 13.1GB / 17.0GB,  309MB/s  
+New Data Upload               :  99%|█████████▉| 13.1GB / 13.2GB,  309MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  78%|███████▊  | 13.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  78%|███████▊  | 13.2GB / 17.0GB,  309MB/s  
+New Data Upload               : 100%|█████████▉| 13.1GB / 13.2GB,  309MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  78%|███████▊  | 13.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  78%|███████▊  | 13.2GB / 17.0GB,  309MB/s  
+New Data Upload               :  99%|█████████▉| 13.2GB / 13.3GB,  308MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  78%|███████▊  | 13.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  78%|███████▊  | 13.2GB / 17.0GB,  309MB/s  
+New Data Upload               : 100%|█████████▉| 13.2GB / 13.3GB,  309MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  78%|███████▊  | 13.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  78%|███████▊  | 13.3GB / 17.0GB,  310MB/s  
+New Data Upload               :  99%|█████████▉| 13.3GB / 13.3GB,  310MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  78%|███████▊  | 13.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  78%|███████▊  | 13.3GB / 17.0GB,  310MB/s  
+New Data Upload               : 100%|█████████▉| 13.3GB / 13.3GB,  309MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  79%|███████▊  | 13.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  79%|███████▊  | 13.3GB / 17.0GB,  310MB/s  
+New Data Upload               :  99%|█████████▉| 13.3GB / 13.4GB,  310MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  79%|███████▉  | 13.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  79%|███████▉  | 13.4GB / 17.0GB,  310MB/s  
+New Data Upload               : 100%|█████████▉| 13.4GB / 13.4GB,  310MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  79%|███████▉  | 13.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  79%|███████▉  | 13.4GB / 17.0GB,  310MB/s  
+New Data Upload               :  99%|█████████▉| 13.4GB / 13.5GB,  310MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  79%|███████▉  | 13.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  79%|███████▉  | 13.4GB / 17.0GB,  310MB/s  
+New Data Upload               : 100%|█████████▉| 13.4GB / 13.5GB,  310MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  79%|███████▉  | 13.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  79%|███████▉  | 13.5GB / 17.0GB,  310MB/s  
+New Data Upload               :  99%|█████████▉| 13.4GB / 13.5GB,  310MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  80%|███████▉  | 13.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  80%|███████▉  | 13.5GB / 17.0GB,  310MB/s  
+New Data Upload               : 100%|█████████▉| 13.5GB / 13.5GB,  310MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  80%|███████▉  | 13.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  80%|███████▉  | 13.5GB / 17.0GB,  311MB/s  
+New Data Upload               :  99%|█████████▉| 13.5GB / 13.6GB,  311MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  80%|████████  | 13.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  80%|████████  | 13.6GB / 17.0GB,  311MB/s  
+New Data Upload               : 100%|█████████▉| 13.6GB / 13.6GB,  311MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  80%|████████  | 13.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  80%|████████  | 13.6GB / 17.0GB,  311MB/s  
+New Data Upload               :  99%|█████████▉| 13.6GB / 13.7GB,  311MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  80%|████████  | 13.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  80%|████████  | 13.6GB / 17.0GB,  311MB/s  
+New Data Upload               : 100%|█████████▉| 13.6GB / 13.7GB,  311MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  81%|████████  | 13.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  81%|████████  | 13.7GB / 17.0GB,  312MB/s  
+New Data Upload               :  99%|█████████▉| 13.7GB / 13.7GB,  312MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  81%|████████  | 13.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  81%|████████  | 13.7GB / 17.0GB,  312MB/s  
+New Data Upload               : 100%|█████████▉| 13.7GB / 13.7GB,  312MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  81%|████████  | 13.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  81%|████████  | 13.7GB / 17.0GB,  312MB/s  
+New Data Upload               :  99%|█████████▉| 13.7GB / 13.8GB,  312MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  81%|████████▏ | 13.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  81%|████████▏ | 13.8GB / 17.0GB,  312MB/s  
+New Data Upload               : 100%|█████████▉| 13.8GB / 13.8GB,  312MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  82%|████████▏ | 13.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  82%|████████▏ | 13.8GB / 17.0GB,  313MB/s  
+New Data Upload               :  99%|█████████▉| 13.8GB / 13.9GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  82%|████████▏ | 13.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  82%|████████▏ | 13.8GB / 17.0GB,  312MB/s  
+New Data Upload               : 100%|█████████▉| 13.8GB / 13.9GB,  312MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  82%|████████▏ | 13.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  82%|████████▏ | 13.9GB / 17.0GB,  313MB/s  
+New Data Upload               :  99%|█████████▉| 13.9GB / 13.9GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  82%|████████▏ | 13.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  82%|████████▏ | 13.9GB / 17.0GB,  312MB/s  
+New Data Upload               : 100%|█████████▉| 13.9GB / 13.9GB,  312MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  82%|████████▏ | 13.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  82%|████████▏ | 13.9GB / 17.0GB,  313MB/s  
+New Data Upload               :  99%|█████████▉| 13.9GB / 14.0GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  82%|████████▏ | 14.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  82%|████████▏ | 14.0GB / 17.0GB,  312MB/s  
+New Data Upload               : 100%|█████████▉| 13.9GB / 14.0GB,  312MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  83%|████████▎ | 14.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  83%|████████▎ | 14.0GB / 17.0GB,  313MB/s  
+New Data Upload               :  99%|█████████▉| 14.0GB / 14.1GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  83%|████████▎ | 14.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  83%|████████▎ | 14.0GB / 17.0GB,  313MB/s  
+New Data Upload               : 100%|█████████▉| 14.0GB / 14.1GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  83%|████████▎ | 14.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  83%|████████▎ | 14.1GB / 17.0GB,  313MB/s  
+New Data Upload               :  99%|█████████▉| 14.0GB / 14.2GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  83%|████████▎ | 14.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  83%|████████▎ | 14.1GB / 17.0GB,  312MB/s  
+New Data Upload               :  99%|█████████▉| 14.1GB / 14.2GB,  312MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  83%|████████▎ | 14.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  83%|████████▎ | 14.1GB / 17.0GB,  314MB/s  
+New Data Upload               :  99%|█████████▉| 14.1GB / 14.2GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  84%|████████▎ | 14.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  84%|████████▎ | 14.2GB / 17.0GB,  313MB/s  
+New Data Upload               : 100%|█████████▉| 14.2GB / 14.2GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  84%|████████▍ | 14.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  84%|████████▍ | 14.2GB / 17.0GB,  313MB/s  
+New Data Upload               :  99%|█████████▉| 14.2GB / 14.3GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  84%|████████▍ | 14.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  84%|████████▍ | 14.2GB / 17.0GB,  314MB/s  
+New Data Upload               : 100%|█████████▉| 14.2GB / 14.3GB,  314MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  84%|████████▍ | 14.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  84%|████████▍ | 14.3GB / 17.0GB,  313MB/s  
+New Data Upload               : 100%|█████████▉| 14.2GB / 14.3GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  84%|████████▍ | 14.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  84%|████████▍ | 14.3GB / 17.0GB,  313MB/s  
+New Data Upload               :  99%|█████████▉| 14.3GB / 14.4GB,  312MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  84%|████████▍ | 14.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  84%|████████▍ | 14.3GB / 17.0GB,  313MB/s  
+New Data Upload               : 100%|█████████▉| 14.3GB / 14.4GB,  312MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  85%|████████▍ | 14.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  85%|████████▍ | 14.4GB / 17.0GB,  313MB/s  
+New Data Upload               :  99%|█████████▉| 14.3GB / 14.4GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  85%|████████▍ | 14.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  85%|████████▍ | 14.4GB / 17.0GB,  313MB/s  
+New Data Upload               : 100%|█████████▉| 14.4GB / 14.4GB,  312MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  85%|████████▍ | 14.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  85%|████████▍ | 14.4GB / 17.0GB,  312MB/s  
+New Data Upload               :  99%|█████████▉| 14.4GB / 14.5GB,  312MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  85%|████████▌ | 14.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  85%|████████▌ | 14.4GB / 17.0GB,  312MB/s  
+New Data Upload               : 100%|█████████▉| 14.4GB / 14.5GB,  312MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  85%|████████▌ | 14.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  85%|████████▌ | 14.5GB / 17.0GB,  313MB/s  
+New Data Upload               :  99%|█████████▉| 14.5GB / 14.6GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  86%|████████▌ | 14.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  86%|████████▌ | 14.5GB / 17.0GB,  313MB/s  
+New Data Upload               : 100%|█████████▉| 14.5GB / 14.6GB,  312MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  86%|████████▌ | 14.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  86%|████████▌ | 14.5GB / 17.0GB,  313MB/s  
+New Data Upload               :  99%|█████████▉| 14.5GB / 14.6GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  86%|████████▌ | 14.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  86%|████████▌ | 14.6GB / 17.0GB,  313MB/s  
+New Data Upload               : 100%|█████████▉| 14.6GB / 14.6GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  86%|████████▌ | 14.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  86%|████████▌ | 14.6GB / 17.0GB,  313MB/s  
+New Data Upload               :  99%|█████████▉| 14.6GB / 14.7GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  86%|████████▋ | 14.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  86%|████████▋ | 14.6GB / 17.0GB,  313MB/s  
+New Data Upload               :  99%|█████████▉| 14.6GB / 14.7GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  86%|████████▋ | 14.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  86%|████████▋ | 14.7GB / 17.0GB,  312MB/s  
+New Data Upload               :  99%|█████████▉| 14.6GB / 14.8GB,  312MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  87%|████████▋ | 14.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  87%|████████▋ | 14.7GB / 17.0GB,  312MB/s  
+New Data Upload               :  99%|█████████▉| 14.7GB / 14.8GB,  312MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  87%|████████▋ | 14.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  87%|████████▋ | 14.7GB / 17.0GB,  313MB/s  
+New Data Upload               :  99%|█████████▉| 14.7GB / 14.8GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  87%|████████▋ | 14.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  87%|████████▋ | 14.8GB / 17.0GB,  313MB/s  
+New Data Upload               :  99%|█████████▉| 14.7GB / 14.8GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  87%|████████▋ | 14.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  87%|████████▋ | 14.8GB / 17.0GB,  314MB/s  
+New Data Upload               :  99%|█████████▉| 14.8GB / 14.9GB,  314MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  88%|████████▊ | 14.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  88%|████████▊ | 14.8GB / 17.0GB,  314MB/s  
+New Data Upload               : 100%|█████████▉| 14.8GB / 14.9GB,  314MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  88%|████████▊ | 14.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  88%|████████▊ | 14.9GB / 17.0GB,  315MB/s  
+New Data Upload               :  99%|█████████▉| 14.9GB / 15.0GB,  315MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  88%|████████▊ | 14.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  88%|████████▊ | 14.9GB / 17.0GB,  314MB/s  
+New Data Upload               : 100%|█████████▉| 14.9GB / 15.0GB,  314MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  88%|████████▊ | 14.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  88%|████████▊ | 14.9GB / 17.0GB,  314MB/s  
+New Data Upload               : 100%|█████████▉| 14.9GB / 15.0GB,  314MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  88%|████████▊ | 15.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  88%|████████▊ | 15.0GB / 17.0GB,  314MB/s  
+New Data Upload               :  99%|█████████▉| 14.9GB / 15.0GB,  314MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  88%|████████▊ | 15.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  88%|████████▊ | 15.0GB / 17.0GB,  313MB/s  
+New Data Upload               : 100%|█████████▉| 15.0GB / 15.0GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  89%|████████▊ | 15.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  89%|████████▊ | 15.0GB / 17.0GB,  314MB/s  
+New Data Upload               :  99%|█████████▉| 15.0GB / 15.1GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  89%|████████▉ | 15.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  89%|████████▉ | 15.0GB / 17.0GB,  313MB/s  
+New Data Upload               : 100%|█████████▉| 15.0GB / 15.1GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  89%|████████▉ | 15.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  89%|████████▉ | 15.1GB / 17.0GB,  313MB/s  
+New Data Upload               :  99%|█████████▉| 15.1GB / 15.2GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  89%|████████▉ | 15.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  89%|████████▉ | 15.1GB / 17.0GB,  313MB/s  
+New Data Upload               : 100%|█████████▉| 15.1GB / 15.2GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  89%|████████▉ | 15.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  89%|████████▉ | 15.2GB / 17.0GB,  314MB/s  
+New Data Upload               :  99%|█████████▉| 15.1GB / 15.2GB,  314MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  90%|████████▉ | 15.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  90%|████████▉ | 15.2GB / 17.0GB,  314MB/s  
+New Data Upload               : 100%|█████████▉| 15.2GB / 15.2GB,  314MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  90%|████████▉ | 15.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  90%|████████▉ | 15.2GB / 17.0GB,  314MB/s  
+New Data Upload               :  99%|█████████▉| 15.2GB / 15.3GB,  314MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  90%|████████▉ | 15.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  90%|████████▉ | 15.3GB / 17.0GB,  314MB/s  
+New Data Upload               : 100%|█████████▉| 15.2GB / 15.3GB,  314MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  90%|█████████ | 15.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  90%|█████████ | 15.3GB / 17.0GB,  314MB/s  
+New Data Upload               :  99%|█████████▉| 15.3GB / 15.4GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  90%|█████████ | 15.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  90%|█████████ | 15.3GB / 17.0GB,  313MB/s  
+New Data Upload               : 100%|█████████▉| 15.3GB / 15.4GB,  313MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  91%|█████████ | 15.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  91%|█████████ | 15.4GB / 17.0GB,  315MB/s  
+New Data Upload               :  99%|█████████▉| 15.3GB / 15.4GB,  315MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  91%|█████████ | 15.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  91%|█████████ | 15.4GB / 17.0GB,  314MB/s  
+New Data Upload               : 100%|█████████▉| 15.4GB / 15.4GB,  314MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  91%|█████████ | 15.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  91%|█████████ | 15.4GB / 17.0GB,  315MB/s  
+New Data Upload               :  99%|█████████▉| 15.4GB / 15.5GB,  315MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  91%|█████████ | 15.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  91%|█████████ | 15.5GB / 17.0GB,  315MB/s  
+New Data Upload               : 100%|█████████▉| 15.4GB / 15.5GB,  315MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  91%|█████████▏| 15.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  91%|█████████▏| 15.5GB / 17.0GB,  315MB/s  
+New Data Upload               :  99%|█████████▉| 15.5GB / 15.6GB,  314MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  91%|█████████▏| 15.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  91%|█████████▏| 15.5GB / 17.0GB,  314MB/s  
+New Data Upload               : 100%|█████████▉| 15.5GB / 15.6GB,  314MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  92%|█████████▏| 15.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  92%|█████████▏| 15.6GB / 17.0GB,  315MB/s  
+New Data Upload               :  99%|█████████▉| 15.5GB / 15.6GB,  315MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  92%|█████████▏| 15.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  92%|█████████▏| 15.6GB / 17.0GB,  315MB/s  
+New Data Upload               : 100%|█████████▉| 15.6GB / 15.6GB,  315MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  92%|█████████▏| 15.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  92%|█████████▏| 15.6GB / 17.0GB,  314MB/s  
+New Data Upload               :  99%|█████████▉| 15.6GB / 15.7GB,  314MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  92%|█████████▏| 15.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  92%|█████████▏| 15.6GB / 17.0GB,  314MB/s  
+New Data Upload               : 100%|█████████▉| 15.6GB / 15.7GB,  314MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  92%|█████████▏| 15.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  92%|█████████▏| 15.7GB / 17.0GB,  315MB/s  
+New Data Upload               :  99%|█████████▉| 15.7GB / 15.8GB,  315MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  93%|█████████▎| 15.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  93%|█████████▎| 15.7GB / 17.0GB,  315MB/s  
+New Data Upload               : 100%|█████████▉| 15.7GB / 15.8GB,  315MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  93%|█████████▎| 15.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  93%|█████████▎| 15.8GB / 17.0GB,  316MB/s  
+New Data Upload               :  99%|█████████▉| 15.7GB / 15.8GB,  316MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  93%|█████████▎| 15.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  93%|█████████▎| 15.8GB / 17.0GB,  316MB/s  
+New Data Upload               : 100%|█████████▉| 15.8GB / 15.8GB,  316MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  93%|█████████▎| 15.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  93%|█████████▎| 15.8GB / 17.0GB,  316MB/s  
+New Data Upload               :  99%|█████████▉| 15.8GB / 15.9GB,  316MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  93%|█████████▎| 15.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  93%|█████████▎| 15.8GB / 17.0GB,  316MB/s  
+New Data Upload               : 100%|█████████▉| 15.8GB / 15.9GB,  316MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  94%|█████████▎| 15.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  94%|█████████▎| 15.9GB / 17.0GB,  315MB/s  
+New Data Upload               :  99%|█████████▉| 15.8GB / 16.0GB,  315MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  94%|█████████▍| 15.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  94%|█████████▍| 15.9GB / 17.0GB,  315MB/s  
+New Data Upload               : 100%|█████████▉| 15.9GB / 16.0GB,  315MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  94%|█████████▍| 15.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  94%|█████████▍| 15.9GB / 17.0GB,  316MB/s  
+New Data Upload               :  99%|█████████▉| 15.9GB / 16.0GB,  316MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  94%|█████████▍| 16.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  94%|█████████▍| 16.0GB / 17.0GB,  316MB/s  
+New Data Upload               : 100%|█████████▉| 16.0GB / 16.0GB,  316MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  94%|█████████▍| 16.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  94%|█████████▍| 16.0GB / 17.0GB,  316MB/s  
+New Data Upload               :  99%|█████████▉| 16.0GB / 16.1GB,  316MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  95%|█████████▍| 16.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  95%|█████████▍| 16.0GB / 17.0GB,  316MB/s  
+New Data Upload               : 100%|█████████▉| 16.0GB / 16.1GB,  316MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  95%|█████████▍| 16.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  95%|█████████▍| 16.1GB / 17.0GB,  316MB/s  
+New Data Upload               :  99%|█████████▉| 16.1GB / 16.2GB,  316MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  95%|█████████▌| 16.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  95%|█████████▌| 16.1GB / 17.0GB,  316MB/s  
+New Data Upload               : 100%|█████████▉| 16.1GB / 16.2GB,  316MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  95%|█████████▌| 16.1GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  95%|█████████▌| 16.1GB / 17.0GB,  316MB/s  
+New Data Upload               :  99%|█████████▉| 16.1GB / 16.2GB,  316MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  95%|█████████▌| 16.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  95%|█████████▌| 16.2GB / 17.0GB,  317MB/s  
+New Data Upload               : 100%|█████████▉| 16.2GB / 16.2GB,  317MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  96%|█████████▌| 16.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  96%|█████████▌| 16.2GB / 17.0GB,  316MB/s  
+New Data Upload               :  99%|█████████▉| 16.2GB / 16.3GB,  316MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  96%|█████████▌| 16.2GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  96%|█████████▌| 16.2GB / 17.0GB,  317MB/s  
+New Data Upload               : 100%|█████████▉| 16.2GB / 16.3GB,  317MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  96%|█████████▌| 16.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  96%|█████████▌| 16.3GB / 17.0GB,  316MB/s  
+New Data Upload               :  99%|█████████▉| 16.2GB / 16.4GB,  316MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  96%|█████████▌| 16.3GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  96%|█████████▌| 16.3GB / 17.0GB,  316MB/s  
+New Data Upload               :  99%|█████████▉| 16.3GB / 16.4GB,  316MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  96%|█████████▋| 16.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  96%|█████████▋| 16.4GB / 17.0GB,  318MB/s  
+New Data Upload               :  99%|█████████▉| 16.3GB / 16.4GB,  318MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  97%|█████████▋| 16.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  97%|█████████▋| 16.4GB / 17.0GB,  318MB/s  
+New Data Upload               : 100%|█████████▉| 16.4GB / 16.4GB,  317MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  97%|█████████▋| 16.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  97%|█████████▋| 16.4GB / 17.0GB,  317MB/s  
+New Data Upload               :  99%|█████████▉| 16.4GB / 16.5GB,  317MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  97%|█████████▋| 16.4GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  97%|█████████▋| 16.4GB / 17.0GB,  317MB/s  
+New Data Upload               : 100%|█████████▉| 16.4GB / 16.5GB,  317MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  97%|█████████▋| 16.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  97%|█████████▋| 16.5GB / 17.0GB,  317MB/s  
+New Data Upload               :  99%|█████████▉| 16.4GB / 16.6GB,  317MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  97%|█████████▋| 16.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  97%|█████████▋| 16.5GB / 17.0GB,  316MB/s  
+New Data Upload               :  99%|█████████▉| 16.5GB / 16.6GB,  316MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  97%|█████████▋| 16.5GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  97%|█████████▋| 16.5GB / 17.0GB,  316MB/s  
+New Data Upload               : 100%|█████████▉| 16.5GB / 16.6GB,  316MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  98%|█████████▊| 16.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  98%|█████████▊| 16.6GB / 17.0GB,  317MB/s  
+New Data Upload               :  99%|█████████▉| 16.5GB / 16.6GB,  317MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  98%|█████████▊| 16.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  98%|█████████▊| 16.6GB / 17.0GB,  317MB/s  
+New Data Upload               : 100%|█████████▉| 16.6GB / 16.6GB,  317MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  98%|█████████▊| 16.6GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  98%|█████████▊| 16.6GB / 17.0GB,  318MB/s  
+New Data Upload               : 100%|█████████▉| 16.6GB / 16.7GB,  318MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  98%|█████████▊| 16.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  98%|█████████▊| 16.7GB / 17.0GB,  317MB/s  
+New Data Upload               : 100%|█████████▉| 16.6GB / 16.7GB,  317MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  99%|█████████▊| 16.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  99%|█████████▊| 16.7GB / 17.0GB,  318MB/s  
+New Data Upload               :  99%|█████████▉| 16.7GB / 16.8GB,  318MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  99%|█████████▊| 16.7GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  99%|█████████▊| 16.7GB / 17.0GB,  317MB/s  
+New Data Upload               : 100%|█████████▉| 16.7GB / 16.8GB,  317MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  99%|█████████▉| 16.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  99%|█████████▉| 16.8GB / 17.0GB,  318MB/s  
+New Data Upload               :  99%|█████████▉| 16.7GB / 16.8GB,  318MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  99%|█████████▉| 16.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  99%|█████████▉| 16.8GB / 17.0GB,  317MB/s  
+New Data Upload               : 100%|█████████▉| 16.8GB / 16.8GB,  317MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  99%|█████████▉| 16.8GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  99%|█████████▉| 16.8GB / 17.0GB,  317MB/s  
+New Data Upload               :  99%|█████████▉| 16.8GB / 16.9GB,  317MB/s  [A
+
+  ..._ut9_6e/model.safetensors:  99%|█████████▉| 16.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      :  99%|█████████▉| 16.9GB / 17.0GB,  317MB/s  
+New Data Upload               : 100%|█████████▉| 16.8GB / 16.9GB,  317MB/s  [A
+
+  ..._ut9_6e/model.safetensors: 100%|█████████▉| 16.9GB / 17.0GB            [A[AProcessing Files (0 / 1)      : 100%|█████████▉| 16.9GB / 17.0GB,  318MB/s  
+New Data Upload               : 100%|█████████▉| 16.9GB / 16.9GB,  318MB/s  [A
+
+  ..._ut9_6e/model.safetensors: 100%|█████████▉| 17.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      : 100%|█████████▉| 17.0GB / 17.0GB,  319MB/s  
+New Data Upload               : 100%|█████████▉| 16.9GB / 16.9GB,  319MB/s  [A
+
+  ..._ut9_6e/model.safetensors: 100%|█████████▉| 17.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      : 100%|█████████▉| 17.0GB / 17.0GB,  318MB/s  
+New Data Upload               : 100%|█████████▉| 16.9GB / 16.9GB,  317MB/s  [A
+
+  ..._ut9_6e/model.safetensors: 100%|█████████▉| 17.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      : 100%|█████████▉| 17.0GB / 17.0GB,  315MB/s  
+New Data Upload               : 100%|█████████▉| 16.9GB / 16.9GB,  315MB/s  [A
+
+  ..._ut9_6e/model.safetensors: 100%|█████████▉| 17.0GB / 17.0GB            [A[A
+
+  ..._ut9_6e/model.safetensors: 100%|█████████▉| 17.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      : 100%|█████████▉| 17.0GB / 17.0GB,  311MB/s  
+New Data Upload               : 100%|█████████▉| 16.9GB / 16.9GB,  311MB/s  [A
+
+  ..._ut9_6e/model.safetensors: 100%|█████████▉| 17.0GB / 17.0GB            [A[A
+
+  ..._ut9_6e/model.safetensors: 100%|█████████▉| 17.0GB / 17.0GB            [A[AProcessing Files (0 / 1)      : 100%|█████████▉| 17.0GB / 17.0GB,  307MB/s  
+New Data Upload               : 100%|█████████▉| 16.9GB / 16.9GB,  307MB/s  [A
+
+  ..._ut9_6e/model.safetensors: 100%|██████████| 17.0GB / 17.0GB            [A[AProcessing Files (1 / 1)      : 100%|██████████| 17.0GB / 17.0GB,  304MB/s  
+New Data Upload               : 100%|██████████| 16.9GB / 16.9GB,  304MB/s  [A
+
+  ..._ut9_6e/model.safetensors: 100%|██████████| 17.0GB / 17.0GB            [A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+  ..._ut9_6e/model.safetensors: 100%|██████████| 17.0GB / 17.0GB            [A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+  ..._ut9_6e/model.safetensors: 100%|██████████| 17.0GB / 17.0GB            [A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+  ..._ut9_6e/model.safetensors: 100%|██████████| 17.0GB / 17.0GB            [A[A
+
+
+Validating                    : ███████▏  |  72%            [A[A[A
+
+  ..._ut9_6e/model.safetensors: 100%|██████████| 17.0GB / 17.0GB            [A[A
+
+
+Validating                    : ███████▏  |  72%            [A[A[A
+
+  ..._ut9_6e/model.safetensors: 100%|██████████| 17.0GB / 17.0GB            [A[A
+
+
+Validating                    : ██████████| 100%            [A[A[A
+
+  ..._ut9_6e/model.safetensors: 100%|██████████| 17.0GB / 17.0GB            [A[A
+
+
+Validating                    : ██████████| 100%            [A[A[A
+
+  ..._ut9_6e/model.safetensors: 100%|██████████| 17.0GB / 17.0GB            [A[A
+
+
+Validating                    : ██████████| 100%            [A[A[A
+
+  ..._ut9_6e/model.safetensors: 100%|██████████| 17.0GB / 17.0GB            [A[A
+
+
+Validating                    : ██████████| 100%            [A[A[AProcessing Files (1 / 1)      : 100%|██████████| 17.0GB / 17.0GB,  286MB/s  
+New Data Upload               : 100%|██████████| 16.9GB / 16.9GB,  286MB/s  
+Validating                    : ██████████| 100%            
+  ..._ut9_6e/model.safetensors: 100%|██████████| 17.0GB / 17.0GB            
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+New Data Upload               : |          |  0.00B /  0.00B            [A
+
+  ...mp_o55ro3o/tokenizer.json:   0%|          | 28.4kB / 11.4MB            [A[A
+
+  ...mp_o55ro3o/tokenizer.json:   0%|          | 28.4kB / 11.4MB            [A[AProcessing Files (0 / 1)      :   0%|          | 28.4kB / 11.4MB,   ???B/s  
+
+  ...mp_o55ro3o/tokenizer.json:  30%|███       | 3.46MB / 11.4MB            [A[AProcessing Files (0 / 1)      :  30%|███       | 3.46MB / 11.4MB,   ???B/s  
+
+  ...mp_o55ro3o/tokenizer.json: 100%|█████████▉| 11.4MB / 11.4MB            [A[AProcessing Files (0 / 1)      : 100%|█████████▉| 11.4MB / 11.4MB, 1.13MB/s  
+New Data Upload               : 100%|█████████▉| 7.96MB / 7.96MB,  789kB/s  [A
+
+  ...mp_o55ro3o/tokenizer.json: 100%|██████████| 11.4MB / 11.4MB            [A[AProcessing Files (1 / 1)      : 100%|██████████| 11.4MB / 11.4MB, 1.12MB/s  
+New Data Upload               : 100%|██████████| 7.96MB / 7.96MB,  781kB/s  [A
+
+
+Validating                    :           |   0%            [A[A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+  ...mp_o55ro3o/tokenizer.json: 100%|██████████| 11.4MB / 11.4MB            [A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+  ...mp_o55ro3o/tokenizer.json: 100%|██████████| 11.4MB / 11.4MB            [A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+  ...mp_o55ro3o/tokenizer.json: 100%|██████████| 11.4MB / 11.4MB            [A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+  ...mp_o55ro3o/tokenizer.json: 100%|██████████| 11.4MB / 11.4MB            [A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+  ...mp_o55ro3o/tokenizer.json: 100%|██████████| 11.4MB / 11.4MB            [A[A
+
+
+Validating                    : ██████████| 100%            [A[A[AProcessing Files (1 / 1)      : 100%|██████████| 11.4MB / 11.4MB, 1.07MB/s  
+New Data Upload               : 100%|██████████| 7.96MB / 7.96MB,  747kB/s  
+Validating                    : ██████████| 100%            
+  ...mp_o55ro3o/tokenizer.json: 100%|██████████| 11.4MB / 11.4MB            
+pushed to https://huggingface.co/sartajbhuvaji/bonsai-distilled-aggressive-vs-baseline-3k-warmup450 (private)
+DISTILL_RUN=runs/20260928T195145Z-4eaf33-distill-aggressive-vs-baseline-3000-warmup450
+tail metrics: runs/20260928T195145Z-4eaf33-distill-aggressive-vs-baseline-3000-warmup450/metrics.jsonl
+--- HumanEval-TS n=40 on sartajbhuvaji/bonsai-distilled-aggressive-vs-baseline-3k-warmup450 ---
+model=sartajbhuvaji/bonsai-distilled-aggressive-vs-baseline-3k-warmup450
+run_dir=runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450
+limit=40
+The following values were not passed to `accelerate launch` and had defaults used instead:
+	`--num_processes` was set to a value of `1`
+	`--num_machines` was set to a value of `1`
+	`--mixed_precision` was set to a value of `'no'`
+	`--dynamo_backend` was set to a value of `'no'`
+To avoid this warning pass in values for each of the problematic parameters or run `accelerate config`.
+Selected Tasks: ['multiple-ts']
+Loading model in bf16
+Loading weights:   0%|          | 0/355 [00:00<?, ?it/s]Loading weights:   1%|▏         | 5/355 [00:00<00:26, 13.32it/s]Loading weights:   5%|▍         | 16/355 [00:00<00:13, 24.48it/s]Loading weights:   8%|▊         | 27/355 [00:01<00:11, 28.52it/s]Loading weights:  11%|█         | 38/355 [00:01<00:10, 30.46it/s]Loading weights:  14%|█▍        | 49/355 [00:01<00:09, 31.53it/s]Loading weights:  17%|█▋        | 60/355 [00:02<00:09, 32.26it/s]Loading weights:  20%|██        | 71/355 [00:02<00:08, 32.79it/s]Loading weights:  23%|██▎       | 82/355 [00:02<00:08, 32.96it/s]Loading weights:  26%|██▌       | 93/355 [00:02<00:07, 33.13it/s]Loading weights:  29%|██▉       | 104/355 [00:03<00:07, 33.34it/s]Loading weights:  32%|███▏      | 115/355 [00:03<00:07, 33.46it/s]Loading weights:  35%|███▌      | 126/355 [00:03<00:06, 33.27it/s]Loading weights:  39%|███▊      | 137/355 [00:04<00:06, 33.51it/s]Loading weights:  42%|████▏     | 148/355 [00:04<00:06, 33.56it/s]Loading weights:  45%|████▍     | 159/355 [00:04<00:05, 33.53it/s]Loading weights:  48%|████▊     | 170/355 [00:05<00:05, 33.59it/s]Loading weights:  51%|█████     | 181/355 [00:05<00:05, 33.03it/s]Loading weights:  54%|█████▍    | 192/355 [00:05<00:04, 33.22it/s]Loading weights:  57%|█████▋    | 203/355 [00:06<00:04, 33.38it/s]Loading weights:  60%|██████    | 214/355 [00:06<00:04, 33.51it/s]Loading weights:  63%|██████▎   | 225/355 [00:06<00:03, 33.55it/s]Loading weights:  66%|██████▋   | 236/355 [00:07<00:03, 33.59it/s]Loading weights:  70%|██████▉   | 247/355 [00:07<00:03, 33.60it/s]Loading weights:  73%|███████▎  | 258/355 [00:07<00:02, 33.66it/s]Loading weights:  76%|███████▌  | 269/355 [00:08<00:02, 33.74it/s]Loading weights:  79%|███████▉  | 280/355 [00:08<00:02, 33.77it/s]Loading weights:  82%|████████▏ | 291/355 [00:08<00:01, 33.66it/s]Loading weights:  85%|████████▌ | 302/355 [00:09<00:01, 33.70it/s]Loading weights:  88%|████████▊ | 313/355 [00:09<00:01, 33.48it/s]Loading weights:  91%|█████████▏| 324/355 [00:09<00:00, 33.21it/s]Loading weights:  94%|█████████▍| 335/355 [00:10<00:00, 33.38it/s]Loading weights:  97%|█████████▋| 346/355 [00:10<00:00, 33.41it/s]Loading weights: 100%|██████████| 355/355 [00:10<00:00, 33.65it/s]
+Generating test split:   0%|          | 0/159 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 159/159 [00:00<00:00, 36368.78 examples/s]
+number of problems for this task is 40
+  0%|          | 0/40 [00:00<?, ?it/s]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+  2%|▎         | 1/40 [02:06<1:22:23, 126.77s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+  5%|▌         | 2/40 [04:12<1:19:59, 126.31s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+  8%|▊         | 3/40 [06:18<1:17:47, 126.15s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 10%|█         | 4/40 [08:24<1:15:39, 126.10s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 12%|█▎        | 5/40 [10:30<1:13:31, 126.06s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 15%|█▌        | 6/40 [12:36<1:11:24, 126.01s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 18%|█▊        | 7/40 [14:42<1:09:17, 126.00s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 20%|██        | 8/40 [16:48<1:07:12, 126.01s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 22%|██▎       | 9/40 [18:54<1:05:06, 126.02s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 25%|██▌       | 10/40 [21:00<1:02:59, 125.99s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 28%|██▊       | 11/40 [23:06<1:00:54, 126.00s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 30%|███       | 12/40 [25:12<58:47, 125.98s/it]  intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 32%|███▎      | 13/40 [27:18<56:41, 125.97s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 35%|███▌      | 14/40 [29:24<54:34, 125.95s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 38%|███▊      | 15/40 [31:30<52:29, 125.97s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 40%|████      | 16/40 [33:36<50:23, 125.98s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 42%|████▎     | 17/40 [35:42<48:17, 125.99s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 45%|████▌     | 18/40 [37:48<46:12, 126.03s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 48%|████▊     | 19/40 [39:54<44:06, 126.02s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 50%|█████     | 20/40 [42:00<42:00, 126.05s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 52%|█████▎    | 21/40 [44:06<39:54, 126.03s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 55%|█████▌    | 22/40 [46:12<37:48, 126.04s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 57%|█████▊    | 23/40 [48:18<35:42, 126.01s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 60%|██████    | 24/40 [50:24<33:35, 126.00s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 62%|██████▎   | 25/40 [52:30<31:29, 125.98s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 65%|██████▌   | 26/40 [54:36<29:24, 126.02s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 68%|██████▊   | 27/40 [56:42<27:18, 126.02s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 70%|███████   | 28/40 [58:48<25:12, 126.01s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 72%|███████▎  | 29/40 [1:00:54<23:06, 126.01s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 75%|███████▌  | 30/40 [1:03:00<21:00, 126.04s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 78%|███████▊  | 31/40 [1:05:06<18:54, 126.04s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 80%|████████  | 32/40 [1:07:12<16:48, 126.03s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 82%|████████▎ | 33/40 [1:09:18<14:42, 126.05s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 85%|████████▌ | 34/40 [1:11:24<12:36, 126.04s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 88%|████████▊ | 35/40 [1:13:30<10:30, 126.03s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 90%|█████████ | 36/40 [1:15:37<08:24, 126.04s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 92%|█████████▎| 37/40 [1:17:43<06:18, 126.06s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 95%|█████████▌| 38/40 [1:19:49<04:12, 126.06s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+ 98%|█████████▊| 39/40 [1:21:55<02:06, 126.07s/it]intermediate generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts_intermediate.json
+100%|██████████| 40/40 [1:24:01<00:00, 126.08s/it]100%|██████████| 40/40 [1:24:01<00:00, 126.04s/it]
+/root/venv/lib/python3.11/site-packages/bigcode_eval/evaluator.py:85: UserWarning: Number of tasks wasn't proportional to number of devices, we removed extra predictions to only keep nsamples=1
+  warnings.warn(
+generations were saved at runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations_multiple-ts.json
+Evaluating generations...
+Saved 40 problems in /tmp for evaluation, each problem has 1 completions
+  0%|          | 0/40 [00:00<?, ?it/s]  2%|▎         | 1/40 [00:00<00:27,  1.42it/s]  5%|▌         | 2/40 [00:01<00:26,  1.42it/s]  8%|▊         | 3/40 [00:02<00:25,  1.42it/s] 10%|█         | 4/40 [00:02<00:25,  1.42it/s] 12%|█▎        | 5/40 [00:03<00:24,  1.42it/s] 15%|█▌        | 6/40 [00:04<00:23,  1.42it/s] 18%|█▊        | 7/40 [00:04<00:23,  1.42it/s] 20%|██        | 8/40 [00:05<00:22,  1.42it/s] 22%|██▎       | 9/40 [00:06<00:21,  1.42it/s] 25%|██▌       | 10/40 [00:07<00:21,  1.42it/s] 28%|██▊       | 11/40 [00:07<00:20,  1.42it/s] 30%|███       | 12/40 [00:08<00:19,  1.42it/s] 32%|███▎      | 13/40 [00:09<00:18,  1.42it/s] 35%|███▌      | 14/40 [00:09<00:18,  1.42it/s] 38%|███▊      | 15/40 [00:10<00:17,  1.42it/s] 40%|████      | 16/40 [00:11<00:16,  1.42it/s] 42%|████▎     | 17/40 [00:11<00:16,  1.42it/s] 45%|████▌     | 18/40 [00:12<00:15,  1.42it/s] 48%|████▊     | 19/40 [00:13<00:14,  1.42it/s] 50%|█████     | 20/40 [00:14<00:14,  1.42it/s] 52%|█████▎    | 21/40 [00:14<00:13,  1.42it/s] 55%|█████▌    | 22/40 [00:15<00:12,  1.42it/s] 57%|█████▊    | 23/40 [00:16<00:11,  1.42it/s] 60%|██████    | 24/40 [00:16<00:11,  1.42it/s] 62%|██████▎   | 25/40 [00:17<00:10,  1.42it/s] 65%|██████▌   | 26/40 [00:18<00:09,  1.42it/s] 68%|██████▊   | 27/40 [00:18<00:09,  1.42it/s] 70%|███████   | 28/40 [00:19<00:08,  1.42it/s] 72%|███████▎  | 29/40 [00:20<00:07,  1.42it/s] 75%|███████▌  | 30/40 [00:21<00:07,  1.42it/s] 78%|███████▊  | 31/40 [00:21<00:06,  1.42it/s] 80%|████████  | 32/40 [00:22<00:05,  1.37it/s] 82%|████████▎ | 33/40 [00:23<00:05,  1.38it/s] 85%|████████▌ | 34/40 [00:23<00:04,  1.39it/s] 88%|████████▊ | 35/40 [00:24<00:03,  1.40it/s] 90%|█████████ | 36/40 [00:25<00:02,  1.41it/s] 92%|█████████▎| 37/40 [00:26<00:02,  1.41it/s] 95%|█████████▌| 38/40 [00:26<00:01,  1.42it/s] 98%|█████████▊| 39/40 [00:27<00:00,  1.42it/s]100%|██████████| 40/40 [00:28<00:00,  1.42it/s]100%|██████████| 40/40 [00:28<00:00,  1.42it/s]
+{
+  "multiple-ts": {
+    "pass@1": 0.0
+  },
+  "config": {
+    "prefix": "",
+    "do_sample": true,
+    "temperature": 0.2,
+    "top_k": 0,
+    "top_p": 0.95,
+    "n_samples": 1,
+    "eos": "<|endoftext|>",
+    "seed": 0,
+    "model": "sartajbhuvaji/bonsai-distilled-aggressive-vs-baseline-3k-warmup450",
+    "modeltype": "causal",
+    "peft_model": null,
+    "revision": null,
+    "use_auth_token": true,
+    "trust_remote_code": false,
+    "tasks": "multiple-ts",
+    "instruction_tokens": null,
+    "batch_size": 8,
+    "max_length_generation": 512,
+    "precision": "bf16",
+    "load_in_8bit": false,
+    "load_in_4bit": false,
+    "left_padding": false,
+    "limit": 40,
+    "limit_start": 0,
+    "save_every_k_tasks": 1,
+    "postprocess": true,
+    "allow_code_execution": true,
+    "generation_only": false,
+    "load_generations_path": null,
+    "load_data_path": null,
+    "metric_output_path": "runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts.json",
+    "save_generations": true,
+    "load_generations_intermediate_paths": null,
+    "save_generations_path": "runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450/humaneval-ts-generations.json",
+    "save_references": false,
+    "save_references_path": "references.json",
+    "prompt": "prompt",
+    "max_memory_per_gpu": null,
+    "check_references": false,
+    "resume": false
+  }
+}
+pass@1=0.0
+humaneval-ts pass@1: 0.0
+run_dir: runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450
+=== done 2026-09-29T00:03:09Z ===
