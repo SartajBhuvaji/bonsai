@@ -7,10 +7,9 @@ For a general teacher/student CLI without pruning, use `tools/run_kd_distillatio
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 
 from bonsai.training import TrainConfig
-from bonsai.training.kd_run import distill_student
+from bonsai.training.kd_run import distill_student, resolve_teacher_cache_path
 
 DEFAULT_CONFIG = TrainConfig(
     peak_lr=2e-4,
@@ -27,7 +26,9 @@ def main() -> None:
         "--candidate", required=True, help="path or HF repo id of the student checkpoint"
     )
     parser.add_argument(
-        "--teacher-cache", required=True, help="path to a teacher top-k logits .pt file"
+        "--teacher-cache",
+        required=True,
+        help="local path to teacher top-k logits .pt, or HF dataset repo id (org/name)",
     )
     parser.add_argument("--run-name", required=True, help="e.g. distill-aggressive-vs-baseline")
     parser.add_argument("--val-fraction", type=float, default=0.05)
@@ -47,9 +48,10 @@ def main() -> None:
         total_steps=args.steps,
         batch_size=args.batch_size,
     )
+    teacher_cache = resolve_teacher_cache_path(args.teacher_cache, hf_token=args.hf_token)
     distill_student(
         args.candidate,
-        Path(args.teacher_cache),
+        teacher_cache,
         run_name=args.run_name,
         config=config,
         val_fraction=args.val_fraction,

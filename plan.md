@@ -1503,8 +1503,37 @@ unchanged: 8-bit AdamW, peak_lr=2e-4, warmup 75, batch 4). Reused local cache
   `docs/debug/phase4_baseline_kd_3k_humaneval_generations_problems_0-2.txt`
   — **`ilege` repetition loops** (~10k chars/problem), not empty bodies.
   Longer KD did **not** fix downstream pass@1 vs the 500-step checkpoint.
-**Do not** run the LoRA teacher 3k arm until this result is reviewed (instability
-+ eval still 0/40).
+
+**Do not** run the LoRA teacher 3k arm until a baseline run produces working code
+or schedule fixes are exhausted.
+
+**Schedule fix attempt — warmup450 (2026-09-28 → 2026-09-29, complete):**
+Diagnosis: on 3000 steps, **warmup_steps=75** is only **2.5%** of training vs
+**15%** on the 500-step run that reached val **0.535** — model sat at near-peak
+LR and **diverged ~step 400**. Single-variable retry: **warmup_steps=450** (15%
+of 3000), **peak_lr=2e-4** unchanged, else identical (candidate
+`sartajbhuvaji/bonsai-candidate-aggressive-depth-experts`, baseline cache from HF
+`sartajbhuvaji/bonsai-teacher-logits-baseline`, 3000 steps, 8-bit AdamW, batch 4).
+Hub student: `sartajbhuvaji/bonsai-distilled-aggressive-vs-baseline-3k-warmup450`.
+Orchestration: `tools/run_phase4_baseline_kd_3k_warmup450.sh`, GPU
+`162.243.108.125`, log `/root/phase4_baseline_kd_3k_warmup450.log`, tmux
+`phase4_baseline_3k_w450`; finished **2026-09-29T00:03:09Z**.
+- **KD run:** `runs/20260928T195145Z-4eaf33-distill-aggressive-vs-baseline-3000-warmup450/`
+  — final **train KD 1.6294**, **val KD 1.8235** (step 2999); best val **0.6179**
+  @ step 489. Full log: `docs/debug/phase4_baseline_kd_3k_warmup450_metrics.jsonl`;
+  per-100 val summary: `docs/debug/phase4_baseline_kd_3k_warmup450_val_trajectory.txt`.
+  **Loss shape:** **warmup450 fixed the early step-~400 spike** (val **~0.63**
+  @ 399–599 vs **~1.89** on warmup75 3k), then **second instability ~step 700+**,
+  spike **~1.88 @ ~800**, plateau to final **~1.82** — i.e. necessary but not
+  sufficient; **peak_lr=2e-4 for 3000 steps** still collapses after extended training.
+  Hub push saves **final** weights, not the ~step-500 good basin.
+- **HumanEval-TS n=40:** **pass@1 = 0.0**
+  (`runs/20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450`;
+  scored JSON `docs/debug/phase4_baseline_kd_3k_warmup450_humaneval_ts_n40.json`).
+  Raw completions (problems 0–2):
+  `docs/debug/phase4_baseline_kd_3k_warmup450_humaneval_generations_problems_0-2.txt`.
+  **Next isolated test:** lower **peak_lr** with warmup450 fixed (or stop/eval
+  ~500-step checkpoint); LoRA 3k still on hold.
 
 **Backlog (when there is time, post-ablation): persist teacher logit caches on
 Hub and teach the trainer to fetch them.** The cache is reusable across every
@@ -1512,14 +1541,11 @@ future candidate (keyed by teacher + sample set, not by which student is being
 trained), so paying the ~1h×2 inference cost once per teacher and reusing beats
 re-caching on every ablation.
 1. ~~Add `--push-to-hub` to `tools/cache_teacher_logits.py`~~ **done (2026-09-27)** —
-   uploads the `.pt` to a private HF dataset repo (`private=True`). Target for
-   baseline re-cache: `sartajbhuvaji/bonsai-teacher-logits-baseline`. Still TODO:
-   optional one-time backfill upload of the existing Phase 4 baseline cache file
-   without re-running inference.
-2. Extend `tools/train_distilled_candidate.py`'s `--teacher-cache` to accept
-   either a local path **or** that HF dataset repo id — local path first, then
-   `hf_hub_download` fallback the same way `tools/build_candidate.py` already
-   does for `sartajbhuvaji/bonsai-importance-scores` / `importance-scores.pt`.
+   uploads the `.pt` to a private HF dataset repo (`private=True`). Baseline cache
+   backfilled to `sartajbhuvaji/bonsai-teacher-logits-baseline` (2026-09-28).
+2. ~~Extend `tools/train_distilled_candidate.py`'s `--teacher-cache`~~ **done
+   (2026-09-28)** — `resolve_teacher_cache_path()` in `bonsai.training.kd_run`:
+   local `.pt` first, else `hf_hub_download` from a dataset repo id.
 
 **General KD CLI (2026-09-27):** `tools/run_kd_distillation.py` — any `--teacher`
 / `--student` repo (no pruning), `--teacher-cache`, `--cache-only` / `--train-only`,

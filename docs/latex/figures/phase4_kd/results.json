@@ -1,5 +1,5 @@
 {
-  "updated_utc": "2026-09-28T03:45:00Z",
+  "updated_utc": "2026-09-29T01:30:00Z",
   "runs": {
     "vs_baseline": {
       "run_id": "20260927T171637Z-3ddb90-distill-aggressive-vs-baseline",
@@ -42,6 +42,24 @@
       "humaneval_ts_n40_pass_at_1": 0.0,
       "humaneval_run_id": "20260928T020351Z-d6de7d-distill-vs-baseline-humaneval-ts-n40-3k",
       "metrics_jsonl": "docs/debug/phase4_baseline_kd_3k_metrics.jsonl"
+    },
+    "vs_baseline_3k_warmup450": {
+      "run_id": "20260928T195145Z-4eaf33-distill-aggressive-vs-baseline-3000-warmup450",
+      "steps_logged": 3000,
+      "last_step": 2999,
+      "complete": true,
+      "final_train_loss": 1.6293582618236542,
+      "final_val_loss": 1.8235314004619916,
+      "best_val_loss": 0.6179410230616729,
+      "best_val_step": 489,
+      "peak_lr": 0.0002,
+      "total_steps": 3000,
+      "batch_size": 4,
+      "warmup_steps": 450,
+      "hub_model": "sartajbhuvaji/bonsai-distilled-aggressive-vs-baseline-3k-warmup450",
+      "humaneval_ts_n40_pass_at_1": 0.0,
+      "humaneval_run_id": "20260928T223758Z-3b1d15-distill-vs-baseline-humaneval-ts-n40-3k-warmup450",
+      "metrics_jsonl": "docs/debug/phase4_baseline_kd_3k_warmup450_metrics.jsonl"
     }
   }
 }
