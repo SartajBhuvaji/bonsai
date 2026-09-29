@@ -1503,6 +1503,7 @@ unchanged: 8-bit AdamW, peak_lr=2e-4, warmup 75, batch 4). Reused local cache
   `docs/debug/phase4_baseline_kd_3k_humaneval_generations_problems_0-2.txt`
   — **`ilege` repetition loops** (~10k chars/problem), not empty bodies.
   Longer KD did **not** fix downstream pass@1 vs the 500-step checkpoint.
+
 **Do not** run the LoRA teacher 3k arm until a baseline run produces working code
 or schedule fixes are exhausted.
 
