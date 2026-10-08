@@ -1553,8 +1553,17 @@ private quota hit; older distilled repos also flipped public):
   (`runs/20260930T031828Z-bbd2bd-distill-vs-baseline-humaneval-ts-n40-3k-warmup450-lr1e4-final`;
   `docs/debug/phase4_baseline_kd_3k_warmup450_lr1e4_humaneval_ts_n40_final.json`; raw
   problems 0–2: `…_humaneval_generations_final_problems_0-2.txt`).
-- **HumanEval-TS n=40 — best-val checkpoint:** **not run yet** (stopped before destroy;
-  rerun from Hub `…-lr1e4-best` when a GPU is available). LoRA 3k still on hold.
+- **HumanEval-TS n=40 — best-val checkpoint:** **pass@1 = 0.0**
+  (2026-10-08, DO H100 `162.243.72.54`; Hub
+  `sartajbhuvaji/bonsai-distilled-aggressive-vs-baseline-3k-warmup450-lr1e4-best`,
+  best val **0.4517** @ step 2659;
+  `runs/20261008T205029Z-812c9c-distill-vs-baseline-humaneval-ts-n40-3k-warmup450-lr1e4-best`;
+  `docs/debug/phase4_baseline_kd_3k_warmup450_lr1e4_humaneval_ts_n40_best.json`; raw
+  problems 0–2: `…_humaneval_generations_best_problems_0-2.txt`). **Same repetition-collapse
+  pattern as final** (`ursively` / `UniformLocation` loops, ~31k-char completions) —
+  not a checkpoint-selection issue. **Do not start another LR-only variant** on this
+  candidate; next decision is less aggressive student vs. write up as final negative
+  result for this line. LoRA-teacher 3k **still on hold**.
 
 **Checkpoint cleanup (2026-10-08):** the four superseded distilled checkpoints
 (`…-vs-baseline`, `…-vs-corrected`, `…-vs-baseline-3k`,
