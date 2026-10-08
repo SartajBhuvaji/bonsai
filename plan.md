@@ -1503,6 +1503,7 @@ unchanged: 8-bit AdamW, peak_lr=2e-4, warmup 75, batch 4). Reused local cache
   `docs/debug/phase4_baseline_kd_3k_humaneval_generations_problems_0-2.txt`
   — **`ilege` repetition loops** (~10k chars/problem), not empty bodies.
   Longer KD did **not** fix downstream pass@1 vs the 500-step checkpoint.
+
 **Do not** run the LoRA teacher 3k arm until a baseline run produces working code
 or schedule fixes are exhausted.
 
@@ -1561,8 +1562,17 @@ private quota hit; older distilled repos also flipped public):
   problems 0–2: `…_humaneval_generations_best_problems_0-2.txt`). **Same repetition-collapse
   pattern as final** (`ursively` / `UniformLocation` loops, ~31k-char completions) —
   not a checkpoint-selection issue. **Do not start another LR-only variant** on this
-  candidate; next decision is less aggressive student vs. write up as final negative
-  result for this line. LoRA-teacher 3k **still on hold**.
+  aggressive candidate; next axis test is experts-only isolation (depth0/experts97).
+  LoRA-teacher 3k **still on hold**.
+
+**Checkpoint cleanup (2026-10-08):** the four superseded distilled checkpoints
+(`…-vs-baseline`, `…-vs-corrected`, `…-vs-baseline-3k`,
+`…-vs-baseline-3k-warmup450`) were deleted from the Hub -- their numbers are
+already recorded above and in the paper, so the weights weren't needed. The two
+still-active checkpoints (`…-lr1e4` final and `…-lr1e4-best`) were set back to
+**private** now that deleting the others freed the account's private-storage
+quota. Going forward: **do not flip a repo public to work around a quota
+limit** -- ask first.
 
 **Backlog (when there is time, post-ablation): persist teacher logit caches on
 Hub and teach the trainer to fetch them.** The cache is reusable across every

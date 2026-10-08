@@ -76,7 +76,7 @@
       "warmup_steps": 450,
       "hub_model_final": "sartajbhuvaji/bonsai-distilled-aggressive-vs-baseline-3k-warmup450-lr1e4",
       "hub_model_best": "sartajbhuvaji/bonsai-distilled-aggressive-vs-baseline-3k-warmup450-lr1e4-best",
-      "hub_public": true,
+      "hub_public": false,
       "humaneval_ts_n40_pass_at_1_final": 0.0,
       "humaneval_ts_n40_pass_at_1_best": null,
       "humaneval_final_run_id": "20260930T031828Z-bbd2bd-distill-vs-baseline-humaneval-ts-n40-3k-warmup450-lr1e4-final",
