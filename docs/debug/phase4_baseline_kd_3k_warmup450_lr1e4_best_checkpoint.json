@@ -1,0 +1,5 @@
+{
+  "best_step": 2659,
+  "best_val_loss": 0.4517459705720345,
+  "path": "runs/20260929T225238Z-d73ce9-distill-aggressive-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best"
+}

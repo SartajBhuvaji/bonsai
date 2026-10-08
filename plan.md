@@ -1535,6 +1535,27 @@ Orchestration: `tools/run_phase4_baseline_kd_3k_warmup450.sh`, GPU
   **Next isolated test:** lower **peak_lr** with warmup450 fixed (or stop/eval
   ~500-step checkpoint); LoRA 3k still on hold.
 
+**Schedule fix attempt — warmup450 + peak_lr 1e-4 (2026-09-29 → 2026-09-30, KD +
+partial eval):** Single-variable after warmup450: **peak_lr=1e-4** (half of 2e-4),
+**warmup_steps=450**, else unchanged. Code: **`distill_student` saves/pushes best-val**
+(`checkpoints/distilled-best`, `best_checkpoint.json`, Hub `…-best`). Orchestration:
+`tools/run_phase4_baseline_kd_3k_warmup450_lr1e4.sh`, GPU `192.241.246.60`, log
+`docs/debug/phase4_baseline_kd_3k_warmup450_lr1e4_pipeline.log`. Hub (**public** —
+private quota hit; older distilled repos also flipped public):
+`sartajbhuvaji/bonsai-distilled-aggressive-vs-baseline-3k-warmup450-lr1e4` (final),
+`…-lr1e4-best` (best val).
+- **KD run:** `runs/20260929T225238Z-d73ce9-distill-aggressive-vs-baseline-3000-warmup450-lr1e4/`
+  — final **train KD 0.3068**, **val KD 0.4563** (step 2999); best val **0.4517**
+  @ step 2659. Artifacts: `docs/debug/phase4_baseline_kd_3k_warmup450_lr1e4_metrics.jsonl`,
+  `…_val_trajectory.txt`, `…_best_checkpoint.json`. **Stable val ~0.45–0.63 through
+  3000** — no late collapse (contrast 2e-4 warmup450).
+- **HumanEval-TS n=40 — final checkpoint:** **pass@1 = 0.0**
+  (`runs/20260930T031828Z-bbd2bd-distill-vs-baseline-humaneval-ts-n40-3k-warmup450-lr1e4-final`;
+  `docs/debug/phase4_baseline_kd_3k_warmup450_lr1e4_humaneval_ts_n40_final.json`; raw
+  problems 0–2: `…_humaneval_generations_final_problems_0-2.txt`).
+- **HumanEval-TS n=40 — best-val checkpoint:** **not run yet** (stopped before destroy;
+  rerun from public Hub `…-lr1e4-best` when a GPU is available). LoRA 3k still on hold.
+
 **Backlog (when there is time, post-ablation): persist teacher logit caches on
 Hub and teach the trainer to fetch them.** The cache is reusable across every
 future candidate (keyed by teacher + sample set, not by which student is being

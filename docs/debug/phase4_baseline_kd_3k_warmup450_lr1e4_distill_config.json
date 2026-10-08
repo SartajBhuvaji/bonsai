@@ -1,0 +1,13 @@
+{
+  "student": "sartajbhuvaji/bonsai-candidate-aggressive-depth-experts",
+  "teacher_cache": "/root/.cache/huggingface/hub/datasets--sartajbhuvaji--bonsai-teacher-logits-baseline/snapshots/bb3f070a521c2a339db3cbb72d441120cb4bf79d/baseline-topk-logits.pt",
+  "teacher_repo_id": null,
+  "val_fraction": 0.05,
+  "val_every": 10,
+  "peak_lr": 0.0001,
+  "min_lr": 2e-05,
+  "warmup_steps": 450,
+  "total_steps": 3000,
+  "batch_size": 4,
+  "weight_decay": 0.0
+}

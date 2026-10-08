@@ -125,6 +125,23 @@ def test_train_runs_the_requested_number_of_steps() -> None:
     assert [r["step"] for r in history] == [0, 1, 2, 3, 4]
 
 
+def test_train_on_val_fires_on_each_validation_step() -> None:
+    model = tiny_model()
+    config = TrainConfig(peak_lr=1e-3, min_lr=1e-4, warmup_steps=0, total_steps=5, batch_size=1)
+    seen: list[tuple[int, float]] = []
+
+    train(
+        model,
+        tiny_batch(4),
+        tiny_batch(2),
+        config,
+        val_every=2,
+        on_val=lambda step, val_loss: seen.append((step, val_loss)),
+    )
+
+    assert seen == [(1, seen[0][1]), (3, seen[1][1]), (4, seen[2][1])]
+
+
 def test_train_accepts_a_pre_built_optimizer() -> None:
     model = tiny_model()
     config = TrainConfig(peak_lr=1e-3, min_lr=1e-4, warmup_steps=2, total_steps=5, batch_size=2)
