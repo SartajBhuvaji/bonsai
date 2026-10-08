@@ -1554,7 +1554,16 @@ private quota hit; older distilled repos also flipped public):
   `docs/debug/phase4_baseline_kd_3k_warmup450_lr1e4_humaneval_ts_n40_final.json`; raw
   problems 0–2: `…_humaneval_generations_final_problems_0-2.txt`).
 - **HumanEval-TS n=40 — best-val checkpoint:** **not run yet** (stopped before destroy;
-  rerun from public Hub `…-lr1e4-best` when a GPU is available). LoRA 3k still on hold.
+  rerun from Hub `…-lr1e4-best` when a GPU is available). LoRA 3k still on hold.
+
+**Checkpoint cleanup (2026-10-08):** the four superseded distilled checkpoints
+(`…-vs-baseline`, `…-vs-corrected`, `…-vs-baseline-3k`,
+`…-vs-baseline-3k-warmup450`) were deleted from the Hub -- their numbers are
+already recorded above and in the paper, so the weights weren't needed. The two
+still-active checkpoints (`…-lr1e4` final and `…-lr1e4-best`) were set back to
+**private** now that deleting the others freed the account's private-storage
+quota. Going forward: **do not flip a repo public to work around a quota
+limit** -- ask first.
 
 **Backlog (when there is time, post-ablation): persist teacher logit caches on
 Hub and teach the trainer to fetch them.** The cache is reusable across every
