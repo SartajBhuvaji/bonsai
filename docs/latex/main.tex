@@ -1235,7 +1235,145 @@ The corrected-vs-uncorrected teacher question from
 experiment does establish is a real data point for a different open
 question (\cref{sec:discussion}): the lightweight-retrain token budget
 for combined, aggressive pruning on this model is higher than 500 steps
--- how much higher is untested.
+-- how much higher is untested at the time of writing above; the rest of
+this section tests that directly.
+
+\subsection{Chasing Stability: Does a Better Training Recipe Change the Outcome?}
+\label{sec:phase4-lr-chase}
+
+Three further interventions were tried against the baseline-teacher arm
+of the same aggressive candidate, each isolating one variable at a time
+rather than changing several at once.
+
+\textbf{More steps alone (3000 vs.\ 500, same schedule) makes things
+worse, not better.} Validation loss tracks the 500-step run's own
+trajectory through step $\sim$200 (val $\approx 0.67$), then diverges
+sharply: a spike to val $\approx 1.89$ at step $\sim$400, plateauing
+between 1.58 and 1.87 for the remaining $2{,}600$ steps, ending at
+val $=1.572$ -- worse than the 500-step run's own final 0.535. The cause
+is a schedule artifact, not a modeling one: \texttt{warmup\_steps}$=75$
+is $15\%$ of 500 steps but only $2.5\%$ of 3000, so the candidate spends
+far longer at near-peak learning rate in absolute terms. Computing the
+schedule directly confirms it -- at step 399, the 500-step run has
+already decayed to $\mathrm{LR}\approx4.4\times10^{-5}$ ($22\%$ of
+peak), while the 3000-step run is still at
+$\mathrm{LR}\approx1.95\times10^{-4}$ ($97\%$ of peak) at that identical
+step. HumanEval-TS n=40 on this checkpoint: pass@1 $=0.0$, same
+repetition-collapse signature as \cref{sec:phase4-negative}.
+
+\textbf{Fixing the warmup fraction (\texttt{warmup\_steps}$=450$, $15\%$
+of 3000) fixes the early divergence but not a later one.} Validation
+loss now stays healthy through step $\sim$600 (best $0.618$ at step
+489, matching the 500-step run's own quality), but a second instability
+hits around step $700$--$800$ (spike to $\approx 1.88$), plateauing to a
+final val $=1.824$. The model is demonstrably capable of a healthy loss
+trajectory for hundreds of steps -- it just does not stay there for all
+3000.
+
+\textbf{Halving peak LR ($2\times10^{-4}\to1\times10^{-4}$, same
+\texttt{warmup\_steps}$=450$) finally gives a fully stable run -- but
+the downstream result is unchanged.} Validation loss stays in a healthy
+$0.45$--$0.63$ band for the entire 3000 steps, no late collapse: final
+val $=0.456$, best val $=0.452$ at step $2659$ -- the lowest loss
+reached anywhere in this investigation, and incidentally the exact peak
+learning rate \citet{minitron2024practice} themselves use for
+distillation-based retraining (Table 4 of that paper), reached here
+independently rather than copied. We additionally added best-validation
+checkpoint saving (not just the final step) to rule out
+training-past-the-optimum as an explanation. Both checkpoints -- final
+and best-val -- score HumanEval-TS n=40 pass@1 $=0.0$, with the same
+qualitative failure: completions collapse into outright token repetition
+(a new garbage token each time, e.g.\ \texttt{ursivelyursively...},
+\texttt{UniformLocationUniformLocation...}) almost immediately after the
+function signature, regardless of which checkpoint or how healthy its
+loss trajectory was.
+
+Four separate interventions -- more steps, a corrected warmup fraction,
+a halved peak learning rate, and best-checkpoint selection -- have now
+each been tried in isolation and produced the identical qualitative
+failure. This is real evidence the bottleneck is not training
+instability.
+
+\subsection{Isolating the Axis: Is Depth Specifically the Problem?}
+\label{sec:phase4-depth-isolation}
+
+Depth removal and expert removal are not the same kind of cut. Each
+decoder layer is a sequential computation step; removing one leaves the
+model with fewer steps to compose a solution, not just less capacity per
+step the way expert pruning does. This motivates a direct test: does the
+repetition collapse specifically trace to the $16$ removed layers, or to
+aggressive pruning on any axis at this total budget?
+
+A clean depth-only test at comparable damage is not feasible on this
+project's hardware: experts hold roughly $95\%$ of this model's
+parameters (\cref{sec:model-data}), so even the lightest informative
+depth-only cut leaves the model too large for a single 80GB card's
+training footprint (a $16$-layer-only cut, no expert pruning, is
+$20.5$B parameters -- an estimated $123$GB footprint for weights,
+gradients, and 8-bit AdamW state combined). We instead hold the
+\emph{total parameter budget fixed} at the aggressive candidate's own
+$8.48$B and move the entire cut onto the experts axis alone:
+\texttt{depth\_n}$=0$, \texttt{expert\_n}$=97$ (of 128) per layer, zero
+layers removed, the same three Super Experts exempted. The real
+selection, from the same committed importance scores as every other
+candidate in this paper, yields $8.55$B parameters ($28.0\%$ of
+unpruned) -- a near-exact size match.
+
+This candidate's own zero-shot loss ($1.3221$) is \emph{lower} than the
+depth+experts candidate's ($1.59$--$1.85$ across the measurements in
+\cref{sec:phase4-negative,sec:phase4-lr-chase}), consistent with
+\cref{sec:head-pruning-sweep}'s own finding that experts are the most
+redundant axis on this model by a wide margin. Distilled with the same
+stabilized recipe (\texttt{warmup\_steps}$=450$,
+$\mathrm{peak\ LR}=1\times10^{-4}$, 3000 steps): final train KD
+$0.2436$, val KD $0.4061$ (step 2999); best val $0.4052$ at step
+$2879$ -- the lowest KD loss reached anywhere in this investigation,
+lower even than \cref{sec:phase4-lr-chase}'s best run.
+
+HumanEval-TS n=40 on both the final and best-val checkpoints: pass@1
+$=0.0$ for both, with the same structural failure as every prior
+attempt -- a fourth distinct garbage token
+(\texttt{AppointmentAppointment...}), collapsing immediately after the
+function signature.
+
+\textbf{This is not depth-specific.} Removing the same total parameter
+budget via experts alone -- with better zero-shot loss and better final
+KD loss than the depth+experts combination -- produces the identical
+downstream failure.
+
+\subsection{Revised Interpretation}
+\label{sec:phase4-revised-interpretation}
+
+\Cref{sec:phase4-negative}'s original interpretation -- that 500 steps
+was simply too little budget for a 72\%-parameter cut -- was reasonable
+given the evidence available at the time, but does not survive what
+followed. Six further training runs since then (three schedule variants
+on the original candidate, the final and best-val checkpoints of each
+of the last two, plus the experts-only isolation candidate's two
+checkpoints) have tried $6\times$ the original step budget, a properly
+scaled warmup, a halved and independently literature-matched peak
+learning rate, best-checkpoint selection, and swapping which axis the
+same total cut comes from -- and every single configuration produces
+the same qualitative failure: fluent-looking setup, then immediate,
+total collapse into token repetition. Several of these runs reach KD
+validation loss well below the original 500-step run's own 0.535 (as
+low as 0.406), so the student is demonstrably capable of matching the
+teacher's token-level distribution on ordinary running text. It cannot
+do so, under any configuration tested, on an isolated, bounded,
+``write one correct function and stop'' task.
+
+Two real hypotheses remain, neither eliminated by the experiments above:
+a genuine capability ceiling, where this fraction of the model's
+parameters removed (regardless of which axis) cannot support the
+specific behavior the evaluation measures no matter how it is trained;
+or a training-data/task-format mismatch, where distilling against
+ordinary TypeScript \emph{file} continuations (long, rarely resembling
+a bounded spec-to-function shape) never actually teaches the skill
+HumanEval-TS tests, independent of how much capacity survives pruning.
+Both are now visible only because the schedule confound
+(\cref{sec:phase4-lr-chase}) and the axis confound
+(\cref{sec:phase4-depth-isolation}) have each been ruled out directly --
+a real widening of this investigation's evidence base, not a dead end.
 
 \section{Discussion and Open Questions}
 \label{sec:discussion}
@@ -1296,12 +1434,19 @@ resolved prematurely:
 \item \textbf{Lightweight-retrain token budget.} \citet{minitron2024}'s
   1.8B-token budget was calibrated for a 15B dense model, not a $\sim$3.35B
   active-parameter MoE; the right budget for this model's retraining
-  passes has no direct precedent to scale from. \Cref{sec:phase4-negative}
-  now gives a real lower bound, not just an absence of precedent: 500
-  steps ($\sim$2,000 sequences) left an aggressively-pruned candidate
-  (72\% of parameters cut) still degenerating into repetition on every
-  completion, so the true requirement is higher than 500 steps -- how
-  much higher is itself untested.
+  passes has no direct precedent to scale from. This is no longer simply
+  an absence of precedent:
+  \cref{sec:phase4-negative,sec:phase4-lr-chase,sec:phase4-depth-isolation}
+  tried $6\times$ the original step budget, three independent
+  schedule/learning-rate fixes, best-checkpoint selection, and swapping
+  which axis the parameter cut comes from -- seven configurations in
+  total -- and every one produced the same repetition-collapse failure on
+  HumanEval-TS, despite KD validation loss reaching as low as 0.406 (well
+  below the original 500-step run's 0.535). Token budget alone no longer
+  looks like the explanation; \cref{sec:phase4-revised-interpretation}'s
+  two remaining hypotheses (a real capability ceiling at this pruning
+  fraction, or a mismatch between the KD training data's shape and the
+  evaluation task's) are both still open.
 \item \textbf{Whether the teacher-correction token budget itself needs
   revisiting.} \Cref{sec:teacher-correction-eval,sec:teacher-correction-lora}
   find the corrected teacher's HumanEval-TS pass@1 regresses well below
