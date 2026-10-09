@@ -8,12 +8,14 @@ from __future__ import annotations
 
 import json
 import time
+from collections.abc import Sequence
 from pathlib import Path
 from typing import cast
 
 import bitsandbytes as bnb
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers.modeling_utils import PreTrainedModel
 from transformers.models.qwen3_moe.modeling_qwen3_moe import Qwen3MoeForCausalLM
 
 from bonsai.config import DataConfig
@@ -21,6 +23,8 @@ from bonsai.data import list_shards, load_samples, make_split, tokenize_samples
 from bonsai.tracking import log_metric, new_run, save_config_snapshot
 from bonsai.training import TrainConfig, train
 from bonsai.training.distillation import make_kd_loss_fn
+
+DEFAULT_LORA_TARGET_MODULES = ("q_proj", "k_proj", "v_proj", "o_proj")
 
 
 def _log(msg: str) -> None:
@@ -210,8 +214,39 @@ def distill_student(
     hf_token: str | None = None,
     teacher_repo_id: str | None = None,
     hub_private: bool = True,
+    use_lora: bool = False,
+    lora_r: int = 16,
+    lora_alpha: int = 32,
+    lora_dropout: float = 0.05,
+    lora_target_modules: Sequence[str] = DEFAULT_LORA_TARGET_MODULES,
 ) -> Path:
-    """Train `student_repo_id` against a cached teacher; returns `run_dir`."""
+    """Train `student_repo_id` against a cached teacher; returns `run_dir`.
+
+    `use_lora=True` freezes the student and trains a small attention-only
+    LoRA adapter instead of every weight -- the same recipe plan.md 3.4
+    already validated for *teacher* correction, applied here to the
+    *student's* distillation step instead. Motivated by a real, measured
+    finding (plan.md, 2026-10-09): a pruned-but-undistilled candidate
+    scores a real 0.475 pass@1 on HumanEval-TS zero-shot, but the exact
+    same candidate after 3000 steps of full-parameter KD scores 0.0 with
+    total repetition collapse -- full-parameter distillation on a narrow,
+    un-bounded-completion training pool (raw file continuations, never an
+    isolated spec-to-function example) overwrites a real capability the
+    pruned model already had. Constraining the update via LoRA is the
+    direct test of whether that overwriting, not the distillation signal
+    itself, is the cause.
+
+    Both the final and best-val checkpoints are saved as real, standalone
+    merged models regardless of `use_lora` -- `push_to_hub`/
+    `push_to_hub_best` always receive a plain model that loads with
+    `AutoModelForCausalLM.from_pretrained` alone, no PEFT-specific
+    handling needed downstream (matching the released teacher-correction
+    checkpoint's own convention). The *intermediate* best-val checkpoint
+    saved mid-training is adapter-only when `use_lora` (cheap, no merge
+    mid-training -- merging destructively collapses the adapter into the
+    base, which would corrupt the model still being trained); it's merged
+    into a full model only once, after training ends.
+    """
     from dataclasses import asdict
 
     if push_to_hub_best is None and push_to_hub is not None:
@@ -226,19 +261,44 @@ def distill_student(
             "teacher_repo_id": teacher_repo_id,
             "val_fraction": val_fraction,
             "val_every": val_every,
+            "use_lora": use_lora,
+            "lora_r": lora_r if use_lora else None,
+            "lora_alpha": lora_alpha if use_lora else None,
+            "lora_dropout": lora_dropout if use_lora else None,
+            "lora_target_modules": list(lora_target_modules) if use_lora else None,
             **asdict(config),
         },
     )
 
     _log(f"Loading student {student_repo_id} ...")
-    model = cast(
+    base_model = cast(
         Qwen3MoeForCausalLM,
         AutoModelForCausalLM.from_pretrained(
             student_repo_id, dtype=torch.bfloat16, device_map="auto", token=hf_token
         ),
     )
+    model: PreTrainedModel = base_model
+    if use_lora:
+        from peft import LoraConfig, get_peft_model
+
+        lora_config = LoraConfig(
+            r=lora_r,
+            lora_alpha=lora_alpha,
+            lora_dropout=lora_dropout,
+            target_modules=list(lora_target_modules),
+            bias="none",
+        )
+        model = cast(PreTrainedModel, get_peft_model(base_model, lora_config))
+        trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        total = sum(p.numel() for p in model.parameters())
+        _log(f"LoRA: {trainable:,} / {total:,} trainable ({trainable / total:.3%})")
+
     # transformers>=5.19 added a real type stub for gradient_checkpointing_enable
     # (no longer needs an ignore); enable_input_require_grads is still untyped.
+    # Order matters for the LoRA case specifically: this has to come *after*
+    # get_peft_model, not before -- plan.md 3.3's own real bug (frozen base +
+    # gradient checkpointing silently zeroes adapter gradients without this
+    # being called on the already-wrapped model).
     model.gradient_checkpointing_enable()
     model.enable_input_require_grads()  # type: ignore[no-untyped-call]
     tokenizer = AutoTokenizer.from_pretrained(student_repo_id, token=hf_token)
@@ -253,7 +313,9 @@ def distill_student(
     )
 
     loss_fn = make_kd_loss_fn(cache)
-    optimizer = bnb.optim.AdamW8bit(model.parameters(), lr=config.peak_lr)
+    optimizer = bnb.optim.AdamW8bit(
+        (p for p in model.parameters() if p.requires_grad), lr=config.peak_lr
+    )
     best_val = float("inf")
     best_step = -1
     best_dir = run_dir / "checkpoints" / "distilled-best"
@@ -265,12 +327,20 @@ def distill_student(
         best_val = val_loss
         best_step = step
         best_dir.mkdir(parents=True, exist_ok=True)
+        # Adapter-only when use_lora (PeftModel.save_pretrained's own default) --
+        # cheap, and merging mid-training would destructively collapse the
+        # adapter into the base model still being trained. Merged into a real,
+        # standalone model only once, after training ends, below.
         model.save_pretrained(best_dir)
-        tokenizer.save_pretrained(best_dir)
+        if not use_lora:
+            tokenizer.save_pretrained(best_dir)
         _log(f"new best val_loss={val_loss:.4f} at step {step} -> {best_dir}")
 
     history = train(
-        model,
+        # train()/train_step() only ever call .train()/.eval()/__call__ on this --
+        # a LoRA-wrapped model satisfies that structurally even though it isn't
+        # nominally a Qwen3MoeForCausalLM.
+        cast(Qwen3MoeForCausalLM, model),
         train_ids,
         val_ids,
         config,
@@ -293,8 +363,22 @@ def distill_student(
             + "\n"
         )
 
+    if use_lora:
+        # CPU, not GPU: confirmed by a real OOM during teacher correction
+        # (plan.md 3.3) that merge_and_unload's tensor-chunking needs more
+        # headroom than a mostly-full GPU has left.
+        _log("merging final LoRA adapter into base weights (CPU) ...")
+        del optimizer
+        torch.cuda.empty_cache()
+        # PreTrainedModel.to is `@wraps(torch.nn.Module.to)` -- same mypy/typeshed
+        # self-double-counting false positive as push_to_hub above, confirmed by
+        # reading transformers' source directly.
+        final_model: PreTrainedModel = model.to("cpu").merge_and_unload()  # type: ignore[arg-type]
+    else:
+        final_model = model
+
     checkpoint_dir = run_dir / "checkpoints" / "distilled"
-    model.save_pretrained(checkpoint_dir)
+    final_model.save_pretrained(checkpoint_dir)
     tokenizer.save_pretrained(checkpoint_dir)
     _log(f"saved final weights to {checkpoint_dir}")
 
@@ -305,16 +389,26 @@ def distill_student(
         # `self` parameter, so mypy double-counts it and checks this call's first argument
         # against `PreTrainedModel` instead of `str`. Confirmed by reading transformers'
         # source directly, not guessed; a real call to a real, correctly-typed method.
-        model.push_to_hub(push_to_hub, token=hf_token, private=hub_private)  # type: ignore[arg-type]
+        final_model.push_to_hub(push_to_hub, token=hf_token, private=hub_private)  # type: ignore[arg-type]
         tokenizer.push_to_hub(push_to_hub, token=hf_token, private=hub_private)
         vis = "private" if hub_private else "public"
         _log(f"pushed final to https://huggingface.co/{push_to_hub} ({vis})")
 
     if push_to_hub_best and best_dir.is_dir() and any(best_dir.iterdir()):
-        best_model = AutoModelForCausalLM.from_pretrained(
-            best_dir, dtype=torch.bfloat16, device_map="cpu", token=hf_token
-        )
-        best_tok = AutoTokenizer.from_pretrained(best_dir, token=hf_token)
+        if use_lora:
+            from peft import PeftModel
+
+            _log("merging best-val LoRA adapter into a fresh base copy (CPU) ...")
+            fresh_base = AutoModelForCausalLM.from_pretrained(
+                student_repo_id, dtype=torch.bfloat16, device_map="cpu", token=hf_token
+            )
+            best_peft = PeftModel.from_pretrained(fresh_base, best_dir)
+            best_model: PreTrainedModel = best_peft.merge_and_unload()
+        else:
+            best_model = AutoModelForCausalLM.from_pretrained(
+                best_dir, dtype=torch.bfloat16, device_map="cpu", token=hf_token
+            )
+        best_tok = AutoTokenizer.from_pretrained(student_repo_id, token=hf_token)
         best_model.push_to_hub(push_to_hub_best, token=hf_token, private=hub_private)  # type: ignore[arg-type]
         best_tok.push_to_hub(push_to_hub_best, token=hf_token, private=hub_private)
         vis = "private" if hub_private else "public"
@@ -325,6 +419,7 @@ def distill_student(
 
 
 __all__ = [
+    "DEFAULT_LORA_TARGET_MODULES",
     "cache_teacher_logit_file",
     "distill_student",
     "load_teacher_cache",

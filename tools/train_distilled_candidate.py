@@ -9,7 +9,11 @@ from __future__ import annotations
 import argparse
 
 from bonsai.training import TrainConfig
-from bonsai.training.kd_run import distill_student, resolve_teacher_cache_path
+from bonsai.training.kd_run import (
+    DEFAULT_LORA_TARGET_MODULES,
+    distill_student,
+    resolve_teacher_cache_path,
+)
 
 DEFAULT_CONFIG = TrainConfig(
     peak_lr=2e-4,
@@ -49,6 +53,23 @@ def main() -> None:
     parser.add_argument("--peak-lr", type=float, default=DEFAULT_CONFIG.peak_lr)
     parser.add_argument("--min-lr", type=float, default=DEFAULT_CONFIG.min_lr)
     parser.add_argument("--warmup-steps", type=int, default=DEFAULT_CONFIG.warmup_steps)
+    parser.add_argument(
+        "--use-lora",
+        action="store_true",
+        help=(
+            "freeze the student and train a LoRA adapter instead of every weight "
+            "(default: full-parameter). See plan.md 2026-10-09 for why this exists: "
+            "full-parameter KD was found to overwrite real pre-pruning capability."
+        ),
+    )
+    parser.add_argument("--lora-r", type=int, default=16)
+    parser.add_argument("--lora-alpha", type=int, default=32)
+    parser.add_argument("--lora-dropout", type=float, default=0.05)
+    parser.add_argument(
+        "--lora-target-modules",
+        default=",".join(DEFAULT_LORA_TARGET_MODULES),
+        help="comma-separated module names, e.g. q_proj,k_proj,v_proj,o_proj",
+    )
     args = parser.parse_args()
 
     config = TrainConfig(
@@ -69,6 +90,11 @@ def main() -> None:
         push_to_hub_best=args.push_to_hub_best,
         hf_token=args.hf_token,
         hub_private=not args.hub_public,
+        use_lora=args.use_lora,
+        lora_r=args.lora_r,
+        lora_alpha=args.lora_alpha,
+        lora_dropout=args.lora_dropout,
+        lora_target_modules=args.lora_target_modules.split(","),
     )
 
 

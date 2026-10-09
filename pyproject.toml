@@ -119,6 +119,13 @@ module = "bitsandbytes.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
+# peft ships no py.typed marker / stubs, and the type env doesn't install it --
+# only needed on the GPU instance actually running LoRA-based KD
+# (bonsai.training.kd_run.distill_student's use_lora path).
+module = "peft.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
 # accelerate ships no py.typed marker / stubs as of the version this project pins.
 module = "accelerate.*"
 ignore_missing_imports = true
