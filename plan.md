@@ -1590,9 +1590,38 @@ best-val push; depth0 distilled repos uploaded **public** per explicit decision)
   `docs/debug/phase4_depth0_experts97_humaneval_ts_n40_best.json`).
 - **Conclusion:** Same **0/40** and same **repetition-collapse** qualitative pattern
   as the aggressive depth+experts line (incl. lr1e4 schedule fix) — **not
-  depth-specific** at this total prune budget and KD recipe. Next: less total pruning
-  and/or write up as negative result; **no further LR-only or axis-swap retries** on
-  ~8.5B without a new hypothesis. LoRA-teacher 3k **still on hold**.
+  depth-specific** at ~8.5B total prune budget and KD recipe. LoRA-teacher 3k **still on hold**.
+
+**Lighter depth cut — depth_n=12, expert_n=80 (2026-10-09, complete):**
+Same expert cut as aggressive (80/layer), but **four fewer depth layers** (12 vs 16) —
+~**9.46B** params (~56GB training footprint on H100). Tests whether **less depth damage**
+yields any working code. Orchestration: `tools/run_phase4_depth12_experts80_pipeline.sh`,
+GPU `162.243.22.219`, log `/root/phase4_depth12_experts80_pipeline.log`.
+- **Build:** `sartajbhuvaji/bonsai-candidate-depth12-experts80` (public); params
+  30.5B → 9.46B (31.0%); measured zero-shot loss **1.1940** (no prior sweep point).
+  Build run: `runs/20261009T141213Z-a816a8-build-candidate-depth12-experts80`.
+- **KD** (baseline teacher cache `sartajbhuvaji/bonsai-teacher-logits-baseline`,
+  warmup450, peak_lr **1e-4**, 3000 steps): Hub
+  `sartajbhuvaji/bonsai-distilled-depth12-experts80-vs-baseline-3k-warmup450-lr1e4`
+  (final, public) and `…-best` (best val, public).
+  `runs/20261009T141418Z-488ebd-distill-depth12-experts80-vs-baseline-3000-warmup450-lr1e4/`
+  — final train KD **0.2630**, val KD **0.4048** (step 2999); best val **0.4013**
+  @ step 2869. Artifacts: `docs/debug/phase4_depth12_experts80_kd_metrics.jsonl`,
+  `…_best_checkpoint.json`, `…_kd_val_trajectory.txt`.
+- **HumanEval-TS n=40 — final:** **pass@1 = 0.0**
+  (`runs/20261009T171144Z-4a6f66-distill-depth12-experts80-humaneval-ts-n40-lr1e4-final`;
+  `docs/debug/phase4_depth12_experts80_humaneval_ts_n40_final.json`; raw problems 0–2:
+  `…_humaneval_generations_final_problems_0-2.txt`).
+- **HumanEval-TS n=40 — best-val:** **pass@1 = 0.0**
+  (`runs/20261009T180532Z-8493c1-distill-depth12-experts80-humaneval-ts-n40-lr1e4-best`;
+  `docs/debug/phase4_depth12_experts80_humaneval_ts_n40_best.json`; problems 0–2:
+  `…_humaneval_generations_best_problems_0-2.txt`).
+- **Qualitative (investigate 0/40):** completions are **~15k tokens** on average
+  (max gen 512 applies to new tokens but postprocess still yields huge strings);
+  **33/40** (final) and **35/40** (best) contain `ursively` / `UniformLocation`
+  repetition loops — same failure mode as aggressive and depth0/experts97, not
+  coherent TypeScript. **No non-zero pass@1** in this entire lr1e4 investigation line.
+  Next: less total pruning and/or write up; LoRA-teacher 3k **still on hold**.
 
 **Checkpoint cleanup (2026-10-08):** the four superseded distilled checkpoints
 (`…-vs-baseline`, `…-vs-corrected`, `…-vs-baseline-3k`,
