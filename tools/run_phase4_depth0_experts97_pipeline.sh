@@ -10,7 +10,11 @@ set -a
 source /root/bonsai/.env
 set +a
 export HUGGING_FACE_HUB_TOKEN="${HUGGING_FACE_HUB_TOKEN:-${HF_TOKEN:-}}"
+HUB_PUBLIC="${HUB_PUBLIC:-1}"
 HF_ARGS=(--hf-token "$HF_TOKEN")
+if [ "$HUB_PUBLIC" = "1" ]; then
+  HF_ARGS+=(--hub-public)
+fi
 
 LOG="${LOG:-/root/phase4_depth0_experts97_pipeline.log}"
 exec > >(tee -a "$LOG") 2>&1
@@ -29,6 +33,8 @@ echo "CANDIDATE_HUB=${CANDIDATE_HUB}"
 echo "TEACHER_CACHE=${TEACHER_CACHE}"
 echo "DISTILL_HUB=${DISTILL_HUB}"
 echo "DISTILL_HUB_BEST=${DISTILL_HUB_BEST}"
+
+echo "HUB_PUBLIC=${HUB_PUBLIC} (1 = public Hub uploads)"
 
 echo "--- build candidate (depth_n=0, expert_n=97) ---"
 python tools/build_candidate.py \

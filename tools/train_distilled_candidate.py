@@ -39,6 +39,11 @@ def main() -> None:
         help="HF repo for lowest-val checkpoint (default: <push-to-hub>-best)",
     )
     parser.add_argument("--hf-token", default=None)
+    parser.add_argument(
+        "--hub-public",
+        action="store_true",
+        help="push distilled checkpoints as public HF repos (default: private)",
+    )
     parser.add_argument("--steps", type=int, default=DEFAULT_CONFIG.total_steps)
     parser.add_argument("--batch-size", type=int, default=DEFAULT_CONFIG.batch_size)
     parser.add_argument("--peak-lr", type=float, default=DEFAULT_CONFIG.peak_lr)
@@ -63,6 +68,7 @@ def main() -> None:
         push_to_hub=args.push_to_hub,
         push_to_hub_best=args.push_to_hub_best,
         hf_token=args.hf_token,
+        hub_private=not args.hub_public,
     )
 
 
