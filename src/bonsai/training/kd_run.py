@@ -237,7 +237,9 @@ def distill_student(
             student_repo_id, dtype=torch.bfloat16, device_map="auto", token=hf_token
         ),
     )
-    model.gradient_checkpointing_enable()  # type: ignore[no-untyped-call]
+    # transformers>=5.19 added a real type stub for gradient_checkpointing_enable
+    # (no longer needs an ignore); enable_input_require_grads is still untyped.
+    model.gradient_checkpointing_enable()
     model.enable_input_require_grads()  # type: ignore[no-untyped-call]
     tokenizer = AutoTokenizer.from_pretrained(student_repo_id, token=hf_token)
 
