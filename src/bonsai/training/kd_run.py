@@ -209,6 +209,7 @@ def distill_student(
     push_to_hub_best: str | None = None,
     hf_token: str | None = None,
     teacher_repo_id: str | None = None,
+    hub_private: bool = True,
 ) -> Path:
     """Train `student_repo_id` against a cached teacher; returns `run_dir`."""
     from dataclasses import asdict
@@ -304,18 +305,20 @@ def distill_student(
         # `self` parameter, so mypy double-counts it and checks this call's first argument
         # against `PreTrainedModel` instead of `str`. Confirmed by reading transformers'
         # source directly, not guessed; a real call to a real, correctly-typed method.
-        model.push_to_hub(push_to_hub, token=hf_token, private=True)  # type: ignore[arg-type]
-        tokenizer.push_to_hub(push_to_hub, token=hf_token, private=True)
-        _log(f"pushed final to https://huggingface.co/{push_to_hub} (private)")
+        model.push_to_hub(push_to_hub, token=hf_token, private=hub_private)  # type: ignore[arg-type]
+        tokenizer.push_to_hub(push_to_hub, token=hf_token, private=hub_private)
+        vis = "private" if hub_private else "public"
+        _log(f"pushed final to https://huggingface.co/{push_to_hub} ({vis})")
 
     if push_to_hub_best and best_dir.is_dir() and any(best_dir.iterdir()):
         best_model = AutoModelForCausalLM.from_pretrained(
             best_dir, dtype=torch.bfloat16, device_map="cpu", token=hf_token
         )
         best_tok = AutoTokenizer.from_pretrained(best_dir, token=hf_token)
-        best_model.push_to_hub(push_to_hub_best, token=hf_token, private=True)  # type: ignore[arg-type]
-        best_tok.push_to_hub(push_to_hub_best, token=hf_token, private=True)
-        _log(f"pushed best-val to https://huggingface.co/{push_to_hub_best} (private)")
+        best_model.push_to_hub(push_to_hub_best, token=hf_token, private=hub_private)  # type: ignore[arg-type]
+        best_tok.push_to_hub(push_to_hub_best, token=hf_token, private=hub_private)
+        vis = "private" if hub_private else "public"
+        _log(f"pushed best-val to https://huggingface.co/{push_to_hub_best} ({vis})")
         del best_model
 
     return run_dir

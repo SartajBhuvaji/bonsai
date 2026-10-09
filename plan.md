@@ -1562,8 +1562,37 @@ private quota hit; older distilled repos also flipped public):
   problems 0–2: `…_humaneval_generations_best_problems_0-2.txt`). **Same repetition-collapse
   pattern as final** (`ursively` / `UniformLocation` loops, ~31k-char completions) —
   not a checkpoint-selection issue. **Do not start another LR-only variant** on this
-  candidate; next decision is less aggressive student vs. write up as final negative
-  result for this line. LoRA-teacher 3k **still on hold**.
+  aggressive candidate. LoRA-teacher 3k **still on hold**.
+
+**Experts-only isolation — depth_n=0, expert_n=97 (2026-10-08 → 2026-10-09, complete):**
+Same ~8.5B parameter budget as aggressive depth+experts (16/80), but **zero depth
+cut** — tests whether depth removal specifically drives repetition collapse vs.
+aggressive pruning on any axis. Orchestration: `tools/run_phase4_depth0_experts97_pipeline.sh`
+(+ `tools/run_phase4_depth0_experts97_resume_eval.sh` after private Hub quota blocked
+best-val push; depth0 distilled repos uploaded **public** per explicit decision).
+- **Build:** `sartajbhuvaji/bonsai-candidate-depth0-experts97` (public); params
+  30.5B → 8.55B (28.0%); measured zero-shot loss **1.3221** (no prior sweep point).
+  Build run: `runs/20261008T220327Z-26dfe6-build-candidate-depth0-experts97`.
+- **KD** (baseline teacher cache `sartajbhuvaji/bonsai-teacher-logits-baseline`,
+  warmup450, peak_lr **1e-4**, 3000 steps): Hub
+  `sartajbhuvaji/bonsai-distilled-depth0-experts97-vs-baseline-3k-warmup450-lr1e4`
+  (final, public) and `…-lr1e4-best` (best val, public).
+  `runs/20261008T220546Z-b50ff3-distill-depth0-experts97-vs-baseline-3000-warmup450-lr1e4/`
+  — final train KD **0.2436**, val KD **0.4061** (step 2999); best val **0.4052**
+  @ step 2879. Artifacts: `docs/debug/phase4_depth0_experts97_kd_metrics.jsonl`,
+  `…_best_checkpoint.json`, `…_kd_val_trajectory.txt`.
+- **HumanEval-TS n=40 — final:** **pass@1 = 0.0**
+  (`runs/20261009T013459Z-c4d01f-distill-depth0-experts97-humaneval-ts-n40-lr1e4-final`;
+  `docs/debug/phase4_depth0_experts97_humaneval_ts_n40_final.json`; problems 0–2:
+  `…_humaneval_generations_final_problems_0-2.txt`).
+- **HumanEval-TS n=40 — best-val:** **pass@1 = 0.0**
+  (`runs/20261009T023952Z-4fcc15-distill-depth0-experts97-humaneval-ts-n40-lr1e4-best`;
+  `docs/debug/phase4_depth0_experts97_humaneval_ts_n40_best.json`).
+- **Conclusion:** Same **0/40** and same **repetition-collapse** qualitative pattern
+  as the aggressive depth+experts line (incl. lr1e4 schedule fix) — **not
+  depth-specific** at this total prune budget and KD recipe. Next: less total pruning
+  and/or write up as negative result; **no further LR-only or axis-swap retries** on
+  ~8.5B without a new hypothesis. LoRA-teacher 3k **still on hold**.
 
 **Checkpoint cleanup (2026-10-08):** the four superseded distilled checkpoints
 (`…-vs-baseline`, `…-vs-corrected`, `…-vs-baseline-3k`,
@@ -1571,8 +1600,9 @@ private quota hit; older distilled repos also flipped public):
 already recorded above and in the paper, so the weights weren't needed. The two
 still-active checkpoints (`…-lr1e4` final and `…-lr1e4-best`) were set back to
 **private** now that deleting the others freed the account's private-storage
-quota. Going forward: **do not flip a repo public to work around a quota
-limit** -- ask first.
+quota. **Exception (2026-10-09):** depth0/experts97 isolation checkpoints were
+published **public** by explicit decision after private quota blocked best-val push.
+Elsewhere: **do not flip a repo public to work around a quota limit** without asking.
 
 **Backlog (when there is time, post-ablation): persist teacher logit caches on
 Hub and teach the trainer to fetch them.** The cache is reusable across every

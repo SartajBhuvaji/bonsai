@@ -128,6 +128,11 @@ def main() -> None:
     )
     parser.add_argument("--push-to-hub", default=None, help="HF repo id to push the result to")
     parser.add_argument("--hf-token", default=None)
+    parser.add_argument(
+        "--hub-public",
+        action="store_true",
+        help="push candidate as a public HF repo (default: private)",
+    )
     args = parser.parse_args()
     depth_n, expert_n = args.depth_n, args.expert_n
     is_aggressive_tier = depth_n == AGGRESSIVE_DEPTH_N and expert_n == AGGRESSIVE_EXPERT_N
@@ -204,9 +209,11 @@ def main() -> None:
     if args.push_to_hub:
         # Private per plan.md 4.0's decided checkpoint-persistence policy --
         # only winners get saved at all, and never publicly by default.
-        model.push_to_hub(args.push_to_hub, token=args.hf_token, private=True)
-        tokenizer.push_to_hub(args.push_to_hub, token=args.hf_token, private=True)
-        print(f"pushed to https://huggingface.co/{args.push_to_hub} (private)")
+        hub_private = not args.hub_public
+        model.push_to_hub(args.push_to_hub, token=args.hf_token, private=hub_private)
+        tokenizer.push_to_hub(args.push_to_hub, token=args.hf_token, private=hub_private)
+        vis = "private" if hub_private else "public"
+        print(f"pushed to https://huggingface.co/{args.push_to_hub} ({vis})")
 
 
 if __name__ == "__main__":
