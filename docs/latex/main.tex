@@ -1341,39 +1341,94 @@ budget via experts alone -- with better zero-shot loss and better final
 KD loss than the depth+experts combination -- produces the identical
 downstream failure.
 
+\subsection{A Lighter Cut, and a Decisive Test: Pruning vs.\ Distillation}
+\label{sec:phase4-pruned-only-diagnostic}
+
+A third depth point tests whether the failure is simply too much pruning
+rather than anything depth-specific: \texttt{depth\_n}$=12$ (vs.\ the
+original 16), \texttt{expert\_n}$=80$ unchanged -- easing up specifically
+on the depth cut while holding the expert cut fixed. The real selection
+yields $9.46$B parameters ($31.0\%$ of unpruned, a lighter cut than
+either prior candidate) and the best zero-shot loss of any candidate in
+this investigation, $1.1940$. Distilled with the same stabilized recipe
+(\texttt{warmup\_steps}$=450$, peak LR $1\times10^{-4}$, 3000 steps):
+final train KD $0.2630$, val KD $0.4048$; best val $0.4013$ at step
+$2869$. HumanEval-TS n=40 on both checkpoints: pass@1 $=0.0$ again.
+Manually inspecting all 80 completions across both checkpoints (not just
+a sample): 78 show the same repetition-collapse signature as every prior
+candidate (new garbage tokens each time -- \texttt{-license-license...},
+\texttt{itteritteritter...}), and one (the best-val checkpoint's 20th
+problem) is a distinct failure mode, a completely empty function body
+with no repetition at all. None of the 80 produce working code.
+
+This by itself only reinforces \cref{sec:phase4-depth-isolation}'s own
+finding at a third point. The decisive test is a different one:
+\textbf{evaluating this exact candidate, zero-shot, before any
+distillation at all.} The pruned-but-undistilled
+\texttt{depth\_n}$=12$/\texttt{expert\_n}$=80$ checkpoint scores
+\textbf{pass@1 $=0.475$} ($19$ of $40$) on the same HumanEval-TS sample --
+real, correct TypeScript: nested-loop comparisons, correct return types,
+genuine working functions, not near-misses. Pruning alone, at this
+aggressiveness, preserves substantial real capability. \textbf{The same
+checkpoint, after 3000 steps of full-parameter distillation, cannot
+solve a single one of the same 40 problems.}
+
+This directly rules out one of \cref{sec:phase4-revised-interpretation}'s
+two candidate explanations before it is even stated: a hard capability
+ceiling from pruning cannot be the cause, since the pruned model
+demonstrably has the capability immediately before the distillation step
+that destroys it. The question is no longer \emph{whether} something
+breaks this candidate -- it is now a question about the distillation
+step specifically: full-parameter fine-tuning for 3000 steps (two full
+passes over a $6{,}000$-sample pool) on training data that is itself
+never once an isolated, bounded function -- only continuations of
+ordinary TypeScript files, which carry no example of what a complete,
+terminated answer looks like. Whether the destructive mechanism is the
+update method (an un-regularized, full-parameter update overwriting
+pre-existing capability, the same failure mode LoRA was introduced to
+avoid during teacher correction, \cref{sec:teacher-correction-lora}) or
+the training data's shape (which no change of method alone would fix)
+is the open question \cref{sec:phase4-revised-interpretation} turns to.
+
 \subsection{Revised Interpretation}
 \label{sec:phase4-revised-interpretation}
 
 \Cref{sec:phase4-negative}'s original interpretation -- that 500 steps
 was simply too little budget for a 72\%-parameter cut -- was reasonable
 given the evidence available at the time, but does not survive what
-followed. Six further training runs since then (three schedule variants
-on the original candidate, the final and best-val checkpoints of each
-of the last two, plus the experts-only isolation candidate's two
-checkpoints) have tried $6\times$ the original step budget, a properly
-scaled warmup, a halved and independently literature-matched peak
-learning rate, best-checkpoint selection, and swapping which axis the
-same total cut comes from -- and every single configuration produces
-the same qualitative failure: fluent-looking setup, then immediate,
-total collapse into token repetition. Several of these runs reach KD
-validation loss well below the original 500-step run's own 0.535 (as
-low as 0.406), so the student is demonstrably capable of matching the
-teacher's token-level distribution on ordinary running text. It cannot
-do so, under any configuration tested, on an isolated, bounded,
-``write one correct function and stop'' task.
+followed. Seven further training runs since then (three schedule
+variants on the original candidate, the experts-only isolation
+candidate, and the lighter depth-only-ish candidate, each with final and
+best-val checkpoints) have tried $6\times$ the original step budget, a
+properly scaled warmup, a halved and independently literature-matched
+peak learning rate, best-checkpoint selection, and swapping which axis
+and how much of it the same total cut comes from -- and every single
+distilled configuration produces the same qualitative failure:
+fluent-looking setup, then immediate, total collapse into token
+repetition. Several of these runs reach KD validation loss well below
+the original 500-step run's own 0.535 (as low as 0.401), so the student
+is demonstrably capable of matching the teacher's token-level
+distribution on ordinary running text.
 
-Two real hypotheses remain, neither eliminated by the experiments above:
-a genuine capability ceiling, where this fraction of the model's
-parameters removed (regardless of which axis) cannot support the
-specific behavior the evaluation measures no matter how it is trained;
-or a training-data/task-format mismatch, where distilling against
-ordinary TypeScript \emph{file} continuations (long, rarely resembling
-a bounded spec-to-function shape) never actually teaches the skill
-HumanEval-TS tests, independent of how much capacity survives pruning.
-Both are now visible only because the schedule confound
-(\cref{sec:phase4-lr-chase}) and the axis confound
-(\cref{sec:phase4-depth-isolation}) have each been ruled out directly --
-a real widening of this investigation's evidence base, not a dead end.
+\Cref{sec:phase4-pruned-only-diagnostic}'s pruned-only result changes
+what these seven runs mean. A capability ceiling from pruning is now
+directly ruled out, not just untested: the same checkpoint that scores
+$0.475$ zero-shot scores $0.0$ after distillation. The real question has
+narrowed to one of two mechanisms, both consistent with every result
+above: (1) full-parameter distillation itself is overwriting real,
+pre-existing capability through an un-regularized update, the same
+failure mode this project already found and fixed with LoRA during
+teacher correction (\cref{sec:teacher-correction-lora}); or (2) the
+training data's shape -- raw file continuations, never a bounded
+spec-to-function example -- actively teaches the model away from
+stopping, independent of how gently it is trained. A LoRA-based retry of
+the exact same distillation run, changing only the update method, is the
+direct test of (1) and is in progress at the time of writing: if it
+recovers meaningfully more of the $0.475$ pruned-only capability than
+full-parameter training does, the fix is the update method; if it still
+collapses to near-$0.0$ with the same repetition signature, the training
+data itself is the remaining suspect, and no further change of training
+method alone would be expected to help.
 
 \section{Discussion and Open Questions}
 \label{sec:discussion}
