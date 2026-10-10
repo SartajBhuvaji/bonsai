@@ -1616,12 +1616,59 @@ GPU `162.243.22.219`, log `/root/phase4_depth12_experts80_pipeline.log`.
   (`runs/20261009T180532Z-8493c1-distill-depth12-experts80-humaneval-ts-n40-lr1e4-best`;
   `docs/debug/phase4_depth12_experts80_humaneval_ts_n40_best.json`; problems 0–2:
   `…_humaneval_generations_best_problems_0-2.txt`).
-- **Qualitative (investigate 0/40):** completions are **~15k tokens** on average
-  (max gen 512 applies to new tokens but postprocess still yields huge strings);
-  **33/40** (final) and **35/40** (best) contain `ursively` / `UniformLocation`
-  repetition loops — same failure mode as aggressive and depth0/experts97, not
-  coherent TypeScript. **No non-zero pass@1** in this entire lr1e4 investigation line.
-  Next: less total pruning and/or write up; LoRA-teacher 3k **still on hold**.
+- **Qualitative (investigate 0/40 distilled):** completions are **~15k tokens** on
+  average; **33/40** (final) and **35/40** (best) contain `ursively` /
+  `UniformLocation` repetition loops — same failure mode as aggressive and
+  depth0/experts97, not coherent TypeScript.
+- **HumanEval-TS n=40 — pruned candidate only (no KD), 2026-10-09:** same eval
+  settings (temp 0.2, top-p 0.95, batch 8), model
+  `sartajbhuvaji/bonsai-candidate-depth12-experts80` straight from pruning.
+  **pass@1 = 0.475** (19/40).
+  `runs/20261009T191800Z-d1d7e5-candidate-depth12-experts80-humaneval-ts-n40-pruned-only`
+  on GPU `162.243.22.219`, log `/root/candidate_depth12_experts80_humaneval_n40.log`.
+  **Qualitative:** not repetition-collapse — e.g. problem 0 is a correct
+  double-loop solution (~811 chars); problem 2 correct `truncate_number` (+ extra
+  `console.log`); problem 1 starts plausible then variable-declaration loop (~7.7k).
+  **Interpretation:** pruning alone did **not** destroy bare-signature coding at this
+  cut; KD (same lr1e4 recipe) is the locus of the 0/40 distilled failures.
+
+**depth12/experts80 — LoRA-KD isolation (2026-10-09/10, complete):** same candidate
+and baseline teacher cache as full-parameter run; **only** change is
+`--use-lora` (r=16, alpha=32, dropout=0.05, q/k/v/o attention). Orchestration:
+`tools/run_phase4_depth12_experts80_lora_pipeline.sh`, GPU `162.243.22.219`, log
+`docs/debug/phase4_depth12_experts80_lora_pipeline.log`.
+- **KD** (warmup450, peak_lr **1e-4**, 3000 steps): Hub
+  `sartajbhuvaji/bonsai-distilled-depth12-experts80-lora-vs-baseline-3k-warmup450-lr1e4`
+  (+ `…-best`, public). Run
+  `runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/`
+  — LoRA trainable **0.106%**; final val KD **0.4984** @ step 2999 (best = final).
+  Artifacts: `docs/debug/phase4_depth12_experts80_lora_kd_metrics.jsonl`,
+  `…_lora_best_checkpoint.json`, `…_lora_kd_val_trajectory.txt`.
+- **HumanEval-TS n=40 — final:** **pass@1 = 0.0**
+  (`runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final`;
+  `docs/debug/phase4_depth12_experts80_lora_humaneval_ts_n40_final.json`; problems 0–2:
+  `…_lora_humaneval_generations_final_problems_0-2.txt`).
+- **HumanEval-TS n=40 — best-val:** **pass@1 = 0.0**
+  (`runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best`;
+  `docs/debug/phase4_depth12_experts80_lora_humaneval_ts_n40_best.json`; problems 0–2:
+  `…_lora_humaneval_generations_best_problems_0-2.txt`).
+- **Three-way comparison (n=40, same eval harness):**
+
+  | Arm | pass@1 |
+  |-----|--------|
+  | Pruned-only (no KD) | **0.475** |
+  | Full-parameter KD (lr1e4, 3k) | **0.0** |
+  | LoRA KD (same recipe + `--use-lora`) | **0.0** |
+
+- **Qualitative (LoRA distilled):** avg completion len **~6.5k** chars (shorter than
+  full-param distilled ~15k); only **2/40** hit obvious repetition heuristics
+  (`parenparen`, etc.) vs 33–35/40 full-param — but **still 0/40** pass@1. Problem 0
+  often stops right after the signature (`{ ` only); problem 2 sometimes emits `{ 0}`
+  (trivial/wrong body). Problem 1 still shows `parenparen` loops on both final and best.
+- **Conclusion:** LoRA did **not** recover pruned-only **0.475**; update magnitude
+  alone is unlikely the root cause. Points to **KD training data / objective** (random
+  TS continuations, no bounded complete functions) regardless of full vs LoRA updates.
+  LoRA-teacher 3k cache arm **still on hold**.
 
 **Checkpoint cleanup (2026-10-08):** the four superseded distilled checkpoints
 (`…-vs-baseline`, `…-vs-corrected`, `…-vs-baseline-3k`,

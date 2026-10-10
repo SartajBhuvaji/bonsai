@@ -1,0 +1,5 @@
+{
+  "best_step": 2999,
+  "best_val_loss": 0.4984389429787795,
+  "path": "runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best"
+}
