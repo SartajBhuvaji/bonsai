@@ -1711,15 +1711,47 @@ in CI, not just the GPU instance.
   component using an outer `useUserId()`), since the span is deliberately
   function+comment only — fine for teaching the "bounded completion" shape,
   since the goal is next-token KD signal, not runtime-executable isolation.
-- **Not yet run:** need a fresh teacher-logit cache over function samples
-  (`--sample-mode function` — can't reuse the existing raw-file cache, it's
-  keyed to a different sample set) and a KD retrain + HumanEval-TS n=40 eval
-  on depth12/experts80 against it, same lr1e4/3k recipe. Open parameter:
-  average function length (~474 chars, roughly 120-150 tokens) is far
-  shorter than the old 2048-token raw-file samples, so `--num-samples`
-  likely needs scaling up from 6000 to keep a comparable total training
-  token budget — worth checking real token counts from the actual cache run
-  rather than guessing from char length alone.
+**Function-level KD run, split into 4 GPU subtasks (2026-10-10):** same H100
+box, GPU time budget split across today/tomorrow (GPU gets released after
+subtask 2; subtasks 3-4 resume on a fresh instance). Each subtask: archive
+full logs/metrics under `docs/debug/` (pipeline log, `kd_metrics.jsonl`,
+val-trajectory summary, cache run config) the same way prior arms did, then
+update this file with the real numbers before opening a PR. **New habit,
+starting now:** once subtask 4's numbers are in, build a notebook for this
+experiment (logic in `src/bonsai/`, notebook calls it, committed with
+outputs -- same convention as `10b_teacher_corrected_mbpp_ts.ipynb` /
+`11a_teacher_corrected_lora_humaneval_ts_sample.ipynb`), so the raw
+logs/metrics turn into an actual readable learning artifact, not just files
+sitting in `docs/debug/`.
+
+1. **(today) Cache teacher logits, function mode.** `--teacher baseline
+   --sample-mode function --num-samples 12000` (3000 steps x batch_size=4 =
+   12,000 sample-slots/epoch; 12000 unique function samples means ~1 pass
+   with minimal repetition, vs. cycling through the same pool 2x+ at the
+   old default of 6000 -- reasoning is "enough unique functions that 3000
+   steps doesn't repeat heavily," not an attempt to match the old raw-file
+   token volume, which was never itself validated as the right target).
+   `load_function_samples`'s default `raw_file_budget = max(n*3, 500)` means
+   this streams ~36,000 raw files to find 12,000 usable functions --
+   genuinely unmeasured how long that takes, log the real wall time.
+   Push to a **new** cache repo, `sartajbhuvaji/bonsai-teacher-logits-baseline-functions`
+   (distinct from the existing raw-file `…-baseline` cache -- different
+   sample set, same teacher). Public is fine (storage-quota policy below).
+2. **(today) KD retrain depth12/experts80** against the new cache,
+   full-parameter (not LoRA -- plan.md above already shows LoRA doesn't
+   change the outcome, so default to the simpler recipe), same lr1e4/
+   warmup450/3000-step hyperparameters as every other arm in this
+   investigation for a fair comparison. Push both final and best-val
+   checkpoints to the Hub, public.
+3. **(tomorrow, fresh GPU) HumanEval-TS n=40 on the final checkpoint.**
+4. **(tomorrow, fresh GPU) HumanEval-TS n=40 on the best-val checkpoint.**
+   Three-way-plus comparison table (pruned-only 0.475, full-param KD 0.0,
+   LoRA KD 0.0, function-mode KD ?) goes in this file once both land.
+
+Open parameter carried over from the dataset-build writeup above: average
+function length (~474 chars, roughly 120-150 tokens) is far shorter than the
+old 2048-token raw-file samples -- `--num-samples 12000` is a reasoned
+starting point (see above), not a guess validated by a real run yet.
 
 **Checkpoint cleanup (2026-10-08):** the four superseded distilled checkpoints
 (`…-vs-baseline`, `…-vs-corrected`, `…-vs-baseline-3k`,
