@@ -1,0 +1,109 @@
+model=sartajbhuvaji/bonsai-distilled-depth12-experts80-functions-vs-baseline-3k-warmup450-lr1e4
+run_dir=runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4
+limit=40
+The following values were not passed to `accelerate launch` and had defaults used instead:
+	`--num_processes` was set to a value of `1`
+	`--num_machines` was set to a value of `1`
+	`--mixed_precision` was set to a value of `'no'`
+	`--dynamo_backend` was set to a value of `'no'`
+To avoid this warning pass in values for each of the problematic parameters or run `accelerate config`.
+Selected Tasks: ['multiple-ts']
+Loading model in bf16
+Loading weights:   0%|          | 0/399 [00:00<?, ?it/s]Loading weights:   1%|▏         | 5/399 [00:00<00:27, 14.09it/s]Loading weights:   4%|▍         | 16/399 [00:00<00:15, 24.99it/s]Loading weights:   7%|▋         | 27/399 [00:01<00:12, 28.74it/s]Loading weights:  10%|▉         | 38/399 [00:01<00:11, 30.57it/s]Loading weights:  12%|█▏        | 49/399 [00:01<00:11, 31.32it/s]Loading weights:  15%|█▌        | 60/399 [00:02<00:10, 31.92it/s]Loading weights:  18%|█▊        | 71/399 [00:02<00:10, 32.36it/s]Loading weights:  21%|██        | 82/399 [00:02<00:09, 32.54it/s]Loading weights:  23%|██▎       | 93/399 [00:03<00:09, 32.62it/s]Loading weights:  26%|██▌       | 104/399 [00:03<00:08, 32.95it/s]Loading weights:  29%|██▉       | 115/399 [00:03<00:08, 33.18it/s]Loading weights:  32%|███▏      | 126/399 [00:03<00:08, 33.29it/s]Loading weights:  34%|███▍      | 137/399 [00:04<00:07, 33.41it/s]Loading weights:  37%|███▋      | 148/399 [00:04<00:07, 33.56it/s]Loading weights:  40%|███▉      | 159/399 [00:04<00:07, 33.68it/s]Loading weights:  43%|████▎     | 170/399 [00:05<00:06, 33.64it/s]Loading weights:  45%|████▌     | 181/399 [00:05<00:06, 33.57it/s]Loading weights:  48%|████▊     | 192/399 [00:05<00:06, 33.63it/s]Loading weights:  51%|█████     | 203/399 [00:06<00:05, 33.73it/s]Loading weights:  54%|█████▎    | 214/399 [00:06<00:05, 33.67it/s]Loading weights:  56%|█████▋    | 225/399 [00:06<00:05, 33.42it/s]Loading weights:  59%|█████▉    | 236/399 [00:07<00:04, 33.62it/s]Loading weights:  62%|██████▏   | 247/399 [00:07<00:04, 33.61it/s]Loading weights:  65%|██████▍   | 258/399 [00:07<00:04, 33.52it/s]Loading weights:  67%|██████▋   | 269/399 [00:08<00:03, 33.32it/s]Loading weights:  70%|███████   | 280/399 [00:08<00:03, 33.29it/s]Loading weights:  73%|███████▎  | 291/399 [00:08<00:03, 33.13it/s]Loading weights:  76%|███████▌  | 302/399 [00:09<00:02, 33.19it/s]Loading weights:  78%|███████▊  | 313/399 [00:09<00:02, 33.22it/s]Loading weights:  81%|████████  | 324/399 [00:09<00:02, 33.30it/s]Loading weights:  84%|████████▍ | 335/399 [00:10<00:01, 33.34it/s]Loading weights:  87%|████████▋ | 346/399 [00:10<00:01, 33.33it/s]Loading weights:  89%|████████▉ | 357/399 [00:10<00:01, 33.47it/s]Loading weights:  92%|█████████▏| 368/399 [00:11<00:00, 33.61it/s]Loading weights:  95%|█████████▍| 379/399 [00:11<00:00, 33.27it/s]Loading weights:  98%|█████████▊| 390/399 [00:11<00:00, 33.28it/s]Loading weights: 100%|██████████| 399/399 [00:11<00:00, 33.56it/s]
+Generating test split:   0%|          | 0/159 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 159/159 [00:00<00:00, 33681.53 examples/s]
+number of problems for this task is 40
+  0%|          | 0/40 [00:00<?, ?it/s]  2%|▎         | 1/40 [02:15<1:28:09, 135.62s/it]  5%|▌         | 2/40 [03:32<1:04:10, 101.33s/it]  8%|▊         | 3/40 [04:43<53:56, 87.47s/it]    10%|█         | 4/40 [05:51<47:52, 79.80s/it] 12%|█▎        | 5/40 [06:59<43:58, 75.39s/it] 15%|█▌        | 6/40 [08:07<41:13, 72.76s/it] 18%|█▊        | 7/40 [09:14<39:05, 71.08s/it] 20%|██        | 8/40 [10:21<37:13, 69.80s/it] 22%|██▎       | 9/40 [11:30<35:47, 69.28s/it] 25%|██▌       | 10/40 [12:39<34:39, 69.32s/it] 28%|██▊       | 11/40 [13:48<33:23, 69.09s/it] 30%|███       | 12/40 [14:57<32:15, 69.14s/it] 32%|███▎      | 13/40 [16:05<30:58, 68.85s/it] 35%|███▌      | 14/40 [17:13<29:40, 68.49s/it] 38%|███▊      | 15/40 [18:21<28:33, 68.54s/it] 40%|████      | 16/40 [19:30<27:23, 68.49s/it] 42%|████▎     | 17/40 [20:38<26:12, 68.38s/it] 45%|████▌     | 18/40 [20:38<17:33, 47.87s/it] 48%|████▊     | 19/40 [21:47<18:58, 54.20s/it] 50%|█████     | 20/40 [22:54<19:24, 58.22s/it] 52%|█████▎    | 21/40 [24:02<19:22, 61.18s/it] 55%|█████▌    | 22/40 [25:09<18:52, 62.91s/it] 57%|█████▊    | 23/40 [26:16<18:10, 64.13s/it] 60%|██████    | 24/40 [27:23<17:17, 64.82s/it] 62%|██████▎   | 25/40 [28:30<16:20, 65.38s/it] 65%|██████▌   | 26/40 [29:36<15:19, 65.70s/it] 68%|██████▊   | 27/40 [30:43<14:19, 66.12s/it] 70%|███████   | 28/40 [31:50<13:16, 66.40s/it] 72%|███████▎  | 29/40 [32:57<12:10, 66.40s/it] 75%|███████▌  | 30/40 [34:03<11:05, 66.50s/it] 78%|███████▊  | 31/40 [35:09<09:56, 66.31s/it] 80%|████████  | 32/40 [36:17<08:53, 66.65s/it] 82%|████████▎ | 33/40 [37:24<07:47, 66.84s/it] 85%|████████▌ | 34/40 [38:30<06:40, 66.73s/it] 88%|████████▊ | 35/40 [39:38<05:34, 66.88s/it] 90%|█████████ | 36/40 [40:44<04:26, 66.67s/it] 92%|█████████▎| 37/40 [41:50<03:19, 66.50s/it] 95%|█████████▌| 38/40 [42:55<02:12, 66.24s/it] 98%|█████████▊| 39/40 [44:02<01:06, 66.40s/it]100%|██████████| 40/40 [45:08<00:00, 66.35s/it]100%|██████████| 40/40 [45:08<00:00, 67.72s/it]
+/root/venv/lib/python3.12/site-packages/bigcode_eval/evaluator.py:85: UserWarning: Number of tasks wasn't proportional to number of devices, we removed extra predictions to only keep nsamples=1
+  warnings.warn(
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+intermediate generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts_intermediate.json
+generations were saved at runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations_multiple-ts.json
+Evaluating generations...
+Saved 40 problems in /tmp for evaluation, each problem has 1 completions
+  0%|          | 0/40 [00:00<?, ?it/s]  2%|▎         | 1/40 [00:00<00:03,  9.84it/s]  5%|▌         | 2/40 [00:00<00:03,  9.85it/s]  8%|▊         | 3/40 [00:00<00:03,  9.85it/s] 10%|█         | 4/40 [00:00<00:03,  9.85it/s] 12%|█▎        | 5/40 [00:00<00:03,  9.85it/s] 15%|█▌        | 6/40 [00:00<00:03,  9.86it/s] 18%|█▊        | 7/40 [00:00<00:03,  9.86it/s] 20%|██        | 8/40 [00:00<00:03,  9.86it/s] 22%|██▎       | 9/40 [00:00<00:03,  9.85it/s] 25%|██▌       | 10/40 [00:01<00:03,  9.84it/s] 28%|██▊       | 11/40 [00:01<00:02,  9.83it/s] 30%|███       | 12/40 [00:01<00:02,  9.84it/s] 32%|███▎      | 13/40 [00:01<00:02,  9.84it/s] 35%|███▌      | 14/40 [00:01<00:02,  9.85it/s] 38%|███▊      | 15/40 [00:01<00:02,  9.84it/s] 40%|████      | 16/40 [00:01<00:02,  9.84it/s] 42%|████▎     | 17/40 [00:01<00:03,  7.59it/s] 45%|████▌     | 18/40 [00:01<00:02,  8.16it/s] 48%|████▊     | 19/40 [00:02<00:02,  8.60it/s] 50%|█████     | 20/40 [00:02<00:02,  8.95it/s] 52%|█████▎    | 21/40 [00:02<00:02,  9.19it/s] 55%|█████▌    | 22/40 [00:02<00:01,  9.38it/s] 57%|█████▊    | 23/40 [00:17<01:16,  4.52s/it] 60%|██████    | 24/40 [00:17<00:51,  3.19s/it] 62%|██████▎   | 25/40 [00:17<00:33,  2.27s/it] 65%|██████▌   | 26/40 [00:17<00:22,  1.62s/it] 68%|██████▊   | 27/40 [00:17<00:15,  1.16s/it] 70%|███████   | 28/40 [00:17<00:10,  1.18it/s] 72%|███████▎  | 29/40 [00:17<00:06,  1.61it/s] 75%|███████▌  | 30/40 [00:17<00:04,  2.15it/s] 78%|███████▊  | 31/40 [00:17<00:03,  2.81it/s] 80%|████████  | 32/40 [00:18<00:02,  3.57it/s] 82%|████████▎ | 33/40 [00:18<00:01,  4.42it/s] 85%|████████▌ | 34/40 [00:18<00:01,  5.30it/s] 88%|████████▊ | 35/40 [00:32<00:22,  4.46s/it] 90%|█████████ | 36/40 [00:32<00:12,  3.15s/it] 92%|█████████▎| 37/40 [00:32<00:06,  2.24s/it] 95%|█████████▌| 38/40 [00:32<00:03,  1.60s/it] 98%|█████████▊| 39/40 [00:33<00:01,  1.15s/it]100%|██████████| 40/40 [00:33<00:00,  1.20it/s]100%|██████████| 40/40 [00:33<00:00,  1.21it/s]
+{
+  "multiple-ts": {
+    "pass@1": 0.0
+  },
+  "config": {
+    "prefix": "",
+    "do_sample": true,
+    "temperature": 0.2,
+    "top_k": 0,
+    "top_p": 0.95,
+    "n_samples": 1,
+    "eos": "<|endoftext|>",
+    "seed": 0,
+    "model": "sartajbhuvaji/bonsai-distilled-depth12-experts80-functions-vs-baseline-3k-warmup450-lr1e4",
+    "modeltype": "causal",
+    "peft_model": null,
+    "revision": null,
+    "use_auth_token": true,
+    "trust_remote_code": false,
+    "tasks": "multiple-ts",
+    "instruction_tokens": null,
+    "batch_size": 8,
+    "max_length_generation": 512,
+    "precision": "bf16",
+    "load_in_8bit": false,
+    "load_in_4bit": false,
+    "left_padding": false,
+    "limit": 40,
+    "limit_start": 0,
+    "save_every_k_tasks": 1,
+    "postprocess": true,
+    "allow_code_execution": true,
+    "generation_only": false,
+    "load_generations_path": null,
+    "load_data_path": null,
+    "metric_output_path": "runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts.json",
+    "save_generations": true,
+    "load_generations_intermediate_paths": null,
+    "save_generations_path": "runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4/humaneval-ts-generations.json",
+    "save_references": false,
+    "save_references_path": "references.json",
+    "prompt": "prompt",
+    "max_memory_per_gpu": null,
+    "check_references": false,
+    "resume": false
+  }
+}
+pass@1=0.0
