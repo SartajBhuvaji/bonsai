@@ -10,7 +10,7 @@ set -a
 source /root/bonsai/.env
 set +a
 export HUGGING_FACE_HUB_TOKEN="${HUGGING_FACE_HUB_TOKEN:-${HF_TOKEN:-}}"
-HUB_PUBLIC="${HUB_PUBLIC:-1}"
+HUB_PUBLIC="${HUB_PUBLIC:-0}"
 HF_ARGS=(--hf-token "$HF_TOKEN")
 if [ "$HUB_PUBLIC" = "1" ]; then
   HF_ARGS+=(--hub-public)
