@@ -1749,10 +1749,33 @@ sitting in `docs/debug/`.
    warmup450/3000-step hyperparameters as every other arm in this
    investigation for a fair comparison. Push both final and best-val
    checkpoints to the Hub, public.
-3. **(tomorrow, fresh GPU) HumanEval-TS n=40 on the final checkpoint.**
-4. **(tomorrow, fresh GPU) HumanEval-TS n=40 on the best-val checkpoint.**
-   Three-way-plus comparison table (pruned-only 0.475, raw-file full-param KD
-   0.0, LoRA KD 0.0, function-mode KD ?) goes in this file once both land.
+3. **(done) HumanEval-TS n=40** — single eval only: `val_best_step` =
+   `val_final_step` = **2999** with identical val loss (`…_run_summary.json`),
+   so final and best-val weights are the same checkpoint.
+4. ~~second best-val eval~~ **skipped** (redundant with subtask 3).
+
+**HumanEval-TS n=40 comparison (depth12/experts80, same harness: temp 0.2,
+top-p 0.95, batch 8):**
+
+| Arm | pass@1 |
+|-----|--------|
+| Pruned-only (no KD) | **0.475** |
+| Full-parameter KD (raw-file continuations) | **0.0** |
+| LoRA KD (same raw-file cache/recipe) | **0.0** |
+| **Function-mode KD** (bounded functions, 12k cache) | **0.0** |
+
+**Function-mode HumanEval (2026-10-10, GPU `162.243.79.40`):** model
+`sartajbhuvaji/bonsai-distilled-depth12-experts80-functions-vs-baseline-3k-warmup450-lr1e4`;
+`runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4`;
+artifacts `docs/debug/phase4_depth12_experts80_functions_humaneval_ts_n40.json`,
+`…_humaneval_generations_problems_0-2.txt`, `…_humaneval_pipeline.log`.
+**Qualitative:** still **0/40**; avg completion len **~9.0k** chars; repetition
+loops differ from raw-file KD (`ursively` / `license-license`) but same failure
+class — e.g. problem 0 opens `{` then `latable…` / `eadeade…` garbage; problem 1
+`_BEAINAIN…` loops. **Conclusion:** reshaping KD data to bounded functions +
+healthy val KD (~0.41) did **not** recover pruned-only **0.475**; training-data
+shape alone is not sufficient — next suspects: objective/decoding/harness or
+deeper mismatch between KD token targets and eval scaffold.
 
 **Subtasks 1–2 complete (2026-10-10, GPU `162.243.22.219`):** orchestration
 `tools/run_phase4_depth12_experts80_functions_cache_kd.sh` (cache leg aborted
@@ -1774,8 +1797,8 @@ Logs/metrics: `docs/debug/phase4_depth12_experts80_functions_pipeline.log`,
   — **KD wall ~16061 s (~4h 27m)**; val KD **4.148 @ step 9** (first val log) →
   **best 0.4094 @ step 2999** (final val **0.4094**; best = final). Compare raw-file
   full-param same cut: best val **~0.4013** @ 2869 — function-mode cache lands in
-  the same ballpark, not obviously broken on val loss alone. **HumanEval pending**
-  (subtasks 3–4).
+  the same ballpark, not obviously broken on val loss alone. **HumanEval:** see
+  comparison table above (**0.0**).
 
 **Checkpoint cleanup (2026-10-08):** the four superseded distilled checkpoints
 (`…-vs-baseline`, `…-vs-corrected`, `…-vs-baseline-3k`,
