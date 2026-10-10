@@ -129,6 +129,15 @@ def cache_teacher_logit_file(
     else:
         raw = load_samples(split, "retraining", n=num_samples, seed=seed, token=hf_token)
     _log(f"  loaded {len(raw)} raw sample(s)")
+    if sample_mode == "function":
+        samples_path = run_dir / "checkpoints" / "function-samples.jsonl"
+        samples_path.parent.mkdir(parents=True, exist_ok=True)
+        with samples_path.open("w", encoding="utf-8") as f:
+            for i, row in enumerate(raw):
+                f.write(
+                    json.dumps({"index": i, "content": row["content"]}, ensure_ascii=False) + "\n"
+                )
+        _log(f"  wrote {len(raw)} function sample(s) to {samples_path}")
 
     _log(f"Loading tokenizer for {teacher_repo_id} ...")
     tokenizer = AutoTokenizer.from_pretrained(teacher_repo_id, token=hf_token)
@@ -176,7 +185,14 @@ def cache_teacher_logit_file(
                 )
 
     log_metric(run_dir, num_cached=len(cached))
-    out_path = run_dir / "checkpoints" / f"{repo_slug(teacher_repo_id)}-topk-logits.pt"
+    # `resolve_teacher_cache_path`'s Hub-download branch always requests this
+    # exact filename, regardless of which teacher repo it's downloading for --
+    # not just the baseline preset. Every cache must be written under it, or
+    # a later `hf_hub_download` 404s (hit for real building the function-mode
+    # cache, 2026-10-10: it was named `Qwen--Qwen3-30B-A3B-Base-topk-logits.pt`
+    # locally, uploaded under that name, and the download that expected
+    # `DEFAULT_TEACHER_CACHE_FILENAME` failed).
+    out_path = run_dir / "checkpoints" / DEFAULT_TEACHER_CACHE_FILENAME
     _log(f"Writing cache to {out_path} ...")
     torch.save(
         {

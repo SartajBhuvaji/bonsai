@@ -1,0 +1,17 @@
+{
+  "cache_wall_clock_sec": 848,
+  "cache_wall_clock_human": "14m 8s (02:16:46Z\u201302:30:54Z)",
+  "token_mean_cache_log": 127,
+  "token_mean_decoded_hub": 126.76,
+  "token_median_decoded_hub": 77.0,
+  "char_mean_decoded_hub": 499.99,
+  "char_median_decoded_hub": 310.0,
+  "kd_wall_clock_sec": 16061,
+  "kd_wall_clock_human": "4h 27m 21s",
+  "val_first_step": 9,
+  "val_first": 4.1479528292020165,
+  "val_final_step": 2999,
+  "val_final": 0.40938449968894325,
+  "val_best_step": 2999,
+  "val_best": 0.40938449968894325
+}

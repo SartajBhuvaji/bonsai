@@ -1737,6 +1737,12 @@ sitting in `docs/debug/`.
    Push to a **new** cache repo, `sartajbhuvaji/bonsai-teacher-logits-baseline-functions`
    (distinct from the existing raw-file `…-baseline` cache -- different
    sample set, same teacher). Public is fine (storage-quota policy below).
+   **Also** publish the extracted function **texts** (not just tokenized logits
+   in the `.pt`) to a separate dataset repo
+   `sartajbhuvaji/bonsai-kd-function-samples-baseline-12k` via
+   `tools/push_function_samples_to_hub.py` (decode rows from the cache `.pt`
+   so the Hub dataset matches the cache exactly; future cache runs also write
+   `function-samples.jsonl` under the run dir).
 2. **(today) KD retrain depth12/experts80** against the new cache,
    full-parameter (not LoRA -- plan.md above already shows LoRA doesn't
    change the outcome, so default to the simpler recipe), same lr1e4/
@@ -1745,13 +1751,31 @@ sitting in `docs/debug/`.
    checkpoints to the Hub, public.
 3. **(tomorrow, fresh GPU) HumanEval-TS n=40 on the final checkpoint.**
 4. **(tomorrow, fresh GPU) HumanEval-TS n=40 on the best-val checkpoint.**
-   Three-way-plus comparison table (pruned-only 0.475, full-param KD 0.0,
-   LoRA KD 0.0, function-mode KD ?) goes in this file once both land.
+   Three-way-plus comparison table (pruned-only 0.475, raw-file full-param KD
+   0.0, LoRA KD 0.0, function-mode KD ?) goes in this file once both land.
 
-Open parameter carried over from the dataset-build writeup above: average
-function length (~474 chars, roughly 120-150 tokens) is far shorter than the
-old 2048-token raw-file samples -- `--num-samples 12000` is a reasoned
-starting point (see above), not a guess validated by a real run yet.
+**Subtasks 1–2 complete (2026-10-10, GPU `162.243.22.219`):** orchestration
+`tools/run_phase4_depth12_experts80_functions_cache_kd.sh` (cache leg aborted
+early on-box; KD resumed via `tools/run_phase4_depth12_experts80_functions_kd_resume.sh`).
+Logs/metrics: `docs/debug/phase4_depth12_experts80_functions_pipeline.log`,
+`…_cache_config.json`, `…_functions_kd_metrics.jsonl`, `…_kd_val_trajectory.txt`,
+`…_run_summary.json`, `…_best_checkpoint.json`.
+- **Cache (function mode, n=12000):** Hub
+  `sartajbhuvaji/bonsai-teacher-logits-baseline-functions` (`baseline-topk-logits.pt`
+  on dataset; local run `runs/20261010T021652Z-91a1f6-cache-teacher-logits-baseline`).
+  **Wall clock ~848 s (~14m 8s)** from pipeline start **02:16:46Z** to `.pt` write
+  **02:30:54Z**. Tokenized cache log: **mean 127 tokens**; decoded Hub sample
+  export: **token mean/median 126.8 / 77**, **char mean/median 500 / 310**.
+  Function texts: `sartajbhuvaji/bonsai-kd-function-samples-baseline-12k` (public).
+- **KD (full-param, same lr1e4 recipe):** Hub
+  `sartajbhuvaji/bonsai-distilled-depth12-experts80-functions-vs-baseline-3k-warmup450-lr1e4`
+  (+ `…-best`, public).
+  `runs/20261010T030700Z-cbde61-distill-depth12-experts80-functions-vs-baseline-3000-warmup450-lr1e4/`
+  — **KD wall ~16061 s (~4h 27m)**; val KD **4.148 @ step 9** (first val log) →
+  **best 0.4094 @ step 2999** (final val **0.4094**; best = final). Compare raw-file
+  full-param same cut: best val **~0.4013** @ 2869 — function-mode cache lands in
+  the same ballpark, not obviously broken on val loss alone. **HumanEval pending**
+  (subtasks 3–4).
 
 **Checkpoint cleanup (2026-10-08):** the four superseded distilled checkpoints
 (`…-vs-baseline`, `…-vs-corrected`, `…-vs-baseline-3k`,

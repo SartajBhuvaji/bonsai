@@ -1,0 +1,18 @@
+{
+  "student": "sartajbhuvaji/bonsai-candidate-depth12-experts80",
+  "teacher_cache": "/root/.cache/huggingface/hub/datasets--sartajbhuvaji--bonsai-teacher-logits-baseline-functions/snapshots/9f77dd8d497e864075a44090f4f2700b28c853c8/baseline-topk-logits.pt",
+  "teacher_repo_id": null,
+  "val_fraction": 0.05,
+  "val_every": 10,
+  "use_lora": false,
+  "lora_r": null,
+  "lora_alpha": null,
+  "lora_dropout": null,
+  "lora_target_modules": null,
+  "peak_lr": 0.0001,
+  "min_lr": 2e-05,
+  "warmup_steps": 450,
+  "total_steps": 3000,
+  "batch_size": 4,
+  "weight_decay": 0.0
+}

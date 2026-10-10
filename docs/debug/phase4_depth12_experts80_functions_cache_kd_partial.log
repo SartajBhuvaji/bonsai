@@ -1,0 +1,322 @@
+=== Phase 4 depth12/experts80 function-mode cache + KD start 2026-10-10T02:16:46Z ===
+CACHE_HUB=sartajbhuvaji/bonsai-teacher-logits-baseline-functions (new repo; do not overwrite raw-file baseline cache)
+DISTILL_HUB=sartajbhuvaji/bonsai-distilled-depth12-experts80-functions-vs-baseline-3k-warmup450-lr1e4
+DISTILL_HUB_BEST=sartajbhuvaji/bonsai-distilled-depth12-experts80-functions-vs-baseline-3k-warmup450-lr1e4-best
+--- Subtask 1: cache teacher logits (function mode, n=12000) ---
+Listing shards for bigcode/the-stack-dedup / data/typescript ...
+  71 shard(s) listed
+Streaming 12000 retraining samples (seed=11, mode=function) ...
+  loaded 12000 raw sample(s)
+Loading tokenizer for Qwen/Qwen3-30B-A3B-Base ...
+Tokenizing ...
+  12000 sample(s), mean length 127 tokens
+Loading teacher Qwen/Qwen3-30B-A3B-Base ...
+Loading weights:   0%|          | 0/531 [00:00<?, ?it/s]Loading weights:   1%|          | 4/531 [00:01<02:29,  3.51it/s]Loading weights:   3%|▎         | 15/531 [00:03<01:42,  5.01it/s]Loading weights:   5%|▍         | 26/531 [00:04<01:21,  6.16it/s]Loading weights:   7%|▋         | 37/531 [00:05<01:04,  7.66it/s]Loading weights:   9%|▉         | 48/531 [00:05<00:42, 11.50it/s]Loading weights:  11%|█         | 59/531 [00:05<00:31, 15.18it/s]Loading weights:  13%|█▎        | 70/531 [00:07<00:42, 10.91it/s]Loading weights:  15%|█▌        | 81/531 [00:09<00:49,  9.02it/s]Loading weights:  17%|█▋        | 92/531 [00:10<00:53,  8.18it/s]Loading weights:  19%|█▉        | 103/531 [00:12<00:57,  7.43it/s]Loading weights:  21%|██▏       | 114/531 [00:14<00:59,  6.99it/s]Loading weights:  24%|██▎       | 125/531 [00:16<01:00,  6.69it/s]Loading weights:  26%|██▌       | 136/531 [00:17<00:58,  6.74it/s]Loading weights:  28%|██▊       | 147/531 [00:19<00:59,  6.47it/s]Loading weights:  30%|██▉       | 158/531 [00:21<00:58,  6.40it/s]Loading weights:  32%|███▏      | 169/531 [00:23<00:56,  6.39it/s]Loading weights:  34%|███▍      | 180/531 [00:24<00:55,  6.28it/s]Loading weights:  36%|███▌      | 191/531 [00:26<00:55,  6.07it/s]Loading weights:  38%|███▊      | 202/531 [00:28<00:53,  6.18it/s]Loading weights:  40%|████      | 213/531 [00:30<00:51,  6.22it/s]Loading weights:  42%|████▏     | 224/531 [00:32<00:50,  6.14it/s]Loading weights:  44%|████▍     | 235/531 [00:33<00:43,  6.80it/s]Loading weights:  46%|████▋     | 246/531 [00:34<00:41,  6.87it/s]Loading weights:  48%|████▊     | 257/531 [00:36<00:40,  6.74it/s]Loading weights:  50%|█████     | 268/531 [00:38<00:39,  6.72it/s]Loading weights:  53%|█████▎    | 279/531 [00:40<00:37,  6.68it/s]Loading weights:  55%|█████▍    | 290/531 [00:40<00:26,  9.02it/s]Loading weights:  57%|█████▋    | 301/531 [00:40<00:18, 12.13it/s]Loading weights:  59%|█████▉    | 312/531 [00:41<00:17, 12.85it/s]Loading weights:  61%|██████    | 323/531 [00:41<00:12, 16.87it/s]Loading weights:  63%|██████▎   | 334/531 [00:41<00:09, 21.59it/s]Loading weights:  65%|██████▍   | 345/531 [00:41<00:06, 26.60it/s]Loading weights:  67%|██████▋   | 356/531 [00:41<00:05, 32.12it/s]Loading weights:  69%|██████▉   | 367/531 [00:42<00:04, 37.60it/s]Loading weights:  71%|███████   | 378/531 [00:42<00:03, 42.54it/s]Loading weights:  73%|███████▎  | 389/531 [00:42<00:03, 46.92it/s]Loading weights:  75%|███████▌  | 400/531 [00:42<00:02, 50.61it/s]Loading weights:  77%|███████▋  | 411/531 [00:42<00:02, 53.58it/s]Loading weights:  79%|███████▉  | 422/531 [00:42<00:01, 55.95it/s]Loading weights:  82%|████████▏ | 433/531 [00:43<00:01, 57.59it/s]Loading weights:  84%|████████▎ | 444/531 [00:43<00:01, 58.75it/s]Loading weights:  86%|████████▌ | 455/531 [00:43<00:01, 59.73it/s]Loading weights:  88%|████████▊ | 466/531 [00:43<00:01, 60.55it/s]Loading weights:  90%|████████▉ | 477/531 [00:43<00:00, 60.81it/s]Loading weights:  92%|█████████▏| 488/531 [00:43<00:00, 61.05it/s]Loading weights:  94%|█████████▍| 499/531 [00:44<00:00, 60.93it/s]Loading weights:  96%|█████████▌| 510/531 [00:44<00:00, 61.17it/s]Loading weights:  98%|█████████▊| 521/531 [00:44<00:00, 60.79it/s]Loading weights: 100%|██████████| 531/531 [00:44<00:00, 11.92it/s]
+Running teacher forward (top_k=20) on cuda:0 ...
+  forward progress: 1/12000 samples (0s elapsed, ~4661s remaining)
+  forward progress: 50/12000 samples (5s elapsed, ~1247s remaining)
+  forward progress: 100/12000 samples (9s elapsed, ~1126s remaining)
+  forward progress: 150/12000 samples (13s elapsed, ~1053s remaining)
+  forward progress: 200/12000 samples (17s elapsed, ~1004s remaining)
+  forward progress: 250/12000 samples (21s elapsed, ~976s remaining)
+  forward progress: 300/12000 samples (25s elapsed, ~959s remaining)
+  forward progress: 350/12000 samples (28s elapsed, ~938s remaining)
+  forward progress: 400/12000 samples (32s elapsed, ~920s remaining)
+  forward progress: 450/12000 samples (35s elapsed, ~905s remaining)
+  forward progress: 500/12000 samples (39s elapsed, ~889s remaining)
+  forward progress: 550/12000 samples (42s elapsed, ~878s remaining)
+  forward progress: 600/12000 samples (45s elapsed, ~864s remaining)
+  forward progress: 650/12000 samples (49s elapsed, ~853s remaining)
+  forward progress: 700/12000 samples (52s elapsed, ~844s remaining)
+  forward progress: 750/12000 samples (55s elapsed, ~832s remaining)
+  forward progress: 800/12000 samples (59s elapsed, ~823s remaining)
+  forward progress: 850/12000 samples (62s elapsed, ~814s remaining)
+  forward progress: 900/12000 samples (65s elapsed, ~805s remaining)
+  forward progress: 950/12000 samples (69s elapsed, ~799s remaining)
+  forward progress: 1000/12000 samples (72s elapsed, ~793s remaining)
+  forward progress: 1050/12000 samples (75s elapsed, ~787s remaining)
+  forward progress: 1100/12000 samples (79s elapsed, ~779s remaining)
+  forward progress: 1150/12000 samples (82s elapsed, ~772s remaining)
+  forward progress: 1200/12000 samples (85s elapsed, ~764s remaining)
+  forward progress: 1250/12000 samples (88s elapsed, ~758s remaining)
+  forward progress: 1300/12000 samples (91s elapsed, ~753s remaining)
+  forward progress: 1350/12000 samples (95s elapsed, ~747s remaining)
+  forward progress: 1400/12000 samples (98s elapsed, ~741s remaining)
+  forward progress: 1450/12000 samples (101s elapsed, ~734s remaining)
+  forward progress: 1500/12000 samples (104s elapsed, ~730s remaining)
+  forward progress: 1550/12000 samples (107s elapsed, ~724s remaining)
+  forward progress: 1600/12000 samples (111s elapsed, ~719s remaining)
+  forward progress: 1650/12000 samples (114s elapsed, ~713s remaining)
+  forward progress: 1700/12000 samples (117s elapsed, ~707s remaining)
+  forward progress: 1750/12000 samples (120s elapsed, ~702s remaining)
+  forward progress: 1800/12000 samples (123s elapsed, ~698s remaining)
+  forward progress: 1850/12000 samples (126s elapsed, ~694s remaining)
+  forward progress: 1900/12000 samples (130s elapsed, ~689s remaining)
+  forward progress: 1950/12000 samples (133s elapsed, ~684s remaining)
+  forward progress: 2000/12000 samples (136s elapsed, ~680s remaining)
+  forward progress: 2050/12000 samples (139s elapsed, ~674s remaining)
+  forward progress: 2100/12000 samples (142s elapsed, ~670s remaining)
+  forward progress: 2150/12000 samples (145s elapsed, ~666s remaining)
+  forward progress: 2200/12000 samples (148s elapsed, ~661s remaining)
+  forward progress: 2250/12000 samples (152s elapsed, ~657s remaining)
+  forward progress: 2300/12000 samples (155s elapsed, ~652s remaining)
+  forward progress: 2350/12000 samples (158s elapsed, ~647s remaining)
+  forward progress: 2400/12000 samples (161s elapsed, ~643s remaining)
+  forward progress: 2450/12000 samples (164s elapsed, ~639s remaining)
+  forward progress: 2500/12000 samples (167s elapsed, ~634s remaining)
+  forward progress: 2550/12000 samples (170s elapsed, ~630s remaining)
+  forward progress: 2600/12000 samples (173s elapsed, ~626s remaining)
+  forward progress: 2650/12000 samples (176s elapsed, ~622s remaining)
+  forward progress: 2700/12000 samples (179s elapsed, ~618s remaining)
+  forward progress: 2750/12000 samples (182s elapsed, ~614s remaining)
+  forward progress: 2800/12000 samples (185s elapsed, ~609s remaining)
+  forward progress: 2850/12000 samples (189s elapsed, ~605s remaining)
+  forward progress: 2900/12000 samples (192s elapsed, ~601s remaining)
+  forward progress: 2950/12000 samples (195s elapsed, ~598s remaining)
+  forward progress: 3000/12000 samples (198s elapsed, ~594s remaining)
+  forward progress: 3050/12000 samples (201s elapsed, ~590s remaining)
+  forward progress: 3100/12000 samples (204s elapsed, ~586s remaining)
+  forward progress: 3150/12000 samples (207s elapsed, ~582s remaining)
+  forward progress: 3200/12000 samples (210s elapsed, ~578s remaining)
+  forward progress: 3250/12000 samples (213s elapsed, ~574s remaining)
+  forward progress: 3300/12000 samples (216s elapsed, ~570s remaining)
+  forward progress: 3350/12000 samples (219s elapsed, ~566s remaining)
+  forward progress: 3400/12000 samples (223s elapsed, ~563s remaining)
+  forward progress: 3450/12000 samples (226s elapsed, ~559s remaining)
+  forward progress: 3500/12000 samples (229s elapsed, ~556s remaining)
+  forward progress: 3550/12000 samples (232s elapsed, ~552s remaining)
+  forward progress: 3600/12000 samples (235s elapsed, ~548s remaining)
+  forward progress: 3650/12000 samples (238s elapsed, ~544s remaining)
+  forward progress: 3700/12000 samples (241s elapsed, ~541s remaining)
+  forward progress: 3750/12000 samples (244s elapsed, ~537s remaining)
+  forward progress: 3800/12000 samples (247s elapsed, ~533s remaining)
+  forward progress: 3850/12000 samples (250s elapsed, ~530s remaining)
+  forward progress: 3900/12000 samples (253s elapsed, ~526s remaining)
+  forward progress: 3950/12000 samples (256s elapsed, ~522s remaining)
+  forward progress: 4000/12000 samples (259s elapsed, ~519s remaining)
+  forward progress: 4050/12000 samples (263s elapsed, ~516s remaining)
+  forward progress: 4100/12000 samples (266s elapsed, ~512s remaining)
+  forward progress: 4150/12000 samples (269s elapsed, ~508s remaining)
+  forward progress: 4200/12000 samples (272s elapsed, ~505s remaining)
+  forward progress: 4250/12000 samples (275s elapsed, ~501s remaining)
+  forward progress: 4300/12000 samples (278s elapsed, ~498s remaining)
+  forward progress: 4350/12000 samples (281s elapsed, ~494s remaining)
+  forward progress: 4400/12000 samples (284s elapsed, ~490s remaining)
+  forward progress: 4450/12000 samples (287s elapsed, ~487s remaining)
+  forward progress: 4500/12000 samples (290s elapsed, ~483s remaining)
+  forward progress: 4550/12000 samples (293s elapsed, ~480s remaining)
+  forward progress: 4600/12000 samples (296s elapsed, ~476s remaining)
+  forward progress: 4650/12000 samples (299s elapsed, ~473s remaining)
+  forward progress: 4700/12000 samples (302s elapsed, ~470s remaining)
+  forward progress: 4750/12000 samples (305s elapsed, ~466s remaining)
+  forward progress: 4800/12000 samples (309s elapsed, ~463s remaining)
+  forward progress: 4850/12000 samples (312s elapsed, ~459s remaining)
+  forward progress: 4900/12000 samples (315s elapsed, ~456s remaining)
+  forward progress: 4950/12000 samples (318s elapsed, ~452s remaining)
+  forward progress: 5000/12000 samples (321s elapsed, ~449s remaining)
+  forward progress: 5050/12000 samples (324s elapsed, ~446s remaining)
+  forward progress: 5100/12000 samples (327s elapsed, ~442s remaining)
+  forward progress: 5150/12000 samples (330s elapsed, ~439s remaining)
+  forward progress: 5200/12000 samples (333s elapsed, ~436s remaining)
+  forward progress: 5250/12000 samples (336s elapsed, ~432s remaining)
+  forward progress: 5300/12000 samples (339s elapsed, ~429s remaining)
+  forward progress: 5350/12000 samples (342s elapsed, ~425s remaining)
+  forward progress: 5400/12000 samples (345s elapsed, ~422s remaining)
+  forward progress: 5450/12000 samples (348s elapsed, ~419s remaining)
+  forward progress: 5500/12000 samples (351s elapsed, ~415s remaining)
+  forward progress: 5550/12000 samples (354s elapsed, ~412s remaining)
+  forward progress: 5600/12000 samples (357s elapsed, ~409s remaining)
+  forward progress: 5650/12000 samples (361s elapsed, ~405s remaining)
+  forward progress: 5700/12000 samples (364s elapsed, ~402s remaining)
+  forward progress: 5750/12000 samples (367s elapsed, ~399s remaining)
+  forward progress: 5800/12000 samples (370s elapsed, ~395s remaining)
+  forward progress: 5850/12000 samples (373s elapsed, ~392s remaining)
+  forward progress: 5900/12000 samples (376s elapsed, ~388s remaining)
+  forward progress: 5950/12000 samples (379s elapsed, ~385s remaining)
+  forward progress: 6000/12000 samples (382s elapsed, ~382s remaining)
+  forward progress: 6050/12000 samples (385s elapsed, ~378s remaining)
+  forward progress: 6100/12000 samples (388s elapsed, ~375s remaining)
+  forward progress: 6150/12000 samples (391s elapsed, ~372s remaining)
+  forward progress: 6200/12000 samples (394s elapsed, ~369s remaining)
+  forward progress: 6250/12000 samples (397s elapsed, ~365s remaining)
+  forward progress: 6300/12000 samples (400s elapsed, ~362s remaining)
+  forward progress: 6350/12000 samples (403s elapsed, ~359s remaining)
+  forward progress: 6400/12000 samples (406s elapsed, ~355s remaining)
+  forward progress: 6450/12000 samples (409s elapsed, ~352s remaining)
+  forward progress: 6500/12000 samples (412s elapsed, ~349s remaining)
+  forward progress: 6550/12000 samples (416s elapsed, ~346s remaining)
+  forward progress: 6600/12000 samples (419s elapsed, ~343s remaining)
+  forward progress: 6650/12000 samples (422s elapsed, ~339s remaining)
+  forward progress: 6700/12000 samples (425s elapsed, ~336s remaining)
+  forward progress: 6750/12000 samples (428s elapsed, ~333s remaining)
+  forward progress: 6800/12000 samples (431s elapsed, ~330s remaining)
+  forward progress: 6850/12000 samples (434s elapsed, ~326s remaining)
+  forward progress: 6900/12000 samples (437s elapsed, ~323s remaining)
+  forward progress: 6950/12000 samples (440s elapsed, ~320s remaining)
+  forward progress: 7000/12000 samples (443s elapsed, ~317s remaining)
+  forward progress: 7050/12000 samples (446s elapsed, ~313s remaining)
+  forward progress: 7100/12000 samples (449s elapsed, ~310s remaining)
+  forward progress: 7150/12000 samples (452s elapsed, ~307s remaining)
+  forward progress: 7200/12000 samples (455s elapsed, ~304s remaining)
+  forward progress: 7250/12000 samples (458s elapsed, ~300s remaining)
+  forward progress: 7300/12000 samples (462s elapsed, ~297s remaining)
+  forward progress: 7350/12000 samples (465s elapsed, ~294s remaining)
+  forward progress: 7400/12000 samples (468s elapsed, ~291s remaining)
+  forward progress: 7450/12000 samples (471s elapsed, ~287s remaining)
+  forward progress: 7500/12000 samples (474s elapsed, ~284s remaining)
+  forward progress: 7550/12000 samples (477s elapsed, ~281s remaining)
+  forward progress: 7600/12000 samples (480s elapsed, ~278s remaining)
+  forward progress: 7650/12000 samples (483s elapsed, ~274s remaining)
+  forward progress: 7700/12000 samples (486s elapsed, ~271s remaining)
+  forward progress: 7750/12000 samples (489s elapsed, ~268s remaining)
+  forward progress: 7800/12000 samples (492s elapsed, ~265s remaining)
+  forward progress: 7850/12000 samples (495s elapsed, ~262s remaining)
+  forward progress: 7900/12000 samples (498s elapsed, ~258s remaining)
+  forward progress: 7950/12000 samples (501s elapsed, ~255s remaining)
+  forward progress: 8000/12000 samples (504s elapsed, ~252s remaining)
+  forward progress: 8050/12000 samples (507s elapsed, ~249s remaining)
+  forward progress: 8100/12000 samples (510s elapsed, ~246s remaining)
+  forward progress: 8150/12000 samples (513s elapsed, ~242s remaining)
+  forward progress: 8200/12000 samples (516s elapsed, ~239s remaining)
+  forward progress: 8250/12000 samples (519s elapsed, ~236s remaining)
+  forward progress: 8300/12000 samples (522s elapsed, ~233s remaining)
+  forward progress: 8350/12000 samples (525s elapsed, ~230s remaining)
+  forward progress: 8400/12000 samples (528s elapsed, ~226s remaining)
+  forward progress: 8450/12000 samples (531s elapsed, ~223s remaining)
+  forward progress: 8500/12000 samples (534s elapsed, ~220s remaining)
+  forward progress: 8550/12000 samples (537s elapsed, ~217s remaining)
+  forward progress: 8600/12000 samples (540s elapsed, ~214s remaining)
+  forward progress: 8650/12000 samples (543s elapsed, ~210s remaining)
+  forward progress: 8700/12000 samples (546s elapsed, ~207s remaining)
+  forward progress: 8750/12000 samples (549s elapsed, ~204s remaining)
+  forward progress: 8800/12000 samples (553s elapsed, ~201s remaining)
+  forward progress: 8850/12000 samples (556s elapsed, ~198s remaining)
+  forward progress: 8900/12000 samples (559s elapsed, ~195s remaining)
+  forward progress: 8950/12000 samples (562s elapsed, ~191s remaining)
+  forward progress: 9000/12000 samples (565s elapsed, ~188s remaining)
+  forward progress: 9050/12000 samples (568s elapsed, ~185s remaining)
+  forward progress: 9100/12000 samples (571s elapsed, ~182s remaining)
+  forward progress: 9150/12000 samples (574s elapsed, ~179s remaining)
+  forward progress: 9200/12000 samples (577s elapsed, ~176s remaining)
+  forward progress: 9250/12000 samples (580s elapsed, ~172s remaining)
+  forward progress: 9300/12000 samples (583s elapsed, ~169s remaining)
+  forward progress: 9350/12000 samples (586s elapsed, ~166s remaining)
+  forward progress: 9400/12000 samples (589s elapsed, ~163s remaining)
+  forward progress: 9450/12000 samples (592s elapsed, ~160s remaining)
+  forward progress: 9500/12000 samples (595s elapsed, ~157s remaining)
+  forward progress: 9550/12000 samples (598s elapsed, ~153s remaining)
+  forward progress: 9600/12000 samples (601s elapsed, ~150s remaining)
+  forward progress: 9650/12000 samples (604s elapsed, ~147s remaining)
+  forward progress: 9700/12000 samples (607s elapsed, ~144s remaining)
+  forward progress: 9750/12000 samples (610s elapsed, ~141s remaining)
+  forward progress: 9800/12000 samples (613s elapsed, ~138s remaining)
+  forward progress: 9850/12000 samples (617s elapsed, ~135s remaining)
+  forward progress: 9900/12000 samples (620s elapsed, ~131s remaining)
+  forward progress: 9950/12000 samples (623s elapsed, ~128s remaining)
+  forward progress: 10000/12000 samples (626s elapsed, ~125s remaining)
+  forward progress: 10050/12000 samples (629s elapsed, ~122s remaining)
+  forward progress: 10100/12000 samples (632s elapsed, ~119s remaining)
+  forward progress: 10150/12000 samples (635s elapsed, ~116s remaining)
+  forward progress: 10200/12000 samples (638s elapsed, ~113s remaining)
+  forward progress: 10250/12000 samples (641s elapsed, ~109s remaining)
+  forward progress: 10300/12000 samples (644s elapsed, ~106s remaining)
+  forward progress: 10350/12000 samples (647s elapsed, ~103s remaining)
+  forward progress: 10400/12000 samples (650s elapsed, ~100s remaining)
+  forward progress: 10450/12000 samples (653s elapsed, ~97s remaining)
+  forward progress: 10500/12000 samples (657s elapsed, ~94s remaining)
+  forward progress: 10550/12000 samples (660s elapsed, ~91s remaining)
+  forward progress: 10600/12000 samples (663s elapsed, ~88s remaining)
+  forward progress: 10650/12000 samples (666s elapsed, ~84s remaining)
+  forward progress: 10700/12000 samples (669s elapsed, ~81s remaining)
+  forward progress: 10750/12000 samples (672s elapsed, ~78s remaining)
+  forward progress: 10800/12000 samples (675s elapsed, ~75s remaining)
+  forward progress: 10850/12000 samples (678s elapsed, ~72s remaining)
+  forward progress: 10900/12000 samples (681s elapsed, ~69s remaining)
+  forward progress: 10950/12000 samples (684s elapsed, ~66s remaining)
+  forward progress: 11000/12000 samples (687s elapsed, ~62s remaining)
+  forward progress: 11050/12000 samples (691s elapsed, ~59s remaining)
+  forward progress: 11100/12000 samples (694s elapsed, ~56s remaining)
+  forward progress: 11150/12000 samples (697s elapsed, ~53s remaining)
+  forward progress: 11200/12000 samples (700s elapsed, ~50s remaining)
+  forward progress: 11250/12000 samples (703s elapsed, ~47s remaining)
+  forward progress: 11300/12000 samples (706s elapsed, ~44s remaining)
+  forward progress: 11350/12000 samples (709s elapsed, ~41s remaining)
+  forward progress: 11400/12000 samples (712s elapsed, ~37s remaining)
+  forward progress: 11450/12000 samples (715s elapsed, ~34s remaining)
+  forward progress: 11500/12000 samples (718s elapsed, ~31s remaining)
+  forward progress: 11550/12000 samples (721s elapsed, ~28s remaining)
+  forward progress: 11600/12000 samples (725s elapsed, ~25s remaining)
+  forward progress: 11650/12000 samples (728s elapsed, ~22s remaining)
+  forward progress: 11700/12000 samples (731s elapsed, ~19s remaining)
+  forward progress: 11750/12000 samples (734s elapsed, ~16s remaining)
+  forward progress: 11800/12000 samples (737s elapsed, ~12s remaining)
+  forward progress: 11850/12000 samples (740s elapsed, ~9s remaining)
+  forward progress: 11900/12000 samples (743s elapsed, ~6s remaining)
+  forward progress: 11950/12000 samples (746s elapsed, ~3s remaining)
+  forward progress: 12000/12000 samples (749s elapsed, ~0s remaining)
+Writing cache to runs/20261010T021652Z-91a1f6-cache-teacher-logits-baseline/checkpoints/Qwen--Qwen3-30B-A3B-Base-topk-logits.pt ...
+saved 12000 cached samples to runs/20261010T021652Z-91a1f6-cache-teacher-logits-baseline/checkpoints/Qwen--Qwen3-30B-A3B-Base-topk-logits.pt
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+New Data Upload               : |          |  0.00B /  0.00B            [A
+
+  ...B-A3B-Base-topk-logits.pt:   1%|          | 4.05MB /  327MB            [A[A
+
+  ...B-A3B-Base-topk-logits.pt:   1%|          | 4.05MB /  327MB            [A[AProcessing Files (0 / 1)      :   1%|          | 4.05MB /  327MB,   ???B/s  
+New Data Upload               :   6%|▌         | 4.05MB / 67.0MB,   ???B/s  [A
+
+  ...B-A3B-Base-topk-logits.pt:  16%|█▌        | 51.7MB /  327MB            [A[AProcessing Files (0 / 1)      :  16%|█▌        | 51.7MB /  327MB, 5.12MB/s  
+New Data Upload               :  39%|███▊      | 51.7MB /  134MB, 5.12MB/s  [A
+
+  ...B-A3B-Base-topk-logits.pt:  21%|██        | 68.0MB /  327MB            [A[AProcessing Files (0 / 1)      :  21%|██        | 68.0MB /  327MB, 6.68MB/s  
+New Data Upload               :  51%|█████     | 68.0MB /  134MB, 6.68MB/s  [A
+
+  ...B-A3B-Base-topk-logits.pt:  31%|███       |  100MB /  327MB            [A[AProcessing Files (0 / 1)      :  31%|███       |  100MB /  327MB, 9.79MB/s  
+New Data Upload               :  50%|████▉     |  100MB /  201MB, 9.79MB/s  [A
+
+  ...B-A3B-Base-topk-logits.pt:  41%|████      |  134MB /  327MB            [A[AProcessing Files (0 / 1)      :  41%|████      |  134MB /  327MB, 13.0MB/s  
+New Data Upload               :  67%|██████▋   |  134MB /  201MB, 13.0MB/s  [A
+
+  ...B-A3B-Base-topk-logits.pt:  49%|████▉     |  161MB /  327MB            [A[AProcessing Files (0 / 1)      :  49%|████▉     |  161MB /  327MB, 15.6MB/s  
+New Data Upload               :  60%|██████    |  161MB /  268MB, 15.6MB/s  [A
+
+  ...B-A3B-Base-topk-logits.pt:  61%|██████▏   |  201MB /  327MB            [A[AProcessing Files (0 / 1)      :  61%|██████▏   |  201MB /  327MB, 19.3MB/s  
+New Data Upload               :  75%|███████▌  |  201MB /  268MB, 19.3MB/s  [A
+
+  ...B-A3B-Base-topk-logits.pt:  76%|███████▋  |  250MB /  327MB            [A[AProcessing Files (0 / 1)      :  76%|███████▋  |  250MB /  327MB, 23.8MB/s  
+New Data Upload               :  76%|███████▋  |  250MB /  327MB, 23.8MB/s  [A
+
+  ...B-A3B-Base-topk-logits.pt:  82%|████████▏ |  268MB /  327MB            [A[AProcessing Files (0 / 1)      :  82%|████████▏ |  268MB /  327MB, 25.4MB/s  
+New Data Upload               :  82%|████████▏ |  268MB /  327MB, 25.4MB/s  [A
+
+  ...B-A3B-Base-topk-logits.pt:  93%|█████████▎|  305MB /  327MB            [A[AProcessing Files (0 / 1)      :  93%|█████████▎|  305MB /  327MB, 28.7MB/s  
+New Data Upload               :  93%|█████████▎|  305MB /  327MB, 28.7MB/s  [A
+
+  ...B-A3B-Base-topk-logits.pt: 100%|█████████▉|  327MB /  327MB            [A[AProcessing Files (0 / 1)      : 100%|█████████▉|  327MB /  327MB, 30.6MB/s  
+New Data Upload               : 100%|█████████▉|  327MB /  327MB, 30.6MB/s  [A
+
+  ...B-A3B-Base-topk-logits.pt: 100%|█████████▉|  327MB /  327MB            [A[AProcessing Files (0 / 1)      : 100%|█████████▉|  327MB /  327MB, 30.3MB/s  
+New Data Upload               : 100%|█████████▉|  327MB /  327MB, 30.3MB/s  [A
+
+  ...B-A3B-Base-topk-logits.pt: 100%|█████████▉|  327MB /  327MB            [A[A
+
+  ...B-A3B-Base-topk-logits.pt: 100%|█████████▉|  327MB /  327MB            [A[AProcessing Files (0 / 1)      : 100%|█████████▉|  327MB /  327MB, 29.7MB/s  
+New Data Upload               : 100%|█████████▉|  327MB /  327MB, 29.7MB/s  [A
+
+  ...B-A3B-Base-topk-logits.pt: 100%|██████████|  327MB /  327MB            [A[AProcessing Files (1 / 1)      : 100%|██████████|  327MB /  327MB, 29.4MB/s  
+New Data Upload               : 100%|██████████|  327MB /  327MB, 29.4MB/s  [A
+
+
+Validating                    :           |   0%            [A[A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+  ...B-A3B-Base-topk-logits.pt: 100%|██████████|  327MB /  327MB            [A[A
+
+
+Validating                    : ██████████| 100%            [A[A[AProcessing Files (1 / 1)      : 100%|██████████|  327MB /  327MB, 29.4MB/s  
+New Data Upload               : 100%|██████████|  327MB /  327MB, 29.4MB/s  
+Validating                    : ██████████| 100%            
+  ...B-A3B-Base-topk-logits.pt: 100%|██████████|  327MB /  327MB            
+pushed cache to https://huggingface.co/datasets/sartajbhuvaji/bonsai-teacher-logits-baseline-functions/Qwen--Qwen3-30B-A3B-Base-topk-logits.pt (private)
+/root/bonsai/tools/run_phase4_depth12_experts80_functions_cache_kd.sh: line 43: hon: command not found
