@@ -1639,8 +1639,7 @@ and baseline teacher cache as full-parameter run; **only** change is
 `docs/debug/phase4_depth12_experts80_lora_pipeline.log`.
 - **KD** (warmup450, peak_lr **1e-4**, 3000 steps): Hub
   `sartajbhuvaji/bonsai-distilled-depth12-experts80-lora-vs-baseline-3k-warmup450-lr1e4`
-  (+ `…-best`; both re-privatized — pipeline script defaulted `HUB_PUBLIC=1`,
-  fixed to default private, explicit opt-in only). Run
+  (+ `…-best`, public). Run
   `runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/`
   — LoRA trainable **0.106%**; final val KD **0.4984** @ step 2999 (best = final).
   Artifacts: `docs/debug/phase4_depth12_experts80_lora_kd_metrics.jsonl`,
