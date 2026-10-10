@@ -185,13 +185,14 @@ def cache_teacher_logit_file(
                 )
 
     log_metric(run_dir, num_cached=len(cached))
-    # Hub download in `resolve_teacher_cache_path` expects this fixed name for
-    # preset baseline caches (matches `bonsai-teacher-logits-baseline`).
-    if teacher_repo_id == "Qwen/Qwen3-30B-A3B-Base":
-        cache_filename = DEFAULT_TEACHER_CACHE_FILENAME
-    else:
-        cache_filename = f"{repo_slug(teacher_repo_id)}-topk-logits.pt"
-    out_path = run_dir / "checkpoints" / cache_filename
+    # `resolve_teacher_cache_path`'s Hub-download branch always requests this
+    # exact filename, regardless of which teacher repo it's downloading for --
+    # not just the baseline preset. Every cache must be written under it, or
+    # a later `hf_hub_download` 404s (hit for real building the function-mode
+    # cache, 2026-10-10: it was named `Qwen--Qwen3-30B-A3B-Base-topk-logits.pt`
+    # locally, uploaded under that name, and the download that expected
+    # `DEFAULT_TEACHER_CACHE_FILENAME` failed).
+    out_path = run_dir / "checkpoints" / DEFAULT_TEACHER_CACHE_FILENAME
     _log(f"Writing cache to {out_path} ...")
     torch.save(
         {
