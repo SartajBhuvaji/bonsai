@@ -1772,10 +1772,45 @@ artifacts `docs/debug/phase4_depth12_experts80_functions_humaneval_ts_n40.json`,
 **Qualitative:** still **0/40**; avg completion len **~9.0k** chars; repetition
 loops differ from raw-file KD (`ursively` / `license-license`) but same failure
 class — e.g. problem 0 opens `{` then `latable…` / `eadeade…` garbage; problem 1
-`_BEAINAIN…` loops. **Conclusion:** reshaping KD data to bounded functions +
-healthy val KD (~0.41) did **not** recover pruned-only **0.475**; training-data
-shape alone is not sufficient — next suspects: objective/decoding/harness or
-deeper mismatch between KD token targets and eval scaffold.
+`_BEAINAIN…` loops. **Conclusion (superseded below, 2026-10-10):** reshaping KD
+data to bounded functions + healthy val KD (~0.41) did **not** recover pruned-only
+**0.475**; training-data shape alone is not sufficient.
+
+**Root cause found (2026-10-10, PR #71): two real bugs in `make_kd_loss_fn`
+(`src/bonsai/training/distillation.py`), not a data-shape problem.** Both were
+present in every KD run above (full-param, LoRA, function-mode) — none of them
+were ever actually testing a correct loss, which is why the "data shape" and
+"LoRA vs. full-parameter" hypotheses both came up empty despite being reasonable
+and well-tested.
+1. **Off-by-one target.** The teacher cache stores `topk_ids`/`topk_logprobs`
+   indexed the same way as the student's own logits — position *t* predicts
+   token *t+1*, no shift baked in (`cache_teacher_logit_file`, `kd_run.py`).
+   The loss sliced `student_logits[:-1]` (correct — drop the position with no
+   next token) but then sliced the teacher side `[1:]` instead of `[:-1]`,
+   pairing the student's position-*t* logits against the teacher's
+   position-*t+1* target — i.e. training the student to predict token *t+2*
+   using only context up to token *t*. An impossible target by construction.
+2. **Top-k-only normalization.** `log_softmax` ran *after* gathering just the
+   teacher's k ids, so the loss only ever compared relative ranking **within**
+   that k-token support and was structurally blind to every other vocab logit.
+   Nothing penalized the student for inflating some off-support token's logit
+   arbitrarily — exactly consistent with what generation showed: a converged,
+   healthy-looking val loss alongside a single off-support token dominating
+   the real (untruncated) softmax from the first generated token on, in every
+   arm, every time. Fixed by adding back the missing "coverage" term
+   (`-log P(token in top-k)`, from the full-vocab-vs-support logsumexp gap)
+   that renormalizing over just the support had silently dropped — this also
+   required re-deriving what "student matches teacher exactly ⇒ loss ≈ 0"
+   should actually mean (it's now the teacher's own coverage floor, not 0,
+   since the cached teacher distribution is itself renormalized/conditional).
+   Two new regression tests cover both bugs; both fail on the pre-fix code.
+
+**Next (once GPU available): re-run KD with the fixed loss, same cache,
+same hyperparameters.** No new teacher-logit caching needed — reuse whichever
+cache is already on the Hub (function-mode cache
+`sartajbhuvaji/bonsai-teacher-logits-baseline-functions` is the natural pick,
+since it's also the right data shape). Then re-eval HumanEval-TS n=40. This is
+the actual decisive test the whole investigation has been building toward.
 
 **Subtasks 1–2 complete (2026-10-10, GPU `162.243.22.219`):** orchestration
 `tools/run_phase4_depth12_experts80_functions_cache_kd.sh` (cache leg aborted
