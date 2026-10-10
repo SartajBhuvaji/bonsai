@@ -39,6 +39,17 @@ def main() -> None:
     parser.add_argument("--top-k", type=int, default=TOP_K)
     parser.add_argument("--dataset-id", default=DATASET_ID)
     parser.add_argument("--data-dir", default=DATA_DIR)
+    parser.add_argument(
+        "--sample-mode",
+        choices=["file", "function"],
+        default="file",
+        help=(
+            "'file' (default): raw whole-file continuations, truncated to max_length. "
+            "'function': one complete, bounded TypeScript function per sample "
+            "(bonsai.data.functions) -- matches HumanEval-TS's shape instead of "
+            "teaching arbitrary continuation."
+        ),
+    )
     parser.add_argument("--hf-token", default=None)
     parser.add_argument(
         "--push-to-hub",
@@ -61,6 +72,7 @@ def main() -> None:
         data_dir=args.data_dir,
         hf_token=args.hf_token,
         run_name=run_name,
+        sample_mode=args.sample_mode,
     )
     if args.push_to_hub:
         push_teacher_cache_to_hub(Path(cache_path), args.push_to_hub, hf_token=args.hf_token)

@@ -10,7 +10,7 @@ import json
 import time
 from collections.abc import Sequence
 from pathlib import Path
-from typing import cast
+from typing import Literal, cast
 
 import bitsandbytes as bnb
 import torch
@@ -20,6 +20,7 @@ from transformers.models.qwen3_moe.modeling_qwen3_moe import Qwen3MoeForCausalLM
 
 from bonsai.config import DataConfig
 from bonsai.data import list_shards, load_samples, make_split, tokenize_samples
+from bonsai.data.functions import load_function_samples
 from bonsai.tracking import log_metric, new_run, save_config_snapshot
 from bonsai.training import TrainConfig, train
 from bonsai.training.distillation import make_kd_loss_fn
@@ -93,8 +94,17 @@ def cache_teacher_logit_file(
     data_dir: str,
     hf_token: str | None,
     run_name: str | None = None,
+    sample_mode: Literal["file", "function"] = "file",
 ) -> tuple[Path, Path]:
-    """Inference-only teacher forward; returns `(run_dir, cache_path)`."""
+    """Inference-only teacher forward; returns `(run_dir, cache_path)`.
+
+    `sample_mode="function"` draws `bonsai.data.functions.load_function_samples`
+    (one complete, bounded TypeScript function per sample) instead of raw
+    whole-file continuations -- see that module's docstring for why: KD
+    against raw-file continuations teaches a student to continue arbitrary
+    code, never to finish one function and stop, which is the exact shape
+    HumanEval-TS evaluates.
+    """
     run_dir = new_run(run_name or f"cache-teacher-logits-{repo_slug(teacher_repo_id)}")
     save_config_snapshot(
         run_dir,
@@ -105,6 +115,7 @@ def cache_teacher_logit_file(
             "top_k": top_k,
             "dataset_id": dataset_id,
             "data_dir": data_dir,
+            "sample_mode": sample_mode,
         },
     )
 
@@ -112,8 +123,11 @@ def cache_teacher_logit_file(
     shards = list_shards(dataset_id, data_dir, token=hf_token)
     _log(f"  {len(shards)} shard(s) listed")
     split = make_split(DataConfig(dataset_id=dataset_id, data_dir=data_dir), shards)
-    _log(f"Streaming {num_samples} retraining samples (seed={seed}) ...")
-    raw = load_samples(split, "retraining", n=num_samples, seed=seed, token=hf_token)
+    _log(f"Streaming {num_samples} retraining samples (seed={seed}, mode={sample_mode}) ...")
+    if sample_mode == "function":
+        raw = load_function_samples(split, "retraining", n=num_samples, seed=seed, token=hf_token)
+    else:
+        raw = load_samples(split, "retraining", n=num_samples, seed=seed, token=hf_token)
     _log(f"  loaded {len(raw)} raw sample(s)")
 
     _log(f"Loading tokenizer for {teacher_repo_id} ...")
