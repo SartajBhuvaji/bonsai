@@ -1,0 +1,1542 @@
+=== Phase 4 depth12/experts80 LoRA-KD pipeline start 2026-10-09T20:29:13Z ===
+CANDIDATE_HUB=sartajbhuvaji/bonsai-candidate-depth12-experts80 (no rebuild)
+TEACHER_CACHE=sartajbhuvaji/bonsai-teacher-logits-baseline
+DISTILL_HUB=sartajbhuvaji/bonsai-distilled-depth12-experts80-lora-vs-baseline-3k-warmup450-lr1e4
+DISTILL_HUB_BEST=sartajbhuvaji/bonsai-distilled-depth12-experts80-lora-vs-baseline-3k-warmup450-lr1e4-best
+LoRA defaults: r=16 alpha=32 dropout=0.05 attention-only
+--- LoRA distill vs baseline teacher (3000 steps, warmup 450, peak_lr 1e-4) ---
+teacher cache not local; downloading from dataset sartajbhuvaji/bonsai-teacher-logits-baseline ...
+Loading student sartajbhuvaji/bonsai-candidate-depth12-experts80 ...
+Loading weights:   0%|          | 0/399 [00:00<?, ?it/s]Loading weights:   4%|▍         | 15/399 [00:00<00:02, 128.02it/s]Loading weights:   9%|▉         | 37/399 [00:00<00:02, 149.37it/s]Loading weights:  15%|█▍        | 59/399 [00:00<00:02, 155.67it/s]Loading weights:  20%|██        | 81/399 [00:00<00:02, 158.50it/s]Loading weights:  26%|██▌       | 103/399 [00:00<00:01, 159.52it/s]Loading weights:  31%|███▏      | 125/399 [00:00<00:01, 159.68it/s]Loading weights:  37%|███▋      | 147/399 [00:00<00:01, 160.55it/s]Loading weights:  42%|████▏     | 169/399 [00:01<00:01, 161.03it/s]Loading weights:  48%|████▊     | 191/399 [00:01<00:01, 161.57it/s]Loading weights:  53%|█████▎    | 213/399 [00:01<00:01, 161.45it/s]Loading weights:  59%|█████▉    | 235/399 [00:01<00:01, 161.75it/s]Loading weights:  64%|██████▍   | 257/399 [00:01<00:00, 162.06it/s]Loading weights:  70%|██████▉   | 279/399 [00:01<00:00, 162.08it/s]Loading weights:  75%|███████▌  | 301/399 [00:01<00:00, 162.15it/s]Loading weights:  81%|████████  | 323/399 [00:02<00:00, 162.10it/s]Loading weights:  86%|████████▋ | 345/399 [00:02<00:00, 162.22it/s]Loading weights:  92%|█████████▏| 367/399 [00:02<00:00, 162.70it/s]Loading weights:  97%|█████████▋| 389/399 [00:02<00:00, 162.84it/s]Loading weights: 100%|██████████| 399/399 [00:02<00:00, 164.34it/s]
+LoRA: 10,027,008 / 9,469,258,752 trainable (0.106%)
+5700 train samples, 300 val samples (metrics: runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/metrics.jsonl)
+[transformers] `use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`.
+new best val_loss=4.7296 at step 9 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=4.7239 at step 19 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=4.7088 at step 29 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=4.6758 at step 39 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=4.6116 at step 49 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=4.4770 at step 59 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=4.2371 at step 69 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=3.8649 at step 79 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=3.4069 at step 89 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=2.9809 at step 99 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=2.5740 at step 109 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=2.1635 at step 119 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=1.7998 at step 129 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=1.6368 at step 139 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=1.4967 at step 149 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=1.3819 at step 159 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=1.3042 at step 169 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=1.2394 at step 179 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=1.1854 at step 189 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=1.1362 at step 199 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=1.0967 at step 209 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=1.0568 at step 219 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=1.0209 at step 229 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.9889 at step 239 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.9637 at step 249 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.9385 at step 259 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.9140 at step 269 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.8916 at step 279 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.8694 at step 289 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.8507 at step 299 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.8354 at step 309 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.8235 at step 319 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.8057 at step 329 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.7945 at step 339 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.7834 at step 349 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.7739 at step 359 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.7615 at step 369 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.7523 at step 379 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.7437 at step 389 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.7369 at step 399 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.7296 at step 409 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.7225 at step 419 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.7174 at step 429 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.7105 at step 439 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.7036 at step 449 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.7006 at step 459 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6914 at step 469 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6892 at step 479 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6793 at step 489 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6767 at step 509 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6710 at step 519 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6676 at step 529 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6652 at step 539 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6597 at step 549 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6579 at step 559 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6530 at step 579 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6492 at step 589 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6465 at step 599 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6457 at step 609 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6429 at step 629 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6409 at step 639 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6366 at step 649 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6337 at step 659 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6308 at step 679 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6289 at step 689 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6284 at step 699 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6251 at step 709 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6211 at step 719 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6197 at step 759 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6177 at step 769 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6168 at step 779 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6133 at step 789 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6120 at step 799 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6082 at step 809 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6054 at step 819 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6045 at step 829 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6002 at step 839 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.6001 at step 849 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5995 at step 859 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5978 at step 869 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5974 at step 909 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5937 at step 919 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5931 at step 929 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5905 at step 939 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5896 at step 949 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5889 at step 989 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5866 at step 999 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5834 at step 1009 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5803 at step 1029 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5781 at step 1039 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5770 at step 1049 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5748 at step 1099 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5744 at step 1109 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5723 at step 1119 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5713 at step 1129 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5694 at step 1139 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5673 at step 1149 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5659 at step 1159 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5647 at step 1169 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5646 at step 1199 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5631 at step 1209 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5605 at step 1249 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5599 at step 1259 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5589 at step 1279 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5565 at step 1289 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5546 at step 1309 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5536 at step 1329 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5526 at step 1369 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5511 at step 1379 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5500 at step 1389 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5478 at step 1399 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5454 at step 1409 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5451 at step 1419 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5444 at step 1429 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5435 at step 1449 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5435 at step 1459 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5430 at step 1479 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5420 at step 1489 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5410 at step 1499 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5404 at step 1529 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5402 at step 1539 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5396 at step 1549 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5387 at step 1559 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5380 at step 1579 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5368 at step 1589 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5350 at step 1599 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5343 at step 1649 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5325 at step 1659 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5318 at step 1689 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5307 at step 1699 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5303 at step 1709 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5290 at step 1719 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5281 at step 1759 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5281 at step 1779 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5251 at step 1789 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5250 at step 1799 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5233 at step 1809 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5227 at step 1819 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5216 at step 1839 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5211 at step 1869 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5196 at step 1879 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5190 at step 1909 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5190 at step 1919 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5173 at step 1929 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5173 at step 1959 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5166 at step 1999 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5157 at step 2009 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5155 at step 2019 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5143 at step 2079 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5131 at step 2089 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5126 at step 2129 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5121 at step 2189 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5121 at step 2219 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5111 at step 2239 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5105 at step 2249 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5103 at step 2259 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5103 at step 2269 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5100 at step 2279 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5091 at step 2289 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5089 at step 2339 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5085 at step 2359 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5081 at step 2429 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5077 at step 2439 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5065 at step 2449 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5061 at step 2469 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5061 at step 2479 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5060 at step 2489 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5058 at step 2529 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5052 at step 2539 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5049 at step 2559 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5047 at step 2569 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5040 at step 2579 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5038 at step 2589 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5034 at step 2609 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5027 at step 2699 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5020 at step 2709 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5017 at step 2799 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5013 at step 2809 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5012 at step 2819 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5008 at step 2829 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5003 at step 2839 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5001 at step 2849 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.5000 at step 2859 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.4996 at step 2869 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.4996 at step 2949 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.4991 at step 2959 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+new best val_loss=0.4984 at step 2999 -> runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best
+final train_loss=0.5505
+final val_loss=0.4984
+best val_loss=0.4984 at step 2999
+merging final LoRA adapter into base weights (CPU) ...
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:08<00:00,  8.79s/it]Writing model shards: 100%|██████████| 1/1 [00:08<00:00,  8.79s/it]
+saved final weights to runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:08<00:00,  8.62s/it]Writing model shards: 100%|██████████| 1/1 [00:08<00:00,  8.62s/it]
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+New Data Upload               : |          |  0.00B /  0.00B            [A
+
+  ...qttw555/model.safetensors:   1%|          |  112MB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors:   1%|          |  112MB / 18.9GB            [A[AProcessing Files (0 / 1)      :   1%|          |  112MB / 18.9GB,   ???B/s  
+
+  ...qttw555/model.safetensors:   1%|          |  232MB / 18.9GB            [A[AProcessing Files (0 / 1)      :   1%|          |  232MB / 18.9GB,   ???B/s  
+
+  ...qttw555/model.safetensors:   2%|▏         |  352MB / 18.9GB            [A[AProcessing Files (0 / 1)      :   2%|▏         |  352MB / 18.9GB,   ???B/s  
+
+  ...qttw555/model.safetensors:   2%|▏         |  472MB / 18.9GB            [A[AProcessing Files (0 / 1)      :   2%|▏         |  472MB / 18.9GB, 46.3MB/s  
+
+  ...qttw555/model.safetensors:   3%|▎         |  600MB / 18.9GB            [A[AProcessing Files (0 / 1)      :   3%|▎         |  600MB / 18.9GB, 58.4MB/s  
+
+  ...qttw555/model.safetensors:   4%|▍         |  720MB / 18.9GB            [A[AProcessing Files (0 / 1)      :   4%|▍         |  720MB / 18.9GB, 69.7MB/s  
+
+  ...qttw555/model.safetensors:   4%|▍         |  840MB / 18.9GB            [A[AProcessing Files (0 / 1)      :   4%|▍         |  840MB / 18.9GB, 80.8MB/s  
+
+  ...qttw555/model.safetensors:   5%|▌         |  960MB / 18.9GB            [A[AProcessing Files (0 / 1)      :   5%|▌         |  960MB / 18.9GB, 91.7MB/s  
+
+  ...qttw555/model.safetensors:   6%|▌         | 1.07GB / 18.9GB            [A[AProcessing Files (0 / 1)      :   6%|▌         | 1.07GB / 18.9GB,  102MB/s  
+
+  ...qttw555/model.safetensors:   6%|▋         | 1.19GB / 18.9GB            [A[AProcessing Files (0 / 1)      :   6%|▋         | 1.19GB / 18.9GB,  112MB/s  
+
+  ...qttw555/model.safetensors:   7%|▋         | 1.31GB / 18.9GB            [A[AProcessing Files (0 / 1)      :   7%|▋         | 1.31GB / 18.9GB,  123MB/s  
+
+  ...qttw555/model.safetensors:   8%|▊         | 1.43GB / 18.9GB            [A[AProcessing Files (0 / 1)      :   8%|▊         | 1.43GB / 18.9GB,  133MB/s  
+
+  ...qttw555/model.safetensors:   8%|▊         | 1.55GB / 18.9GB            [A[AProcessing Files (0 / 1)      :   8%|▊         | 1.55GB / 18.9GB,  144MB/s  
+
+  ...qttw555/model.safetensors:   9%|▉         | 1.67GB / 18.9GB            [A[AProcessing Files (0 / 1)      :   9%|▉         | 1.67GB / 18.9GB,  154MB/s  
+
+  ...qttw555/model.safetensors:   9%|▉         | 1.74GB / 18.9GB            [A[AProcessing Files (0 / 1)      :   9%|▉         | 1.74GB / 18.9GB,  159MB/s  
+
+  ...qttw555/model.safetensors:  10%|▉         | 1.86GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  10%|▉         | 1.86GB / 18.9GB,  169MB/s  
+
+  ...qttw555/model.safetensors:  10%|█         | 1.98GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  10%|█         | 1.98GB / 18.9GB,  179MB/s  
+
+  ...qttw555/model.safetensors:  11%|█         | 2.10GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  11%|█         | 2.10GB / 18.9GB,  188MB/s  
+
+  ...qttw555/model.safetensors:  11%|█▏        | 2.15GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  11%|█▏        | 2.15GB / 18.9GB,  192MB/s  
+
+  ...qttw555/model.safetensors:  11%|█▏        | 2.15GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors:  12%|█▏        | 2.18GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  12%|█▏        | 2.18GB / 18.9GB,  191MB/s  
+
+  ...qttw555/model.safetensors:  12%|█▏        | 2.32GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  12%|█▏        | 2.32GB / 18.9GB,  203MB/s  
+New Data Upload               :  49%|████▉     | 32.9MB / 67.1MB, 3.10MB/s  [A
+
+  ...qttw555/model.safetensors:  13%|█▎        | 2.49GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  13%|█▎        | 2.49GB / 18.9GB,  216MB/s  
+New Data Upload               : 100%|█████████▉| 67.1MB / 67.1MB, 6.29MB/s  [A
+
+  ...qttw555/model.safetensors:  14%|█▍        | 2.61GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  14%|█▍        | 2.61GB / 18.9GB,  225MB/s  
+
+  ...qttw555/model.safetensors:  14%|█▍        | 2.67GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  14%|█▍        | 2.67GB / 18.9GB,  229MB/s  
+
+  ...qttw555/model.safetensors:  15%|█▍        | 2.77GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  15%|█▍        | 2.77GB / 18.9GB,  236MB/s  
+
+  ...qttw555/model.safetensors:  15%|█▌        | 2.89GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  15%|█▌        | 2.89GB / 18.9GB,  245MB/s  
+
+  ...qttw555/model.safetensors:  16%|█▌        | 3.01GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  16%|█▌        | 3.01GB / 18.9GB,  254MB/s  
+
+  ...qttw555/model.safetensors:  17%|█▋        | 3.12GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  17%|█▋        | 3.12GB / 18.9GB,  262MB/s  
+
+  ...qttw555/model.safetensors:  17%|█▋        | 3.12GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  17%|█▋        | 3.12GB / 18.9GB,  260MB/s  
+New Data Upload               :  50%|█████     | 67.1MB /  134MB, 5.89MB/s  [A
+
+  ...qttw555/model.safetensors:  17%|█▋        | 3.12GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors:  17%|█▋        | 3.23GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  17%|█▋        | 3.23GB / 18.9GB,  265MB/s  
+New Data Upload               :  65%|██████▌   | 87.5MB /  134MB, 7.65MB/s  [A
+
+  ...qttw555/model.safetensors:  18%|█▊        | 3.38GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  18%|█▊        | 3.38GB / 18.9GB,  276MB/s  
+New Data Upload               :  83%|████████▎ |  112MB /  134MB, 9.84MB/s  [A
+
+  ...qttw555/model.safetensors:  19%|█▊        | 3.53GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  19%|█▊        | 3.53GB / 18.9GB,  287MB/s  
+New Data Upload               : 100%|█████████▉|  134MB /  134MB, 11.8MB/s  [A
+
+  ...qttw555/model.safetensors:  19%|█▉        | 3.64GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  19%|█▉        | 3.64GB / 18.9GB,  295MB/s  
+
+  ...qttw555/model.safetensors:  20%|█▉        | 3.70GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  20%|█▉        | 3.70GB / 18.9GB,  298MB/s  
+
+  ...qttw555/model.safetensors:  20%|██        | 3.82GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  20%|██        | 3.82GB / 18.9GB,  306MB/s  
+
+  ...qttw555/model.safetensors:  21%|██        | 3.94GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  21%|██        | 3.94GB / 18.9GB,  314MB/s  
+
+  ...qttw555/model.safetensors:  21%|██▏       | 4.06GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  21%|██▏       | 4.06GB / 18.9GB,  322MB/s  
+
+  ...qttw555/model.safetensors:  22%|██▏       | 4.10GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  22%|██▏       | 4.10GB / 18.9GB,  322MB/s  
+
+  ...qttw555/model.safetensors:  22%|██▏       | 4.10GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  22%|██▏       | 4.10GB / 18.9GB,  319MB/s  
+New Data Upload               :  67%|██████▋   |  134MB /  201MB, 11.0MB/s  [A
+
+  ...qttw555/model.safetensors:  22%|██▏       | 4.20GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  22%|██▏       | 4.20GB / 18.9GB,  325MB/s  
+New Data Upload               :  84%|████████▎ |  168MB /  201MB, 14.0MB/s  [A
+
+  ...qttw555/model.safetensors:  23%|██▎       | 4.35GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  23%|██▎       | 4.35GB / 18.9GB,  336MB/s  
+New Data Upload               : 100%|█████████▉|  201MB /  201MB, 16.9MB/s  [A
+
+  ...qttw555/model.safetensors:  24%|██▎       | 4.47GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  24%|██▎       | 4.47GB / 18.9GB,  344MB/s  
+
+  ...qttw555/model.safetensors:  24%|██▍       | 4.59GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  24%|██▍       | 4.59GB / 18.9GB,  352MB/s  
+
+  ...qttw555/model.safetensors:  25%|██▍       | 4.66GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  25%|██▍       | 4.66GB / 18.9GB,  354MB/s  
+
+  ...qttw555/model.safetensors:  25%|██▌       | 4.78GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  25%|██▌       | 4.78GB / 18.9GB,  362MB/s  
+
+  ...qttw555/model.safetensors:  26%|██▌       | 4.90GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  26%|██▌       | 4.90GB / 18.9GB,  369MB/s  
+
+  ...qttw555/model.safetensors:  27%|██▋       | 5.02GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  27%|██▋       | 5.02GB / 18.9GB,  377MB/s  
+
+  ...qttw555/model.safetensors:  27%|██▋       | 5.07GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  27%|██▋       | 5.07GB / 18.9GB,  378MB/s  
+New Data Upload               :  75%|███████▌  |  201MB /  268MB, 15.8MB/s  [A
+
+  ...qttw555/model.safetensors:  27%|██▋       | 5.07GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors:  27%|██▋       | 5.16GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  27%|██▋       | 5.16GB / 18.9GB,  379MB/s  
+New Data Upload               :  86%|████████▌ |  231MB /  268MB, 18.2MB/s  [A
+
+  ...qttw555/model.safetensors:  28%|██▊       | 5.32GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  28%|██▊       | 5.32GB / 18.9GB,  391MB/s  
+New Data Upload               : 100%|█████████▉|  268MB /  268MB, 21.3MB/s  [A
+
+  ...qttw555/model.safetensors:  29%|██▉       | 5.44GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  29%|██▉       | 5.44GB / 18.9GB,  398MB/s  
+
+  ...qttw555/model.safetensors:  29%|██▉       | 5.56GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  29%|██▉       | 5.56GB / 18.9GB,  405MB/s  
+
+  ...qttw555/model.safetensors:  30%|██▉       | 5.59GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  30%|██▉       | 5.59GB / 18.9GB,  403MB/s  
+
+  ...qttw555/model.safetensors:  30%|██▉       | 5.59GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors:  30%|███       | 5.69GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  30%|███       | 5.69GB / 18.9GB,  405MB/s  
+New Data Upload               :  84%|████████▎ |  280MB /  335MB, 21.4MB/s  [A
+
+  ...qttw555/model.safetensors:  31%|███       | 5.85GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  31%|███       | 5.85GB / 18.9GB,  416MB/s  
+New Data Upload               :  96%|█████████▌|  322MB /  335MB, 24.9MB/s  [A
+
+  ...qttw555/model.safetensors:  32%|███▏      | 5.99GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  32%|███▏      | 5.99GB / 18.9GB,  424MB/s  
+New Data Upload               : 100%|█████████▉|  335MB /  335MB, 25.8MB/s  [A
+
+  ...qttw555/model.safetensors:  32%|███▏      | 6.10GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  32%|███▏      | 6.10GB / 18.9GB,  430MB/s  
+
+  ...qttw555/model.safetensors:  33%|███▎      | 6.16GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  33%|███▎      | 6.16GB / 18.9GB,  431MB/s  
+
+  ...qttw555/model.safetensors:  33%|███▎      | 6.25GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  33%|███▎      | 6.25GB / 18.9GB,  435MB/s  
+
+  ...qttw555/model.safetensors:  34%|███▎      | 6.35GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  34%|███▎      | 6.35GB / 18.9GB,  440MB/s  
+
+  ...qttw555/model.safetensors:  34%|███▍      | 6.45GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  34%|███▍      | 6.45GB / 18.9GB,  445MB/s  
+
+  ...qttw555/model.safetensors:  35%|███▍      | 6.55GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  35%|███▍      | 6.55GB / 18.9GB,  450MB/s  
+New Data Upload               : 100%|██████████|  335MB /  335MB, 24.5MB/s  [A
+
+  ...qttw555/model.safetensors:  35%|███▍      | 6.56GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  35%|███▍      | 6.56GB / 18.9GB,  447MB/s  
+
+  ...qttw555/model.safetensors:  35%|███▍      | 6.56GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors:  35%|███▌      | 6.66GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  35%|███▌      | 6.66GB / 18.9GB,  447MB/s  
+New Data Upload               :  90%|████████▉ |  361MB /  402MB, 26.1MB/s  [A
+
+  ...qttw555/model.safetensors:  36%|███▌      | 6.80GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  36%|███▌      | 6.80GB / 18.9GB,  456MB/s  
+New Data Upload               :  96%|█████████▌|  387MB /  402MB, 28.1MB/s  [A
+
+  ...qttw555/model.safetensors:  37%|███▋      | 6.94GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  37%|███▋      | 6.94GB / 18.9GB,  464MB/s  
+New Data Upload               : 100%|█████████▉|  402MB /  402MB, 29.1MB/s  [A
+
+  ...qttw555/model.safetensors:  37%|███▋      | 7.06GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  37%|███▋      | 7.06GB / 18.9GB,  470MB/s  
+
+  ...qttw555/model.safetensors:  38%|███▊      | 7.12GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  38%|███▊      | 7.12GB / 18.9GB,  471MB/s  
+
+  ...qttw555/model.safetensors:  38%|███▊      | 7.24GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  38%|███▊      | 7.24GB / 18.9GB,  478MB/s  
+
+  ...qttw555/model.safetensors:  39%|███▉      | 7.36GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  39%|███▉      | 7.36GB / 18.9GB,  484MB/s  
+
+  ...qttw555/model.safetensors:  40%|███▉      | 7.48GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  40%|███▉      | 7.48GB / 18.9GB,  490MB/s  
+
+  ...qttw555/model.safetensors:  40%|███▉      | 7.54GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  40%|███▉      | 7.54GB / 18.9GB,  490MB/s  
+New Data Upload               :  86%|████████▌ |  402MB /  470MB, 27.7MB/s  [A
+
+  ...qttw555/model.safetensors:  40%|███▉      | 7.54GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors:  40%|████      | 7.61GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  40%|████      | 7.61GB / 18.9GB,  488MB/s  
+New Data Upload               :  92%|█████████▏|  433MB /  470MB, 29.8MB/s  [A
+
+  ...qttw555/model.safetensors:  41%|████      | 7.77GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  41%|████      | 7.77GB / 18.9GB,  498MB/s  
+New Data Upload               :  99%|█████████▉|  467MB /  470MB, 32.4MB/s  [A
+
+  ...qttw555/model.safetensors:  42%|████▏     | 7.90GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  42%|████▏     | 7.90GB / 18.9GB,  504MB/s  
+New Data Upload               : 100%|█████████▉|  470MB /  470MB, 32.3MB/s  [A
+
+  ...qttw555/model.safetensors:  42%|████▏     | 8.02GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  42%|████▏     | 8.02GB / 18.9GB,  510MB/s  
+
+  ...qttw555/model.safetensors:  43%|████▎     | 8.10GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  43%|████▎     | 8.10GB / 18.9GB,  512MB/s  
+
+  ...qttw555/model.safetensors:  43%|████▎     | 8.22GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  43%|████▎     | 8.22GB / 18.9GB,  518MB/s  
+
+  ...qttw555/model.safetensors:  44%|████▍     | 8.34GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  44%|████▍     | 8.34GB / 18.9GB,  524MB/s  
+
+  ...qttw555/model.safetensors:  45%|████▍     | 8.47GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  45%|████▍     | 8.47GB / 18.9GB,  530MB/s  
+
+  ...qttw555/model.safetensors:  45%|████▍     | 8.51GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  45%|████▍     | 8.51GB / 18.9GB,  529MB/s  
+New Data Upload               :  87%|████████▋ |  470MB /  537MB, 30.7MB/s  [A
+
+  ...qttw555/model.safetensors:  45%|████▍     | 8.51GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors:  45%|████▌     | 8.59GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  45%|████▌     | 8.59GB / 18.9GB,  527MB/s  
+New Data Upload               :  93%|█████████▎|  500MB /  537MB, 32.7MB/s  [A
+
+  ...qttw555/model.safetensors:  46%|████▌     | 8.74GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  46%|████▌     | 8.74GB / 18.9GB,  535MB/s  
+New Data Upload               :  99%|█████████▊|  530MB /  537MB, 34.9MB/s  [A
+
+  ...qttw555/model.safetensors:  47%|████▋     | 8.87GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  47%|████▋     | 8.87GB / 18.9GB,  541MB/s  
+New Data Upload               : 100%|█████████▉|  537MB /  537MB, 35.2MB/s  [A
+
+  ...qttw555/model.safetensors:  48%|████▊     | 8.99GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  48%|████▊     | 8.99GB / 18.9GB,  547MB/s  
+
+  ...qttw555/model.safetensors:  48%|████▊     | 9.03GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  48%|████▊     | 9.03GB / 18.9GB,  546MB/s  
+
+  ...qttw555/model.safetensors:  48%|████▊     | 9.03GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors:  48%|████▊     | 9.09GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  48%|████▊     | 9.09GB / 18.9GB,  541MB/s  
+New Data Upload               :  90%|████████▉ |  541MB /  604MB, 34.4MB/s  [A
+
+  ...qttw555/model.safetensors:  49%|████▉     | 9.24GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  49%|████▉     | 9.24GB / 18.9GB,  549MB/s  
+New Data Upload               :  94%|█████████▎|  565MB /  604MB, 36.2MB/s  [A
+
+  ...qttw555/model.safetensors:  50%|████▉     | 9.38GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  50%|████▉     | 9.38GB / 18.9GB,  556MB/s  
+New Data Upload               :  99%|█████████▊|  595MB /  604MB, 38.3MB/s  [A
+
+  ...qttw555/model.safetensors:  50%|█████     | 9.52GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  50%|█████     | 9.52GB / 18.9GB,  563MB/s  
+New Data Upload               : 100%|█████████▉|  604MB /  604MB, 38.7MB/s  [A
+
+  ...qttw555/model.safetensors:  51%|█████     | 9.58GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  51%|█████     | 9.58GB / 18.9GB,  564MB/s  
+
+  ...qttw555/model.safetensors:  51%|█████▏    | 9.70GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  51%|█████▏    | 9.70GB / 18.9GB,  569MB/s  
+
+  ...qttw555/model.safetensors:  52%|█████▏    | 9.82GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  52%|█████▏    | 9.82GB / 18.9GB,  574MB/s  
+
+  ...qttw555/model.safetensors:  53%|█████▎    | 9.94GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  53%|█████▎    | 9.94GB / 18.9GB,  579MB/s  
+
+  ...qttw555/model.safetensors:  53%|█████▎    | 10.0GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  53%|█████▎    | 10.0GB / 18.9GB,  579MB/s  
+
+  ...qttw555/model.safetensors:  53%|█████▎    | 10.0GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  53%|█████▎    | 10.0GB / 18.9GB,  575MB/s  
+New Data Upload               :  90%|████████▉ |  604MB /  671MB, 36.8MB/s  [A
+
+  ...qttw555/model.safetensors:  53%|█████▎    | 10.1GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  53%|█████▎    | 10.1GB / 18.9GB,  576MB/s  
+New Data Upload               :  93%|█████████▎|  625MB /  671MB, 38.3MB/s  [A
+
+  ...qttw555/model.safetensors:  54%|█████▍    | 10.2GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  54%|█████▍    | 10.2GB / 18.9GB,  585MB/s  
+New Data Upload               : 100%|█████████▉|  671MB /  671MB, 41.7MB/s  [A
+
+  ...qttw555/model.safetensors:  55%|█████▍    | 10.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  55%|█████▍    | 10.4GB / 18.9GB,  590MB/s  
+
+  ...qttw555/model.safetensors:  55%|█████▌    | 10.5GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  55%|█████▌    | 10.5GB / 18.9GB,  595MB/s  
+
+  ...qttw555/model.safetensors:  56%|█████▌    | 10.6GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  56%|█████▌    | 10.6GB / 18.9GB,  596MB/s  
+
+  ...qttw555/model.safetensors:  56%|█████▋    | 10.7GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  56%|█████▋    | 10.7GB / 18.9GB,  601MB/s  
+
+  ...qttw555/model.safetensors:  57%|█████▋    | 10.8GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  57%|█████▋    | 10.8GB / 18.9GB,  606MB/s  
+
+  ...qttw555/model.safetensors:  58%|█████▊    | 10.9GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  58%|█████▊    | 10.9GB / 18.9GB,  610MB/s  
+New Data Upload               : 100%|██████████|  671MB /  671MB, 39.7MB/s  [A
+
+  ...qttw555/model.safetensors:  58%|█████▊    | 11.0GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  58%|█████▊    | 11.0GB / 18.9GB,  610MB/s  
+
+  ...qttw555/model.safetensors:  58%|█████▊    | 11.0GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors:  58%|█████▊    | 11.1GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  58%|█████▊    | 11.1GB / 18.9GB,  607MB/s  
+New Data Upload               :  95%|█████████▍|  698MB /  738MB, 40.9MB/s  [A
+
+  ...qttw555/model.safetensors:  59%|█████▉    | 11.2GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  59%|█████▉    | 11.2GB / 18.9GB,  615MB/s  
+New Data Upload               : 100%|█████████▉|  735MB /  738MB, 43.6MB/s  [A
+
+  ...qttw555/model.safetensors:  60%|█████▉    | 11.3GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  60%|█████▉    | 11.3GB / 18.9GB,  620MB/s  
+New Data Upload               : 100%|█████████▉|  738MB /  738MB, 43.4MB/s  [A
+
+  ...qttw555/model.safetensors:  61%|██████    | 11.5GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  61%|██████    | 11.5GB / 18.9GB,  625MB/s  
+
+  ...qttw555/model.safetensors:  61%|██████    | 11.5GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  61%|██████    | 11.5GB / 18.9GB,  625MB/s  
+
+  ...qttw555/model.safetensors:  62%|██████▏   | 11.7GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  62%|██████▏   | 11.7GB / 18.9GB,  630MB/s  
+
+  ...qttw555/model.safetensors:  62%|██████▏   | 11.8GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  62%|██████▏   | 11.8GB / 18.9GB,  634MB/s  
+
+  ...qttw555/model.safetensors:  63%|██████▎   | 11.9GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  63%|██████▎   | 11.9GB / 18.9GB,  639MB/s  
+
+  ...qttw555/model.safetensors:  63%|██████▎   | 11.9GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  63%|██████▎   | 11.9GB / 18.9GB,  638MB/s  
+New Data Upload               :  92%|█████████▏|  738MB /  805MB, 41.4MB/s  [A
+
+  ...qttw555/model.safetensors:  63%|██████▎   | 11.9GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors:  64%|██████▎   | 12.0GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  64%|██████▎   | 12.0GB / 18.9GB,  633MB/s  
+New Data Upload               :  94%|█████████▍|  757MB /  805MB, 42.3MB/s  [A
+
+  ...qttw555/model.safetensors:  64%|██████▍   | 12.2GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  64%|██████▍   | 12.2GB / 18.9GB,  642MB/s  
+New Data Upload               :  99%|█████████▉|  798MB /  805MB, 45.2MB/s  [A
+
+  ...qttw555/model.safetensors:  65%|██████▌   | 12.3GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  65%|██████▌   | 12.3GB / 18.9GB,  647MB/s  
+New Data Upload               : 100%|█████████▉|  805MB /  805MB, 45.4MB/s  [A
+
+  ...qttw555/model.safetensors:  66%|██████▌   | 12.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  66%|██████▌   | 12.4GB / 18.9GB,  651MB/s  
+
+  ...qttw555/model.safetensors:  66%|██████▌   | 12.5GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  66%|██████▌   | 12.5GB / 18.9GB,  649MB/s  
+
+  ...qttw555/model.safetensors:  66%|██████▌   | 12.5GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors:  66%|██████▋   | 12.5GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  66%|██████▋   | 12.5GB / 18.9GB,  645MB/s  
+New Data Upload               :  93%|█████████▎|  812MB /  872MB, 44.5MB/s  [A
+
+  ...qttw555/model.safetensors:  67%|██████▋   | 12.7GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  67%|██████▋   | 12.7GB / 18.9GB,  653MB/s  
+New Data Upload               :  98%|█████████▊|  858MB /  872MB, 47.7MB/s  [A
+
+  ...qttw555/model.safetensors:  68%|██████▊   | 12.8GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  68%|██████▊   | 12.8GB / 18.9GB,  658MB/s  
+New Data Upload               : 100%|█████████▉|  872MB /  872MB, 48.5MB/s  [A
+
+  ...qttw555/model.safetensors:  69%|██████▊   | 13.0GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  69%|██████▊   | 13.0GB / 18.9GB,  662MB/s  
+
+  ...qttw555/model.safetensors:  69%|██████▉   | 13.1GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  69%|██████▉   | 13.1GB / 18.9GB,  664MB/s  
+
+  ...qttw555/model.safetensors:  70%|██████▉   | 13.2GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  70%|██████▉   | 13.2GB / 18.9GB,  668MB/s  
+
+  ...qttw555/model.safetensors:  70%|███████   | 13.3GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  70%|███████   | 13.3GB / 18.9GB,  673MB/s  
+
+  ...qttw555/model.safetensors:  71%|███████   | 13.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  71%|███████   | 13.4GB / 18.9GB,  677MB/s  
+
+  ...qttw555/model.safetensors:  71%|███████   | 13.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  71%|███████   | 13.4GB / 18.9GB,  673MB/s  
+
+  ...qttw555/model.safetensors:  71%|███████   | 13.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  71%|███████   | 13.4GB / 18.9GB,  668MB/s  
+New Data Upload               :  93%|█████████▎|  872MB /  939MB, 45.9MB/s  [A
+
+  ...qttw555/model.safetensors:  72%|███████▏  | 13.5GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  72%|███████▏  | 13.5GB / 18.9GB,  670MB/s  
+New Data Upload               :  95%|█████████▌|  895MB /  939MB, 47.4MB/s  [A
+
+  ...qttw555/model.safetensors:  72%|███████▏  | 13.7GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  72%|███████▏  | 13.7GB / 18.9GB,  677MB/s  
+New Data Upload               :  99%|█████████▉|  928MB /  939MB, 49.6MB/s  [A
+
+  ...qttw555/model.safetensors:  73%|███████▎  | 13.8GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  73%|███████▎  | 13.8GB / 18.9GB,  682MB/s  
+New Data Upload               : 100%|█████████▉|  939MB /  939MB, 50.0MB/s  [A
+
+  ...qttw555/model.safetensors:  74%|███████▎  | 14.0GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  74%|███████▎  | 14.0GB / 18.9GB,  687MB/s  
+
+  ...qttw555/model.safetensors:  74%|███████▍  | 14.0GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  74%|███████▍  | 14.0GB / 18.9GB,  687MB/s  
+
+  ...qttw555/model.safetensors:  75%|███████▍  | 14.1GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  75%|███████▍  | 14.1GB / 18.9GB,  689MB/s  
+
+  ...qttw555/model.safetensors:  75%|███████▌  | 14.2GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  75%|███████▌  | 14.2GB / 18.9GB,  691MB/s  
+
+  ...qttw555/model.safetensors:  76%|███████▌  | 14.3GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  76%|███████▌  | 14.3GB / 18.9GB,  692MB/s  
+
+  ...qttw555/model.safetensors:  76%|███████▌  | 14.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  76%|███████▌  | 14.4GB / 18.9GB,  694MB/s  
+New Data Upload               : 100%|██████████|  939MB /  939MB, 47.7MB/s  [A
+
+  ...qttw555/model.safetensors:  76%|███████▌  | 14.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  76%|███████▌  | 14.4GB / 18.9GB,  690MB/s  
+
+  ...qttw555/model.safetensors:  76%|███████▌  | 14.4GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors:  77%|███████▋  | 14.5GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  77%|███████▋  | 14.5GB / 18.9GB,  690MB/s  
+New Data Upload               :  97%|█████████▋|  974MB / 1.01GB, 49.3MB/s  [A
+
+  ...qttw555/model.safetensors:  78%|███████▊  | 14.7GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  78%|███████▊  | 14.7GB / 18.9GB,  696MB/s  
+New Data Upload               : 100%|█████████▉| 1.01GB / 1.01GB, 51.4MB/s  [A
+
+  ...qttw555/model.safetensors:  78%|███████▊  | 14.8GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  78%|███████▊  | 14.8GB / 18.9GB,  700MB/s  
+
+  ...qttw555/model.safetensors:  79%|███████▉  | 14.9GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  79%|███████▉  | 14.9GB / 18.9GB,  704MB/s  
+
+  ...qttw555/model.safetensors:  79%|███████▉  | 15.0GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  79%|███████▉  | 15.0GB / 18.9GB,  703MB/s  
+
+  ...qttw555/model.safetensors:  80%|███████▉  | 15.1GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  80%|███████▉  | 15.1GB / 18.9GB,  707MB/s  
+
+  ...qttw555/model.safetensors:  81%|████████  | 15.2GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  81%|████████  | 15.2GB / 18.9GB,  711MB/s  
+
+  ...qttw555/model.safetensors:  81%|████████  | 15.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  81%|████████  | 15.4GB / 18.9GB,  715MB/s  
+New Data Upload               : 100%|██████████| 1.01GB / 1.01GB, 49.1MB/s  [A
+
+  ...qttw555/model.safetensors:  81%|████████▏ | 15.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  81%|████████▏ | 15.4GB / 18.9GB,  711MB/s  
+
+  ...qttw555/model.safetensors:  81%|████████▏ | 15.4GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors:  82%|████████▏ | 15.5GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  82%|████████▏ | 15.5GB / 18.9GB,  709MB/s  
+New Data Upload               :  97%|█████████▋| 1.04GB / 1.07GB, 50.8MB/s  [A
+
+  ...qttw555/model.safetensors:  83%|████████▎ | 15.7GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  83%|████████▎ | 15.7GB / 18.9GB,  715MB/s  
+New Data Upload               : 100%|█████████▉| 1.07GB / 1.07GB, 52.7MB/s  [A
+
+  ...qttw555/model.safetensors:  83%|████████▎ | 15.8GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  83%|████████▎ | 15.8GB / 18.9GB,  719MB/s  
+
+  ...qttw555/model.safetensors:  84%|████████▍ | 15.9GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  84%|████████▍ | 15.9GB / 18.9GB,  723MB/s  
+
+  ...qttw555/model.safetensors:  84%|████████▍ | 16.0GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  84%|████████▍ | 16.0GB / 18.9GB,  724MB/s  
+
+  ...qttw555/model.safetensors:  85%|████████▌ | 16.1GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  85%|████████▌ | 16.1GB / 18.9GB,  728MB/s  
+
+  ...qttw555/model.safetensors:  86%|████████▌ | 16.2GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  86%|████████▌ | 16.2GB / 18.9GB,  731MB/s  
+
+  ...qttw555/model.safetensors:  86%|████████▋ | 16.3GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  86%|████████▋ | 16.3GB / 18.9GB,  735MB/s  
+
+  ...qttw555/model.safetensors:  86%|████████▋ | 16.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  86%|████████▋ | 16.4GB / 18.9GB,  731MB/s  
+New Data Upload               :  94%|█████████▍| 1.07GB / 1.14GB, 50.0MB/s  [A
+
+  ...qttw555/model.safetensors:  86%|████████▋ | 16.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  86%|████████▋ | 16.4GB / 18.9GB,  725MB/s  
+New Data Upload               :  94%|█████████▍| 1.08GB / 1.14GB, 49.7MB/s  [A
+
+  ...qttw555/model.safetensors:  87%|████████▋ | 16.5GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  87%|████████▋ | 16.5GB / 18.9GB,  730MB/s  
+New Data Upload               :  98%|█████████▊| 1.11GB / 1.14GB, 52.3MB/s  [A
+
+  ...qttw555/model.safetensors:  88%|████████▊ | 16.7GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  88%|████████▊ | 16.7GB / 18.9GB,  736MB/s  
+New Data Upload               : 100%|█████████▉| 1.14GB / 1.14GB, 53.9MB/s  [A
+
+  ...qttw555/model.safetensors:  89%|████████▊ | 16.8GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  89%|████████▊ | 16.8GB / 18.9GB,  740MB/s  
+
+  ...qttw555/model.safetensors:  89%|████████▉ | 16.9GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  89%|████████▉ | 16.9GB / 18.9GB,  742MB/s  
+
+  ...qttw555/model.safetensors:  89%|████████▉ | 16.9GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors:  89%|████████▉ | 16.9GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors:  90%|████████▉ | 17.0GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  90%|████████▉ | 17.0GB / 18.9GB,  735MB/s  
+New Data Upload               :  96%|█████████▌| 1.16GB / 1.21GB, 53.4MB/s  [A
+
+  ...qttw555/model.safetensors:  91%|█████████ | 17.2GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  91%|█████████ | 17.2GB / 18.9GB,  742MB/s  
+New Data Upload               : 100%|█████████▉| 1.21GB / 1.21GB, 56.4MB/s  [A
+
+  ...qttw555/model.safetensors:  91%|█████████▏| 17.3GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  91%|█████████▏| 17.3GB / 18.9GB,  746MB/s  
+New Data Upload               : 100%|█████████▉| 1.21GB / 1.21GB, 56.1MB/s  [A
+
+  ...qttw555/model.safetensors:  92%|█████████▏| 17.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  92%|█████████▏| 17.4GB / 18.9GB,  748MB/s  
+
+  ...qttw555/model.safetensors:  93%|█████████▎| 17.5GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  93%|█████████▎| 17.5GB / 18.9GB,  750MB/s  
+
+  ...qttw555/model.safetensors:  93%|█████████▎| 17.6GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  93%|█████████▎| 17.6GB / 18.9GB,  754MB/s  
+
+  ...qttw555/model.safetensors:  94%|█████████▍| 17.7GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  94%|█████████▍| 17.7GB / 18.9GB,  757MB/s  
+
+  ...qttw555/model.safetensors:  94%|█████████▍| 17.9GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  94%|█████████▍| 17.9GB / 18.9GB,  759MB/s  
+
+  ...qttw555/model.safetensors:  94%|█████████▍| 17.9GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  94%|█████████▍| 17.9GB / 18.9GB,  754MB/s  
+New Data Upload               :  95%|█████████▍| 1.21GB / 1.27GB, 53.6MB/s  [A
+
+  ...qttw555/model.safetensors:  94%|█████████▍| 17.9GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors:  95%|█████████▌| 18.0GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  95%|█████████▌| 18.0GB / 18.9GB,  754MB/s  
+New Data Upload               :  98%|█████████▊| 1.25GB / 1.27GB, 56.3MB/s  [A
+
+  ...qttw555/model.safetensors:  96%|█████████▌| 18.2GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  96%|█████████▌| 18.2GB / 18.9GB,  759MB/s  
+New Data Upload               : 100%|█████████▉| 1.27GB / 1.27GB, 57.4MB/s  [A
+
+  ...qttw555/model.safetensors:  97%|█████████▋| 18.3GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  97%|█████████▋| 18.3GB / 18.9GB,  762MB/s  
+
+  ...qttw555/model.safetensors:  97%|█████████▋| 18.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  97%|█████████▋| 18.4GB / 18.9GB,  764MB/s  
+
+  ...qttw555/model.safetensors:  98%|█████████▊| 18.5GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  98%|█████████▊| 18.5GB / 18.9GB,  765MB/s  
+
+  ...qttw555/model.safetensors:  98%|█████████▊| 18.6GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  98%|█████████▊| 18.6GB / 18.9GB,  766MB/s  
+
+  ...qttw555/model.safetensors:  99%|█████████▊| 18.7GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  99%|█████████▊| 18.7GB / 18.9GB,  768MB/s  
+
+  ...qttw555/model.safetensors:  99%|█████████▉| 18.8GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  99%|█████████▉| 18.8GB / 18.9GB,  770MB/s  
+
+  ...qttw555/model.safetensors: 100%|█████████▉| 18.8GB / 18.9GB            [A[AProcessing Files (0 / 1)      : 100%|█████████▉| 18.8GB / 18.9GB,  770MB/s  
+New Data Upload               :  95%|█████████▍| 1.27GB / 1.34GB, 54.5MB/s  [A
+
+  ...qttw555/model.safetensors: 100%|█████████▉| 18.8GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors: 100%|█████████▉| 18.8GB / 18.9GB            [A[AProcessing Files (0 / 1)      : 100%|█████████▉| 18.8GB / 18.9GB,  759MB/s  
+New Data Upload               :  96%|█████████▌| 1.28GB / 1.34GB, 54.3MB/s  [A
+
+  ...qttw555/model.safetensors: 100%|█████████▉| 18.9GB / 18.9GB            [A[AProcessing Files (0 / 1)      : 100%|█████████▉| 18.9GB / 18.9GB,  755MB/s  
+New Data Upload               :  97%|█████████▋| 1.32GB / 1.36GB, 56.4MB/s  [A
+
+  ...qttw555/model.safetensors: 100%|█████████▉| 18.9GB / 18.9GB            [A[AProcessing Files (0 / 1)      : 100%|█████████▉| 18.9GB / 18.9GB,  753MB/s  
+New Data Upload               : 100%|█████████▉| 1.36GB / 1.36GB, 59.5MB/s  [A
+
+  ...qttw555/model.safetensors: 100%|█████████▉| 18.9GB / 18.9GB            [A[AProcessing Files (0 / 1)      : 100%|█████████▉| 18.9GB / 18.9GB,  748MB/s  
+New Data Upload               : 100%|█████████▉| 1.36GB / 1.36GB, 59.1MB/s  [A
+
+  ...qttw555/model.safetensors: 100%|█████████▉| 18.9GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors: 100%|█████████▉| 18.9GB / 18.9GB            [A[AProcessing Files (0 / 1)      : 100%|█████████▉| 18.9GB / 18.9GB,  737MB/s  
+New Data Upload               : 100%|█████████▉| 1.36GB / 1.36GB, 58.3MB/s  [A
+
+  ...qttw555/model.safetensors: 100%|█████████▉| 18.9GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors: 100%|█████████▉| 18.9GB / 18.9GB            [A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[AProcessing Files (1 / 1)      : 100%|██████████| 18.9GB / 18.9GB,  720MB/s  
+New Data Upload               : 100%|██████████| 1.36GB / 1.36GB, 57.0MB/s  [A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ▉         |   9%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ▉         |   9%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ▉         |   9%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ██        |  20%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ██        |  20%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ███▍      |  34%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ███▍      |  34%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ███▍      |  34%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ████▋     |  47%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ████▋     |  47%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ██████    |  61%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ██████    |  61%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ██████    |  61%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ███████▏  |  72%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ███████▏  |  72%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ████████▌ |  85%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ████████▌ |  85%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ████████▌ |  85%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : █████████▌|  96%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ██████████| 100%            [A[A[A
+
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ██████████| 100%            [A[A[AProcessing Files (1 / 1)      : 100%|██████████| 18.9GB / 18.9GB,  608MB/s  
+New Data Upload               : 100%|██████████| 1.36GB / 1.36GB, 48.1MB/s  
+Validating                    : ██████████| 100%            
+  ...qttw555/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+New Data Upload               : |          |  0.00B /  0.00B            [A
+
+  ...mpl7r5k9fr/tokenizer.json: 100%|██████████| 11.4MB / 11.4MB            [A[A
+
+  ...mpl7r5k9fr/tokenizer.json: 100%|██████████| 11.4MB / 11.4MB            [A[AProcessing Files (1 / 1)      : 100%|██████████| 11.4MB / 11.4MB,   ???B/s  
+
+
+Validating                    :           |   0%            [A[A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+  ...mpl7r5k9fr/tokenizer.json: 100%|██████████| 11.4MB / 11.4MB            [A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+  ...mpl7r5k9fr/tokenizer.json: 100%|██████████| 11.4MB / 11.4MB            [A[A
+
+
+Validating                    : ██████████| 100%            [A[A[AProcessing Files (1 / 1)      : 100%|██████████| 11.4MB / 11.4MB, 1.12MB/s  
+New Data Upload               : |          |  0.00B /  0.00B,  0.00B/s  
+Validating                    : ██████████| 100%            
+  ...mpl7r5k9fr/tokenizer.json: 100%|██████████| 11.4MB / 11.4MB            
+pushed final to https://huggingface.co/sartajbhuvaji/bonsai-distilled-depth12-experts80-lora-vs-baseline-3k-warmup450-lr1e4 (public)
+merging best-val LoRA adapter into a fresh base copy (CPU) ...
+Loading weights:   0%|          | 0/399 [00:00<?, ?it/s]Loading weights:   1%|▏         | 5/399 [00:00<00:12, 32.80it/s]Loading weights:   4%|▍         | 16/399 [00:00<00:06, 55.55it/s]Loading weights:  10%|▉         | 38/399 [00:00<00:03, 105.48it/s]Loading weights:  15%|█▌        | 60/399 [00:00<00:02, 133.76it/s]Loading weights:  21%|██        | 82/399 [00:00<00:02, 148.71it/s]Loading weights:  26%|██▌       | 104/399 [00:00<00:01, 162.56it/s]Loading weights:  32%|███▏      | 126/399 [00:00<00:01, 172.07it/s]Loading weights:  37%|███▋      | 148/399 [00:01<00:01, 179.05it/s]Loading weights:  43%|████▎     | 170/399 [00:01<00:01, 184.29it/s]Loading weights:  48%|████▊     | 192/399 [00:01<00:01, 187.86it/s]Loading weights:  54%|█████▎    | 214/399 [00:01<00:00, 190.66it/s]Loading weights:  59%|█████▉    | 236/399 [00:01<00:00, 193.00it/s]Loading weights:  65%|██████▍   | 258/399 [00:01<00:00, 194.88it/s]Loading weights:  70%|███████   | 280/399 [00:01<00:00, 181.52it/s]Loading weights:  76%|███████▌  | 302/399 [00:01<00:00, 186.73it/s]Loading weights:  81%|████████  | 324/399 [00:01<00:00, 190.74it/s]Loading weights:  87%|████████▋ | 346/399 [00:02<00:00, 194.15it/s]Loading weights:  92%|█████████▏| 368/399 [00:02<00:00, 196.83it/s]Loading weights:  98%|█████████▊| 390/399 [00:02<00:00, 198.56it/s]Loading weights: 100%|██████████| 399/399 [00:02<00:00, 176.85it/s]
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:08<00:00,  8.46s/it]Writing model shards: 100%|██████████| 1/1 [00:08<00:00,  8.46s/it]
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+New Data Upload               : |          |  0.00B /  0.00B            [A
+
+  ...l39b30b/model.safetensors:   1%|          | 96.0MB / 18.9GB            [A[A
+
+  ...l39b30b/model.safetensors:   1%|          | 96.0MB / 18.9GB            [A[AProcessing Files (0 / 1)      :   1%|          | 96.0MB / 18.9GB,   ???B/s  
+
+  ...l39b30b/model.safetensors:   1%|          |  224MB / 18.9GB            [A[AProcessing Files (0 / 1)      :   1%|          |  224MB / 18.9GB,   ???B/s  
+
+  ...l39b30b/model.safetensors:   2%|▏         |  344MB / 18.9GB            [A[AProcessing Files (0 / 1)      :   2%|▏         |  344MB / 18.9GB,   ???B/s  
+
+  ...l39b30b/model.safetensors:   2%|▏         |  464MB / 18.9GB            [A[AProcessing Files (0 / 1)      :   2%|▏         |  464MB / 18.9GB, 45.5MB/s  
+
+  ...l39b30b/model.safetensors:   3%|▎         |  592MB / 18.9GB            [A[AProcessing Files (0 / 1)      :   3%|▎         |  592MB / 18.9GB, 57.7MB/s  
+
+  ...l39b30b/model.safetensors:   4%|▍         |  712MB / 18.9GB            [A[AProcessing Files (0 / 1)      :   4%|▍         |  712MB / 18.9GB, 69.0MB/s  
+
+  ...l39b30b/model.safetensors:   4%|▍         |  840MB / 18.9GB            [A[AProcessing Files (0 / 1)      :   4%|▍         |  840MB / 18.9GB, 80.9MB/s  
+
+  ...l39b30b/model.safetensors:   5%|▌         |  960MB / 18.9GB            [A[AProcessing Files (0 / 1)      :   5%|▌         |  960MB / 18.9GB, 91.8MB/s  
+
+  ...l39b30b/model.safetensors:   6%|▌         | 1.08GB / 18.9GB            [A[AProcessing Files (0 / 1)      :   6%|▌         | 1.08GB / 18.9GB,  103MB/s  
+
+  ...l39b30b/model.safetensors:   6%|▋         | 1.20GB / 18.9GB            [A[AProcessing Files (0 / 1)      :   6%|▋         | 1.20GB / 18.9GB,  113MB/s  
+
+  ...l39b30b/model.safetensors:   7%|▋         | 1.33GB / 18.9GB            [A[AProcessing Files (0 / 1)      :   7%|▋         | 1.33GB / 18.9GB,  125MB/s  
+
+  ...l39b30b/model.safetensors:   8%|▊         | 1.45GB / 18.9GB            [A[AProcessing Files (0 / 1)      :   8%|▊         | 1.45GB / 18.9GB,  135MB/s  
+
+  ...l39b30b/model.safetensors:   8%|▊         | 1.58GB / 18.9GB            [A[AProcessing Files (0 / 1)      :   8%|▊         | 1.58GB / 18.9GB,  146MB/s  
+
+  ...l39b30b/model.safetensors:   9%|▉         | 1.70GB / 18.9GB            [A[AProcessing Files (0 / 1)      :   9%|▉         | 1.70GB / 18.9GB,  156MB/s  
+
+  ...l39b30b/model.safetensors:  10%|▉         | 1.82GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  10%|▉         | 1.82GB / 18.9GB,  166MB/s  
+
+  ...l39b30b/model.safetensors:  10%|█         | 1.94GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  10%|█         | 1.94GB / 18.9GB,  177MB/s  
+
+  ...l39b30b/model.safetensors:  11%|█         | 2.06GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  11%|█         | 2.06GB / 18.9GB,  187MB/s  
+
+  ...l39b30b/model.safetensors:  12%|█▏        | 2.18GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  12%|█▏        | 2.18GB / 18.9GB,  196MB/s  
+
+  ...l39b30b/model.safetensors:  12%|█▏        | 2.31GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  12%|█▏        | 2.31GB / 18.9GB,  207MB/s  
+
+  ...l39b30b/model.safetensors:  13%|█▎        | 2.43GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  13%|█▎        | 2.43GB / 18.9GB,  216MB/s  
+
+  ...l39b30b/model.safetensors:  13%|█▎        | 2.55GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  13%|█▎        | 2.55GB / 18.9GB,  225MB/s  
+
+  ...l39b30b/model.safetensors:  14%|█▍        | 2.68GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  14%|█▍        | 2.68GB / 18.9GB,  235MB/s  
+
+  ...l39b30b/model.safetensors:  15%|█▍        | 2.80GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  15%|█▍        | 2.80GB / 18.9GB,  244MB/s  
+
+  ...l39b30b/model.safetensors:  15%|█▌        | 2.92GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  15%|█▌        | 2.92GB / 18.9GB,  253MB/s  
+
+  ...l39b30b/model.safetensors:  16%|█▌        | 3.04GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  16%|█▌        | 3.04GB / 18.9GB,  262MB/s  
+
+  ...l39b30b/model.safetensors:  17%|█▋        | 3.16GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  17%|█▋        | 3.16GB / 18.9GB,  271MB/s  
+
+  ...l39b30b/model.safetensors:  17%|█▋        | 3.29GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  17%|█▋        | 3.29GB / 18.9GB,  280MB/s  
+
+  ...l39b30b/model.safetensors:  18%|█▊        | 3.41GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  18%|█▊        | 3.41GB / 18.9GB,  289MB/s  
+
+  ...l39b30b/model.safetensors:  19%|█▊        | 3.53GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  19%|█▊        | 3.53GB / 18.9GB,  297MB/s  
+
+  ...l39b30b/model.safetensors:  19%|█▉        | 3.66GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  19%|█▉        | 3.66GB / 18.9GB,  306MB/s  
+
+  ...l39b30b/model.safetensors:  20%|█▉        | 3.78GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  20%|█▉        | 3.78GB / 18.9GB,  315MB/s  
+
+  ...l39b30b/model.safetensors:  21%|██        | 3.90GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  21%|██        | 3.90GB / 18.9GB,  323MB/s  
+
+  ...l39b30b/model.safetensors:  21%|██        | 4.02GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  21%|██        | 4.02GB / 18.9GB,  331MB/s  
+
+  ...l39b30b/model.safetensors:  22%|██▏       | 4.14GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  22%|██▏       | 4.14GB / 18.9GB,  339MB/s  
+
+  ...l39b30b/model.safetensors:  22%|██▏       | 4.26GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  22%|██▏       | 4.26GB / 18.9GB,  346MB/s  
+
+  ...l39b30b/model.safetensors:  23%|██▎       | 4.38GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  23%|██▎       | 4.38GB / 18.9GB,  355MB/s  
+
+  ...l39b30b/model.safetensors:  24%|██▍       | 4.50GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  24%|██▍       | 4.50GB / 18.9GB,  363MB/s  
+
+  ...l39b30b/model.safetensors:  24%|██▍       | 4.62GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  24%|██▍       | 4.62GB / 18.9GB,  370MB/s  
+
+  ...l39b30b/model.safetensors:  25%|██▌       | 4.74GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  25%|██▌       | 4.74GB / 18.9GB,  378MB/s  
+
+  ...l39b30b/model.safetensors:  26%|██▌       | 4.87GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  26%|██▌       | 4.87GB / 18.9GB,  386MB/s  
+
+  ...l39b30b/model.safetensors:  26%|██▋       | 4.99GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  26%|██▋       | 4.99GB / 18.9GB,  393MB/s  
+
+  ...l39b30b/model.safetensors:  27%|██▋       | 5.11GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  27%|██▋       | 5.11GB / 18.9GB,  400MB/s  
+
+  ...l39b30b/model.safetensors:  28%|██▊       | 5.24GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  28%|██▊       | 5.24GB / 18.9GB,  408MB/s  
+
+  ...l39b30b/model.safetensors:  28%|██▊       | 5.36GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  28%|██▊       | 5.36GB / 18.9GB,  415MB/s  
+
+  ...l39b30b/model.safetensors:  29%|██▉       | 5.48GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  29%|██▉       | 5.48GB / 18.9GB,  422MB/s  
+
+  ...l39b30b/model.safetensors:  30%|██▉       | 5.61GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  30%|██▉       | 5.61GB / 18.9GB,  430MB/s  
+
+  ...l39b30b/model.safetensors:  30%|███       | 5.73GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  30%|███       | 5.73GB / 18.9GB,  437MB/s  
+
+  ...l39b30b/model.safetensors:  31%|███       | 5.85GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  31%|███       | 5.85GB / 18.9GB,  444MB/s  
+
+  ...l39b30b/model.safetensors:  32%|███▏      | 5.98GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  32%|███▏      | 5.98GB / 18.9GB,  451MB/s  
+
+  ...l39b30b/model.safetensors:  32%|███▏      | 6.10GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  32%|███▏      | 6.10GB / 18.9GB,  458MB/s  
+
+  ...l39b30b/model.safetensors:  33%|███▎      | 6.22GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  33%|███▎      | 6.22GB / 18.9GB,  464MB/s  
+
+  ...l39b30b/model.safetensors:  34%|███▎      | 6.34GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  34%|███▎      | 6.34GB / 18.9GB,  471MB/s  
+
+  ...l39b30b/model.safetensors:  34%|███▍      | 6.46GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  34%|███▍      | 6.46GB / 18.9GB,  478MB/s  
+
+  ...l39b30b/model.safetensors:  35%|███▍      | 6.58GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  35%|███▍      | 6.58GB / 18.9GB,  484MB/s  
+
+  ...l39b30b/model.safetensors:  35%|███▌      | 6.70GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  35%|███▌      | 6.70GB / 18.9GB,  490MB/s  
+
+  ...l39b30b/model.safetensors:  36%|███▌      | 6.82GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  36%|███▌      | 6.82GB / 18.9GB,  497MB/s  
+
+  ...l39b30b/model.safetensors:  37%|███▋      | 6.95GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  37%|███▋      | 6.95GB / 18.9GB,  503MB/s  
+
+  ...l39b30b/model.safetensors:  37%|███▋      | 7.07GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  37%|███▋      | 7.07GB / 18.9GB,  510MB/s  
+
+  ...l39b30b/model.safetensors:  38%|███▊      | 7.19GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  38%|███▊      | 7.19GB / 18.9GB,  516MB/s  
+
+  ...l39b30b/model.safetensors:  39%|███▊      | 7.31GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  39%|███▊      | 7.31GB / 18.9GB,  521MB/s  
+
+  ...l39b30b/model.safetensors:  39%|███▉      | 7.43GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  39%|███▉      | 7.43GB / 18.9GB,  527MB/s  
+
+  ...l39b30b/model.safetensors:  40%|███▉      | 7.55GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  40%|███▉      | 7.55GB / 18.9GB,  533MB/s  
+
+  ...l39b30b/model.safetensors:  41%|████      | 7.67GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  41%|████      | 7.67GB / 18.9GB,  539MB/s  
+
+  ...l39b30b/model.safetensors:  41%|████      | 7.79GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  41%|████      | 7.79GB / 18.9GB,  545MB/s  
+
+  ...l39b30b/model.safetensors:  42%|████▏     | 7.91GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  42%|████▏     | 7.91GB / 18.9GB,  550MB/s  
+
+  ...l39b30b/model.safetensors:  42%|████▏     | 8.02GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  42%|████▏     | 8.02GB / 18.9GB,  555MB/s  
+
+  ...l39b30b/model.safetensors:  43%|████▎     | 8.14GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  43%|████▎     | 8.14GB / 18.9GB,  561MB/s  
+
+  ...l39b30b/model.safetensors:  44%|████▎     | 8.26GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  44%|████▎     | 8.26GB / 18.9GB,  566MB/s  
+
+  ...l39b30b/model.safetensors:  44%|████▍     | 8.38GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  44%|████▍     | 8.38GB / 18.9GB,  571MB/s  
+
+  ...l39b30b/model.safetensors:  45%|████▍     | 8.50GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  45%|████▍     | 8.50GB / 18.9GB,  577MB/s  
+
+  ...l39b30b/model.safetensors:  46%|████▌     | 8.62GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  46%|████▌     | 8.62GB / 18.9GB,  582MB/s  
+
+  ...l39b30b/model.safetensors:  46%|████▌     | 8.74GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  46%|████▌     | 8.74GB / 18.9GB,  587MB/s  
+
+  ...l39b30b/model.safetensors:  47%|████▋     | 8.86GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  47%|████▋     | 8.86GB / 18.9GB,  593MB/s  
+
+  ...l39b30b/model.safetensors:  47%|████▋     | 8.98GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  47%|████▋     | 8.98GB / 18.9GB,  598MB/s  
+
+  ...l39b30b/model.safetensors:  48%|████▊     | 9.10GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  48%|████▊     | 9.10GB / 18.9GB,  603MB/s  
+
+  ...l39b30b/model.safetensors:  49%|████▉     | 9.22GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  49%|████▉     | 9.22GB / 18.9GB,  608MB/s  
+
+  ...l39b30b/model.safetensors:  49%|████▉     | 9.35GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  49%|████▉     | 9.35GB / 18.9GB,  613MB/s  
+
+  ...l39b30b/model.safetensors:  50%|█████     | 9.47GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  50%|█████     | 9.47GB / 18.9GB,  618MB/s  
+
+  ...l39b30b/model.safetensors:  51%|█████     | 9.59GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  51%|█████     | 9.59GB / 18.9GB,  623MB/s  
+
+  ...l39b30b/model.safetensors:  51%|█████▏    | 9.71GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  51%|█████▏    | 9.71GB / 18.9GB,  628MB/s  
+
+  ...l39b30b/model.safetensors:  52%|█████▏    | 9.83GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  52%|█████▏    | 9.83GB / 18.9GB,  633MB/s  
+
+  ...l39b30b/model.safetensors:  53%|█████▎    | 9.95GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  53%|█████▎    | 9.95GB / 18.9GB,  638MB/s  
+
+  ...l39b30b/model.safetensors:  53%|█████▎    | 10.1GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  53%|█████▎    | 10.1GB / 18.9GB,  642MB/s  
+
+  ...l39b30b/model.safetensors:  54%|█████▍    | 10.2GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  54%|█████▍    | 10.2GB / 18.9GB,  647MB/s  
+
+  ...l39b30b/model.safetensors:  55%|█████▍    | 10.3GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  55%|█████▍    | 10.3GB / 18.9GB,  652MB/s  
+
+  ...l39b30b/model.safetensors:  55%|█████▌    | 10.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  55%|█████▌    | 10.4GB / 18.9GB,  656MB/s  
+
+  ...l39b30b/model.safetensors:  56%|█████▌    | 10.6GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  56%|█████▌    | 10.6GB / 18.9GB,  661MB/s  
+
+  ...l39b30b/model.safetensors:  56%|█████▋    | 10.7GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  56%|█████▋    | 10.7GB / 18.9GB,  665MB/s  
+
+  ...l39b30b/model.safetensors:  57%|█████▋    | 10.8GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  57%|█████▋    | 10.8GB / 18.9GB,  670MB/s  
+
+  ...l39b30b/model.safetensors:  58%|█████▊    | 10.9GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  58%|█████▊    | 10.9GB / 18.9GB,  675MB/s  
+
+  ...l39b30b/model.safetensors:  58%|█████▊    | 11.0GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  58%|█████▊    | 11.0GB / 18.9GB,  679MB/s  
+
+  ...l39b30b/model.safetensors:  59%|█████▉    | 11.2GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  59%|█████▉    | 11.2GB / 18.9GB,  683MB/s  
+
+  ...l39b30b/model.safetensors:  60%|█████▉    | 11.3GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  60%|█████▉    | 11.3GB / 18.9GB,  687MB/s  
+
+  ...l39b30b/model.safetensors:  60%|██████    | 11.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  60%|██████    | 11.4GB / 18.9GB,  692MB/s  
+
+  ...l39b30b/model.safetensors:  61%|██████    | 11.5GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  61%|██████    | 11.5GB / 18.9GB,  696MB/s  
+
+  ...l39b30b/model.safetensors:  62%|██████▏   | 11.6GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  62%|██████▏   | 11.6GB / 18.9GB,  700MB/s  
+
+  ...l39b30b/model.safetensors:  62%|██████▏   | 11.8GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  62%|██████▏   | 11.8GB / 18.9GB,  703MB/s  
+
+  ...l39b30b/model.safetensors:  63%|██████▎   | 11.9GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  63%|██████▎   | 11.9GB / 18.9GB,  707MB/s  
+
+  ...l39b30b/model.safetensors:  63%|██████▎   | 12.0GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  63%|██████▎   | 12.0GB / 18.9GB,  712MB/s  
+
+  ...l39b30b/model.safetensors:  64%|██████▍   | 12.1GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  64%|██████▍   | 12.1GB / 18.9GB,  716MB/s  
+
+  ...l39b30b/model.safetensors:  65%|██████▍   | 12.2GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  65%|██████▍   | 12.2GB / 18.9GB,  720MB/s  
+
+  ...l39b30b/model.safetensors:  65%|██████▌   | 12.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  65%|██████▌   | 12.4GB / 18.9GB,  724MB/s  
+
+  ...l39b30b/model.safetensors:  66%|██████▌   | 12.5GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  66%|██████▌   | 12.5GB / 18.9GB,  728MB/s  
+
+  ...l39b30b/model.safetensors:  67%|██████▋   | 12.6GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  67%|██████▋   | 12.6GB / 18.9GB,  732MB/s  
+
+  ...l39b30b/model.safetensors:  67%|██████▋   | 12.7GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  67%|██████▋   | 12.7GB / 18.9GB,  736MB/s  
+
+  ...l39b30b/model.safetensors:  68%|██████▊   | 12.8GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  68%|██████▊   | 12.8GB / 18.9GB,  740MB/s  
+
+  ...l39b30b/model.safetensors:  69%|██████▊   | 13.0GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  69%|██████▊   | 13.0GB / 18.9GB,  743MB/s  
+
+  ...l39b30b/model.safetensors:  69%|██████▉   | 13.1GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  69%|██████▉   | 13.1GB / 18.9GB,  748MB/s  
+
+  ...l39b30b/model.safetensors:  70%|██████▉   | 13.2GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  70%|██████▉   | 13.2GB / 18.9GB,  751MB/s  
+
+  ...l39b30b/model.safetensors:  70%|███████   | 13.3GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  70%|███████   | 13.3GB / 18.9GB,  755MB/s  
+
+  ...l39b30b/model.safetensors:  71%|███████   | 13.5GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  71%|███████   | 13.5GB / 18.9GB,  759MB/s  
+
+  ...l39b30b/model.safetensors:  72%|███████▏  | 13.6GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  72%|███████▏  | 13.6GB / 18.9GB,  763MB/s  
+
+  ...l39b30b/model.safetensors:  72%|███████▏  | 13.7GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  72%|███████▏  | 13.7GB / 18.9GB,  766MB/s  
+
+  ...l39b30b/model.safetensors:  73%|███████▎  | 13.8GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  73%|███████▎  | 13.8GB / 18.9GB,  770MB/s  
+
+  ...l39b30b/model.safetensors:  74%|███████▎  | 14.0GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  74%|███████▎  | 14.0GB / 18.9GB,  774MB/s  
+
+  ...l39b30b/model.safetensors:  74%|███████▍  | 14.1GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  74%|███████▍  | 14.1GB / 18.9GB,  778MB/s  
+
+  ...l39b30b/model.safetensors:  75%|███████▌  | 14.2GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  75%|███████▌  | 14.2GB / 18.9GB,  781MB/s  
+
+  ...l39b30b/model.safetensors:  76%|███████▌  | 14.3GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  76%|███████▌  | 14.3GB / 18.9GB,  784MB/s  
+
+  ...l39b30b/model.safetensors:  76%|███████▋  | 14.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  76%|███████▋  | 14.4GB / 18.9GB,  788MB/s  
+
+  ...l39b30b/model.safetensors:  77%|███████▋  | 14.6GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  77%|███████▋  | 14.6GB / 18.9GB,  792MB/s  
+
+  ...l39b30b/model.safetensors:  78%|███████▊  | 14.7GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  78%|███████▊  | 14.7GB / 18.9GB,  795MB/s  
+
+  ...l39b30b/model.safetensors:  78%|███████▊  | 14.8GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  78%|███████▊  | 14.8GB / 18.9GB,  798MB/s  
+
+  ...l39b30b/model.safetensors:  79%|███████▉  | 14.9GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  79%|███████▉  | 14.9GB / 18.9GB,  801MB/s  
+
+  ...l39b30b/model.safetensors:  80%|███████▉  | 15.0GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  80%|███████▉  | 15.0GB / 18.9GB,  804MB/s  
+
+  ...l39b30b/model.safetensors:  80%|████████  | 15.2GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  80%|████████  | 15.2GB / 18.9GB,  808MB/s  
+
+  ...l39b30b/model.safetensors:  81%|████████  | 15.3GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  81%|████████  | 15.3GB / 18.9GB,  811MB/s  
+
+  ...l39b30b/model.safetensors:  81%|████████▏ | 15.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  81%|████████▏ | 15.4GB / 18.9GB,  814MB/s  
+
+  ...l39b30b/model.safetensors:  82%|████████▏ | 15.5GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  82%|████████▏ | 15.5GB / 18.9GB,  817MB/s  
+
+  ...l39b30b/model.safetensors:  83%|████████▎ | 15.7GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  83%|████████▎ | 15.7GB / 18.9GB,  820MB/s  
+
+  ...l39b30b/model.safetensors:  83%|████████▎ | 15.8GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  83%|████████▎ | 15.8GB / 18.9GB,  823MB/s  
+
+  ...l39b30b/model.safetensors:  84%|████████▍ | 15.9GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  84%|████████▍ | 15.9GB / 18.9GB,  826MB/s  
+
+  ...l39b30b/model.safetensors:  85%|████████▍ | 16.0GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  85%|████████▍ | 16.0GB / 18.9GB,  829MB/s  
+
+  ...l39b30b/model.safetensors:  85%|████████▌ | 16.1GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  85%|████████▌ | 16.1GB / 18.9GB,  833MB/s  
+
+  ...l39b30b/model.safetensors:  86%|████████▌ | 16.3GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  86%|████████▌ | 16.3GB / 18.9GB,  836MB/s  
+
+  ...l39b30b/model.safetensors:  87%|████████▋ | 16.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  87%|████████▋ | 16.4GB / 18.9GB,  839MB/s  
+
+  ...l39b30b/model.safetensors:  87%|████████▋ | 16.5GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  87%|████████▋ | 16.5GB / 18.9GB,  841MB/s  
+
+  ...l39b30b/model.safetensors:  88%|████████▊ | 16.6GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  88%|████████▊ | 16.6GB / 18.9GB,  844MB/s  
+
+  ...l39b30b/model.safetensors:  89%|████████▊ | 16.7GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  89%|████████▊ | 16.7GB / 18.9GB,  847MB/s  
+
+  ...l39b30b/model.safetensors:  89%|████████▉ | 16.9GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  89%|████████▉ | 16.9GB / 18.9GB,  850MB/s  
+
+  ...l39b30b/model.safetensors:  90%|████████▉ | 17.0GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  90%|████████▉ | 17.0GB / 18.9GB,  853MB/s  
+
+  ...l39b30b/model.safetensors:  90%|█████████ | 17.1GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  90%|█████████ | 17.1GB / 18.9GB,  856MB/s  
+
+  ...l39b30b/model.safetensors:  91%|█████████ | 17.2GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  91%|█████████ | 17.2GB / 18.9GB,  858MB/s  
+
+  ...l39b30b/model.safetensors:  92%|█████████▏| 17.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  92%|█████████▏| 17.4GB / 18.9GB,  861MB/s  
+
+  ...l39b30b/model.safetensors:  92%|█████████▏| 17.5GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  92%|█████████▏| 17.5GB / 18.9GB,  864MB/s  
+
+  ...l39b30b/model.safetensors:  93%|█████████▎| 17.6GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  93%|█████████▎| 17.6GB / 18.9GB,  867MB/s  
+
+  ...l39b30b/model.safetensors:  94%|█████████▎| 17.7GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  94%|█████████▎| 17.7GB / 18.9GB,  869MB/s  
+
+  ...l39b30b/model.safetensors:  94%|█████████▍| 17.8GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  94%|█████████▍| 17.8GB / 18.9GB,  872MB/s  
+
+  ...l39b30b/model.safetensors:  95%|█████████▍| 18.0GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  95%|█████████▍| 18.0GB / 18.9GB,  874MB/s  
+
+  ...l39b30b/model.safetensors:  96%|█████████▌| 18.1GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  96%|█████████▌| 18.1GB / 18.9GB,  878MB/s  
+
+  ...l39b30b/model.safetensors:  96%|█████████▌| 18.2GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  96%|█████████▌| 18.2GB / 18.9GB,  880MB/s  
+
+  ...l39b30b/model.safetensors:  97%|█████████▋| 18.3GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  97%|█████████▋| 18.3GB / 18.9GB,  883MB/s  
+
+  ...l39b30b/model.safetensors:  98%|█████████▊| 18.4GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  98%|█████████▊| 18.4GB / 18.9GB,  885MB/s  
+
+  ...l39b30b/model.safetensors:  98%|█████████▊| 18.6GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  98%|█████████▊| 18.6GB / 18.9GB,  887MB/s  
+
+  ...l39b30b/model.safetensors:  99%|█████████▉| 18.7GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  99%|█████████▉| 18.7GB / 18.9GB,  890MB/s  
+
+  ...l39b30b/model.safetensors:  99%|█████████▉| 18.8GB / 18.9GB            [A[AProcessing Files (0 / 1)      :  99%|█████████▉| 18.8GB / 18.9GB,  893MB/s  
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[AProcessing Files (1 / 1)      : 100%|██████████| 18.9GB / 18.9GB,  894MB/s  
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ▋         |   7%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ▋         |   7%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ▋         |   7%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ██        |  20%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ██        |  20%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ███▍      |  35%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ███▍      |  35%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ███▍      |  35%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ████▊     |  48%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ████▊     |  48%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ██████▏   |  62%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ██████▏   |  62%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ██████▏   |  62%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ███████▌  |  75%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ███████▌  |  75%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : █████████ |  91%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : █████████ |  91%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : █████████ |  91%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : █████████▋|  97%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ██████████| 100%            [A[A[A
+
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            [A[A
+
+
+Validating                    : ██████████| 100%            [A[A[AProcessing Files (1 / 1)      : 100%|██████████| 18.9GB / 18.9GB,  745MB/s  
+New Data Upload               : |          |  0.00B /  0.00B,  0.00B/s  
+Validating                    : ██████████| 100%            
+  ...l39b30b/model.safetensors: 100%|██████████| 18.9GB / 18.9GB            
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+New Data Upload               : |          |  0.00B /  0.00B            [A
+
+  ...mpouog8tya/tokenizer.json: 100%|██████████| 11.4MB / 11.4MB            [A[A
+
+  ...mpouog8tya/tokenizer.json: 100%|██████████| 11.4MB / 11.4MB            [A[AProcessing Files (1 / 1)      : 100%|██████████| 11.4MB / 11.4MB,   ???B/s  
+
+
+Validating                    :           |   0%            [A[A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+  ...mpouog8tya/tokenizer.json: 100%|██████████| 11.4MB / 11.4MB            [A[A
+
+
+Validating                    :           |   0%            [A[A[A
+
+  ...mpouog8tya/tokenizer.json: 100%|██████████| 11.4MB / 11.4MB            [A[A
+
+
+Validating                    : ██████████| 100%            [A[A[AProcessing Files (1 / 1)      : 100%|██████████| 11.4MB / 11.4MB, 1.13MB/s  
+New Data Upload               : |          |  0.00B /  0.00B,  0.00B/s  
+Validating                    : ██████████| 100%            
+  ...mpouog8tya/tokenizer.json: 100%|██████████| 11.4MB / 11.4MB            
+pushed best-val to https://huggingface.co/sartajbhuvaji/bonsai-distilled-depth12-experts80-lora-vs-baseline-3k-warmup450-lr1e4-best (public)
+DISTILL_RUN=runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4
+{
+  "best_step": 2999,
+  "best_val_loss": 0.4984389429787795,
+  "path": "runs/20261009T202918Z-f3a858-distill-depth12-experts80-lora-vs-baseline-3000-warmup450-lr1e4/checkpoints/distilled-best"
+}
+--- HumanEval-TS n=40 FINAL on sartajbhuvaji/bonsai-distilled-depth12-experts80-lora-vs-baseline-3k-warmup450-lr1e4 ---
+model=sartajbhuvaji/bonsai-distilled-depth12-experts80-lora-vs-baseline-3k-warmup450-lr1e4
+run_dir=runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final
+limit=40
+The following values were not passed to `accelerate launch` and had defaults used instead:
+	`--num_processes` was set to a value of `1`
+	`--num_machines` was set to a value of `1`
+	`--mixed_precision` was set to a value of `'no'`
+	`--dynamo_backend` was set to a value of `'no'`
+To avoid this warning pass in values for each of the problematic parameters or run `accelerate config`.
+Selected Tasks: ['multiple-ts']
+Loading model in bf16
+Loading weights:   0%|          | 0/399 [00:00<?, ?it/s]Loading weights:   1%|▏         | 5/399 [00:00<00:29, 13.20it/s]Loading weights:   4%|▍         | 16/399 [00:00<00:16, 23.29it/s]Loading weights:   7%|▋         | 27/399 [00:01<00:13, 26.75it/s]Loading weights:  10%|▉         | 38/399 [00:01<00:12, 28.38it/s]Loading weights:  12%|█▏        | 49/399 [00:01<00:12, 29.03it/s]Loading weights:  15%|█▌        | 60/399 [00:02<00:11, 29.61it/s]Loading weights:  18%|█▊        | 71/399 [00:02<00:10, 29.98it/s]Loading weights:  21%|██        | 82/399 [00:02<00:10, 30.19it/s]Loading weights:  23%|██▎       | 93/399 [00:03<00:10, 30.29it/s]Loading weights:  26%|██▌       | 104/399 [00:03<00:09, 30.51it/s]Loading weights:  29%|██▉       | 115/399 [00:03<00:09, 30.57it/s]Loading weights:  32%|███▏      | 126/399 [00:04<00:08, 30.63it/s]Loading weights:  34%|███▍      | 137/399 [00:04<00:08, 30.46it/s]Loading weights:  37%|███▋      | 148/399 [00:05<00:08, 30.61it/s]Loading weights:  40%|███▉      | 159/399 [00:05<00:07, 30.79it/s]Loading weights:  43%|████▎     | 170/399 [00:05<00:07, 30.74it/s]Loading weights:  45%|████▌     | 181/399 [00:06<00:07, 30.75it/s]Loading weights:  48%|████▊     | 192/399 [00:06<00:06, 30.82it/s]Loading weights:  51%|█████     | 203/399 [00:06<00:06, 30.89it/s]Loading weights:  54%|█████▎    | 214/399 [00:07<00:05, 30.95it/s]Loading weights:  56%|█████▋    | 225/399 [00:07<00:05, 30.71it/s]Loading weights:  59%|█████▉    | 236/399 [00:07<00:05, 30.88it/s]Loading weights:  62%|██████▏   | 247/399 [00:08<00:04, 30.87it/s]Loading weights:  65%|██████▍   | 258/399 [00:08<00:04, 30.86it/s]Loading weights:  67%|██████▋   | 269/399 [00:08<00:04, 30.92it/s]Loading weights:  70%|███████   | 280/399 [00:09<00:03, 30.96it/s]Loading weights:  73%|███████▎  | 291/399 [00:09<00:03, 31.00it/s]Loading weights:  76%|███████▌  | 302/399 [00:10<00:03, 31.02it/s]Loading weights:  78%|███████▊  | 313/399 [00:10<00:02, 31.05it/s]Loading weights:  81%|████████  | 324/399 [00:10<00:02, 31.11it/s]Loading weights:  84%|████████▍ | 335/399 [00:11<00:02, 30.90it/s]Loading weights:  87%|████████▋ | 346/399 [00:11<00:01, 30.93it/s]Loading weights:  89%|████████▉ | 357/399 [00:11<00:01, 30.99it/s]Loading weights:  92%|█████████▏| 368/399 [00:12<00:01, 30.90it/s]Loading weights:  95%|█████████▍| 379/399 [00:12<00:00, 30.90it/s]Loading weights:  98%|█████████▊| 390/399 [00:12<00:00, 30.99it/s]Loading weights: 100%|██████████| 399/399 [00:12<00:00, 31.03it/s]
+number of problems for this task is 40
+  0%|          | 0/40 [00:00<?, ?it/s]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+  2%|▎         | 1/40 [02:28<1:36:37, 148.66s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+  5%|▌         | 2/40 [03:46<1:07:37, 106.79s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+  8%|▊         | 3/40 [03:46<35:55, 58.26s/it]   intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 10%|█         | 4/40 [05:05<39:44, 66.25s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 12%|█▎        | 5/40 [06:22<41:01, 70.34s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 15%|█▌        | 6/40 [07:40<41:19, 72.92s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 18%|█▊        | 7/40 [08:58<40:55, 74.42s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 20%|██        | 8/40 [10:15<40:10, 75.32s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 22%|██▎       | 9/40 [11:33<39:21, 76.19s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 25%|██▌       | 10/40 [12:51<38:24, 76.81s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 28%|██▊       | 11/40 [14:09<37:16, 77.11s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 30%|███       | 12/40 [15:27<36:02, 77.23s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 32%|███▎      | 13/40 [16:45<34:57, 77.69s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 35%|███▌      | 14/40 [18:03<33:42, 77.78s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 38%|███▊      | 15/40 [19:21<32:26, 77.88s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 40%|████      | 16/40 [20:40<31:11, 77.98s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 42%|████▎     | 17/40 [21:57<29:48, 77.75s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 45%|████▌     | 18/40 [23:16<28:39, 78.18s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 48%|████▊     | 19/40 [24:34<27:20, 78.11s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 50%|█████     | 20/40 [25:52<26:00, 78.00s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 52%|█████▎    | 21/40 [27:09<24:40, 77.92s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 55%|█████▌    | 22/40 [28:28<23:23, 77.99s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 57%|█████▊    | 23/40 [29:45<22:03, 77.84s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 60%|██████    | 24/40 [31:03<20:44, 77.76s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 62%|██████▎   | 25/40 [32:20<19:25, 77.67s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 65%|██████▌   | 26/40 [33:38<18:08, 77.73s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 68%|██████▊   | 27/40 [34:56<16:50, 77.75s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 70%|███████   | 28/40 [36:13<15:29, 77.47s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 72%|███████▎  | 29/40 [37:30<14:10, 77.33s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 75%|███████▌  | 30/40 [38:48<12:57, 77.78s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 78%|███████▊  | 31/40 [40:06<11:40, 77.85s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 80%|████████  | 32/40 [41:26<10:26, 78.33s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 82%|████████▎ | 33/40 [42:45<09:10, 78.64s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 85%|████████▌ | 34/40 [44:02<07:48, 78.16s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 88%|████████▊ | 35/40 [45:20<06:30, 78.10s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 90%|█████████ | 36/40 [46:38<05:12, 78.10s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 92%|█████████▎| 37/40 [47:57<03:54, 78.14s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 95%|█████████▌| 38/40 [49:15<02:36, 78.12s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+ 98%|█████████▊| 39/40 [50:33<01:18, 78.31s/it]intermediate generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts_intermediate.json
+100%|██████████| 40/40 [51:53<00:00, 78.67s/it]100%|██████████| 40/40 [51:53<00:00, 77.83s/it]
+/root/venv/lib/python3.12/site-packages/bigcode_eval/evaluator.py:85: UserWarning: Number of tasks wasn't proportional to number of devices, we removed extra predictions to only keep nsamples=1
+  warnings.warn(
+generations were saved at runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations_multiple-ts.json
+Evaluating generations...
+Saved 40 problems in /tmp for evaluation, each problem has 1 completions
+  0%|          | 0/40 [00:00<?, ?it/s]  2%|▎         | 1/40 [00:00<00:03,  9.79it/s]  5%|▌         | 2/40 [00:00<00:03,  9.82it/s]  8%|▊         | 3/40 [00:00<00:07,  5.18it/s] 10%|█         | 4/40 [00:00<00:05,  6.37it/s] 12%|█▎        | 5/40 [00:00<00:04,  7.29it/s] 15%|█▌        | 6/40 [00:00<00:04,  8.00it/s] 18%|█▊        | 7/40 [00:00<00:03,  8.52it/s] 20%|██        | 8/40 [00:01<00:03,  8.90it/s] 22%|██▎       | 9/40 [00:01<00:03,  9.18it/s] 25%|██▌       | 10/40 [00:07<00:58,  1.96s/it] 28%|██▊       | 11/40 [00:07<00:40,  1.39s/it] 30%|███       | 12/40 [00:07<00:27,  1.00it/s] 32%|███▎      | 13/40 [00:07<00:19,  1.37it/s] 35%|███▌      | 14/40 [00:07<00:13,  1.86it/s] 38%|███▊      | 15/40 [00:07<00:10,  2.46it/s] 40%|████      | 16/40 [00:07<00:07,  3.18it/s] 42%|████▎     | 17/40 [00:07<00:05,  3.99it/s] 45%|████▌     | 18/40 [00:08<00:04,  4.86it/s] 48%|████▊     | 19/40 [00:08<00:03,  5.73it/s] 50%|█████     | 20/40 [00:08<00:03,  6.55it/s] 52%|█████▎    | 21/40 [00:08<00:02,  7.28it/s] 55%|█████▌    | 22/40 [00:08<00:02,  7.90it/s] 57%|█████▊    | 23/40 [00:08<00:02,  8.40it/s] 60%|██████    | 24/40 [00:08<00:02,  5.75it/s] 62%|██████▎   | 25/40 [00:08<00:02,  6.57it/s] 65%|██████▌   | 26/40 [00:09<00:02,  5.07it/s] 68%|██████▊   | 27/40 [00:09<00:02,  5.93it/s] 70%|███████   | 28/40 [00:09<00:01,  6.74it/s] 72%|███████▎  | 29/40 [00:09<00:02,  5.14it/s] 75%|███████▌  | 30/40 [00:09<00:01,  6.00it/s] 78%|███████▊  | 31/40 [00:09<00:01,  6.80it/s] 80%|████████  | 32/40 [00:20<00:26,  3.26s/it] 82%|████████▎ | 33/40 [00:20<00:16,  2.37s/it] 85%|████████▌ | 34/40 [00:20<00:10,  1.69s/it] 88%|████████▊ | 35/40 [00:21<00:06,  1.27s/it] 90%|█████████ | 36/40 [00:21<00:03,  1.02it/s] 92%|█████████▎| 37/40 [00:21<00:02,  1.39it/s] 95%|█████████▌| 38/40 [00:21<00:01,  1.88it/s] 98%|█████████▊| 39/40 [00:21<00:00,  2.16it/s]100%|██████████| 40/40 [00:22<00:00,  2.41it/s]100%|██████████| 40/40 [00:22<00:00,  1.80it/s]
+{
+  "multiple-ts": {
+    "pass@1": 0.0
+  },
+  "config": {
+    "prefix": "",
+    "do_sample": true,
+    "temperature": 0.2,
+    "top_k": 0,
+    "top_p": 0.95,
+    "n_samples": 1,
+    "eos": "<|endoftext|>",
+    "seed": 0,
+    "model": "sartajbhuvaji/bonsai-distilled-depth12-experts80-lora-vs-baseline-3k-warmup450-lr1e4",
+    "modeltype": "causal",
+    "peft_model": null,
+    "revision": null,
+    "use_auth_token": true,
+    "trust_remote_code": false,
+    "tasks": "multiple-ts",
+    "instruction_tokens": null,
+    "batch_size": 8,
+    "max_length_generation": 512,
+    "precision": "bf16",
+    "load_in_8bit": false,
+    "load_in_4bit": false,
+    "left_padding": false,
+    "limit": 40,
+    "limit_start": 0,
+    "save_every_k_tasks": 1,
+    "postprocess": true,
+    "allow_code_execution": true,
+    "generation_only": false,
+    "load_generations_path": null,
+    "load_data_path": null,
+    "metric_output_path": "runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts.json",
+    "save_generations": true,
+    "load_generations_intermediate_paths": null,
+    "save_generations_path": "runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final/humaneval-ts-generations.json",
+    "save_references": false,
+    "save_references_path": "references.json",
+    "prompt": "prompt",
+    "max_memory_per_gpu": null,
+    "check_references": false,
+    "resume": false
+  }
+}
+pass@1=0.0
+--- HumanEval-TS n=40 BEST-VAL on sartajbhuvaji/bonsai-distilled-depth12-experts80-lora-vs-baseline-3k-warmup450-lr1e4-best ---
+model=sartajbhuvaji/bonsai-distilled-depth12-experts80-lora-vs-baseline-3k-warmup450-lr1e4-best
+run_dir=runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best
+limit=40
+The following values were not passed to `accelerate launch` and had defaults used instead:
+	`--num_processes` was set to a value of `1`
+	`--num_machines` was set to a value of `1`
+	`--mixed_precision` was set to a value of `'no'`
+	`--dynamo_backend` was set to a value of `'no'`
+To avoid this warning pass in values for each of the problematic parameters or run `accelerate config`.
+Selected Tasks: ['multiple-ts']
+Loading model in bf16
+Loading weights:   0%|          | 0/399 [00:00<?, ?it/s]Loading weights:   1%|▏         | 5/399 [00:00<00:30, 12.73it/s]Loading weights:   4%|▍         | 16/399 [00:00<00:16, 22.58it/s]Loading weights:   7%|▋         | 27/399 [00:01<00:14, 26.14it/s]Loading weights:  10%|▉         | 38/399 [00:01<00:12, 27.86it/s]Loading weights:  12%|█▏        | 49/399 [00:01<00:12, 28.98it/s]Loading weights:  15%|█▌        | 60/399 [00:02<00:11, 29.58it/s]Loading weights:  18%|█▊        | 71/399 [00:02<00:10, 29.93it/s]Loading weights:  21%|██        | 82/399 [00:02<00:10, 30.20it/s]Loading weights:  23%|██▎       | 93/399 [00:03<00:10, 30.41it/s]Loading weights:  26%|██▌       | 104/399 [00:03<00:09, 30.57it/s]Loading weights:  29%|██▉       | 115/399 [00:03<00:09, 30.61it/s]Loading weights:  32%|███▏      | 126/399 [00:04<00:08, 30.66it/s]Loading weights:  34%|███▍      | 137/399 [00:04<00:08, 30.65it/s]Loading weights:  37%|███▋      | 148/399 [00:05<00:08, 30.69it/s]Loading weights:  40%|███▉      | 159/399 [00:05<00:07, 30.77it/s]Loading weights:  43%|████▎     | 170/399 [00:05<00:07, 30.73it/s]Loading weights:  45%|████▌     | 181/399 [00:06<00:07, 30.69it/s]Loading weights:  48%|████▊     | 192/399 [00:06<00:06, 30.70it/s]Loading weights:  51%|█████     | 203/399 [00:06<00:06, 30.74it/s]Loading weights:  54%|█████▎    | 214/399 [00:07<00:06, 30.80it/s]Loading weights:  56%|█████▋    | 225/399 [00:07<00:05, 30.83it/s]Loading weights:  59%|█████▉    | 236/399 [00:07<00:05, 30.90it/s]Loading weights:  62%|██████▏   | 247/399 [00:08<00:04, 30.86it/s]Loading weights:  65%|██████▍   | 258/399 [00:08<00:04, 30.78it/s]Loading weights:  67%|██████▋   | 269/399 [00:08<00:04, 30.78it/s]Loading weights:  70%|███████   | 280/399 [00:09<00:03, 30.81it/s]Loading weights:  73%|███████▎  | 291/399 [00:09<00:03, 30.84it/s]Loading weights:  76%|███████▌  | 302/399 [00:10<00:03, 30.73it/s]Loading weights:  78%|███████▊  | 313/399 [00:10<00:02, 30.78it/s]Loading weights:  81%|████████  | 324/399 [00:10<00:02, 30.87it/s]Loading weights:  84%|████████▍ | 335/399 [00:11<00:02, 30.82it/s]Loading weights:  87%|████████▋ | 346/399 [00:11<00:01, 30.83it/s]Loading weights:  89%|████████▉ | 357/399 [00:11<00:01, 30.84it/s]Loading weights:  92%|█████████▏| 368/399 [00:12<00:01, 30.88it/s]Loading weights:  95%|█████████▍| 379/399 [00:12<00:00, 30.87it/s]Loading weights:  98%|█████████▊| 390/399 [00:12<00:00, 30.88it/s]Loading weights: 100%|██████████| 399/399 [00:12<00:00, 30.92it/s]
+number of problems for this task is 40
+  0%|          | 0/40 [00:00<?, ?it/s]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+  2%|▎         | 1/40 [02:28<1:36:18, 148.16s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+  5%|▌         | 2/40 [03:44<1:07:06, 105.96s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+  8%|▊         | 3/40 [03:45<35:38, 57.81s/it]   intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 10%|█         | 4/40 [05:02<39:17, 65.50s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 12%|█▎        | 5/40 [06:19<40:38, 69.67s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 15%|█▌        | 6/40 [07:36<40:55, 72.21s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 18%|█▊        | 7/40 [08:53<40:28, 73.59s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 20%|██        | 8/40 [10:09<39:41, 74.41s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 22%|██▎       | 9/40 [11:25<38:46, 75.04s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 25%|██▌       | 10/40 [12:42<37:50, 75.68s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 28%|██▊       | 11/40 [14:00<36:52, 76.28s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 30%|███       | 12/40 [15:17<35:38, 76.39s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 32%|███▎      | 13/40 [16:34<34:31, 76.72s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 35%|███▌      | 14/40 [17:51<33:15, 76.76s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 38%|███▊      | 15/40 [19:08<32:03, 76.96s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 40%|████      | 16/40 [20:25<30:44, 76.85s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 42%|████▎     | 17/40 [21:41<29:25, 76.77s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 45%|████▌     | 18/40 [23:00<28:21, 77.36s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 48%|████▊     | 19/40 [24:17<27:04, 77.34s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 50%|█████     | 20/40 [25:35<25:45, 77.26s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 52%|█████▎    | 21/40 [26:51<24:25, 77.12s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 55%|█████▌    | 22/40 [28:08<23:07, 77.06s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 57%|█████▊    | 23/40 [29:25<21:49, 77.03s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 60%|██████    | 24/40 [30:42<20:30, 76.93s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 62%|██████▎   | 25/40 [31:58<19:11, 76.79s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 65%|██████▌   | 26/40 [33:16<17:57, 76.97s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 68%|██████▊   | 27/40 [34:33<16:43, 77.20s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 70%|███████   | 28/40 [35:51<15:27, 77.28s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 72%|███████▎  | 29/40 [37:07<14:07, 77.05s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 75%|███████▌  | 30/40 [38:25<12:51, 77.19s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 78%|███████▊  | 31/40 [39:42<11:33, 77.02s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 80%|████████  | 32/40 [40:59<10:16, 77.07s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 82%|████████▎ | 33/40 [42:19<09:05, 77.86s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 85%|████████▌ | 34/40 [43:35<07:44, 77.42s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 88%|████████▊ | 35/40 [44:51<06:25, 77.13s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 90%|█████████ | 36/40 [46:08<05:08, 77.01s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 92%|█████████▎| 37/40 [47:24<03:50, 76.83s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 95%|█████████▌| 38/40 [48:42<02:33, 76.97s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+ 98%|█████████▊| 39/40 [50:00<01:17, 77.21s/it]intermediate generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts_intermediate.json
+100%|██████████| 40/40 [51:18<00:00, 77.45s/it]100%|██████████| 40/40 [51:18<00:00, 76.95s/it]
+/root/venv/lib/python3.12/site-packages/bigcode_eval/evaluator.py:85: UserWarning: Number of tasks wasn't proportional to number of devices, we removed extra predictions to only keep nsamples=1
+  warnings.warn(
+generations were saved at runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations_multiple-ts.json
+Evaluating generations...
+Saved 40 problems in /tmp for evaluation, each problem has 1 completions
+  0%|          | 0/40 [00:00<?, ?it/s]  2%|▎         | 1/40 [00:00<00:03,  9.77it/s]  5%|▌         | 2/40 [00:00<00:03,  9.81it/s]  8%|▊         | 3/40 [00:00<00:07,  5.18it/s] 10%|█         | 4/40 [00:00<00:05,  6.37it/s] 12%|█▎        | 5/40 [00:00<00:04,  7.30it/s] 15%|█▌        | 6/40 [00:00<00:04,  8.00it/s] 18%|█▊        | 7/40 [00:00<00:03,  8.52it/s] 20%|██        | 8/40 [00:01<00:03,  8.91it/s] 22%|██▎       | 9/40 [00:01<00:03,  9.18it/s] 25%|██▌       | 10/40 [00:07<00:58,  1.96s/it] 28%|██▊       | 11/40 [00:17<02:12,  4.58s/it] 30%|███       | 12/40 [00:17<01:30,  3.22s/it] 32%|███▎      | 13/40 [00:17<01:01,  2.27s/it] 35%|███▌      | 14/40 [00:18<00:42,  1.62s/it] 38%|███▊      | 15/40 [00:18<00:28,  1.16s/it] 40%|████      | 16/40 [00:18<00:20,  1.19it/s] 42%|████▎     | 17/40 [00:18<00:14,  1.62it/s] 45%|████▌     | 18/40 [00:18<00:10,  2.16it/s] 48%|████▊     | 19/40 [00:18<00:07,  2.82it/s] 50%|█████     | 20/40 [00:18<00:05,  3.59it/s] 52%|█████▎    | 21/40 [00:18<00:04,  4.43it/s] 55%|█████▌    | 22/40 [00:18<00:03,  5.31it/s] 57%|█████▊    | 23/40 [00:18<00:02,  6.16it/s] 60%|██████    | 24/40 [00:19<00:03,  4.90it/s] 62%|██████▎   | 25/40 [00:19<00:02,  5.77it/s] 65%|██████▌   | 26/40 [00:19<00:02,  4.72it/s] 68%|██████▊   | 27/40 [00:19<00:02,  5.59it/s] 70%|███████   | 28/40 [00:19<00:01,  6.42it/s] 72%|███████▎  | 29/40 [00:20<00:02,  5.01it/s] 75%|███████▌  | 30/40 [00:20<00:01,  5.88it/s] 78%|███████▊  | 31/40 [00:20<00:01,  6.69it/s] 80%|████████  | 32/40 [00:30<00:26,  3.26s/it] 82%|████████▎ | 33/40 [00:31<00:16,  2.37s/it] 85%|████████▌ | 34/40 [00:31<00:10,  1.69s/it] 88%|████████▊ | 35/40 [00:31<00:06,  1.27s/it] 90%|█████████ | 36/40 [00:31<00:03,  1.02it/s] 92%|█████████▎| 37/40 [00:31<00:02,  1.39it/s] 95%|█████████▌| 38/40 [00:32<00:01,  1.88it/s] 98%|█████████▊| 39/40 [00:32<00:00,  2.16it/s]100%|██████████| 40/40 [00:32<00:00,  2.41it/s]100%|██████████| 40/40 [00:32<00:00,  1.22it/s]
+{
+  "multiple-ts": {
+    "pass@1": 0.0
+  },
+  "config": {
+    "prefix": "",
+    "do_sample": true,
+    "temperature": 0.2,
+    "top_k": 0,
+    "top_p": 0.95,
+    "n_samples": 1,
+    "eos": "<|endoftext|>",
+    "seed": 0,
+    "model": "sartajbhuvaji/bonsai-distilled-depth12-experts80-lora-vs-baseline-3k-warmup450-lr1e4-best",
+    "modeltype": "causal",
+    "peft_model": null,
+    "revision": null,
+    "use_auth_token": true,
+    "trust_remote_code": false,
+    "tasks": "multiple-ts",
+    "instruction_tokens": null,
+    "batch_size": 8,
+    "max_length_generation": 512,
+    "precision": "bf16",
+    "load_in_8bit": false,
+    "load_in_4bit": false,
+    "left_padding": false,
+    "limit": 40,
+    "limit_start": 0,
+    "save_every_k_tasks": 1,
+    "postprocess": true,
+    "allow_code_execution": true,
+    "generation_only": false,
+    "load_generations_path": null,
+    "load_data_path": null,
+    "metric_output_path": "runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts.json",
+    "save_generations": true,
+    "load_generations_intermediate_paths": null,
+    "save_generations_path": "runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best/humaneval-ts-generations.json",
+    "save_references": false,
+    "save_references_path": "references.json",
+    "prompt": "prompt",
+    "max_memory_per_gpu": null,
+    "check_references": false,
+    "resume": false
+  }
+}
+pass@1=0.0
+humaneval-ts pass@1 (final, sartajbhuvaji/bonsai-distilled-depth12-experts80-lora-vs-baseline-3k-warmup450-lr1e4): 0.0
+  run_dir: runs/20261009T232015Z-471aa2-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-final
+humaneval-ts pass@1 (best, sartajbhuvaji/bonsai-distilled-depth12-experts80-lora-vs-baseline-3k-warmup450-lr1e4-best): 0.0
+  run_dir: runs/20261010T001334Z-116905-distill-depth12-experts80-lora-humaneval-ts-n40-lr1e4-best
+=== done 2026-10-10T01:05:54Z ===
