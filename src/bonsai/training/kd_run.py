@@ -129,6 +129,15 @@ def cache_teacher_logit_file(
     else:
         raw = load_samples(split, "retraining", n=num_samples, seed=seed, token=hf_token)
     _log(f"  loaded {len(raw)} raw sample(s)")
+    if sample_mode == "function":
+        samples_path = run_dir / "checkpoints" / "function-samples.jsonl"
+        samples_path.parent.mkdir(parents=True, exist_ok=True)
+        with samples_path.open("w", encoding="utf-8") as f:
+            for i, row in enumerate(raw):
+                f.write(
+                    json.dumps({"index": i, "content": row["content"]}, ensure_ascii=False) + "\n"
+                )
+        _log(f"  wrote {len(raw)} function sample(s) to {samples_path}")
 
     _log(f"Loading tokenizer for {teacher_repo_id} ...")
     tokenizer = AutoTokenizer.from_pretrained(teacher_repo_id, token=hf_token)

@@ -15,6 +15,7 @@ LOG="${LOG:-/root/phase4_depth12_experts80_functions_cache_kd.log}"
 exec > >(tee -a "$LOG") 2>&1
 
 CACHE_HUB="${CACHE_HUB:-sartajbhuvaji/bonsai-teacher-logits-baseline-functions}"
+SAMPLES_HUB="${SAMPLES_HUB:-sartajbhuvaji/bonsai-kd-function-samples-baseline-12k}"
 CANDIDATE_HUB="${CANDIDATE_HUB:-sartajbhuvaji/bonsai-candidate-depth12-experts80}"
 DISTILL_HUB="${DISTILL_HUB:-sartajbhuvaji/bonsai-distilled-depth12-experts80-functions-vs-baseline-3k-warmup450-lr1e4}"
 DISTILL_HUB_BEST="${DISTILL_HUB_BEST:-${DISTILL_HUB}-best}"
@@ -29,6 +30,7 @@ TRAIN_HF_ARGS=("${HF_ARGS[@]}" --hub-public)
 
 echo "=== Phase 4 depth12/experts80 function-mode cache + KD start $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
 echo "CACHE_HUB=${CACHE_HUB} (new repo; do not overwrite raw-file baseline cache)"
+echo "SAMPLES_HUB=${SAMPLES_HUB} (function text dataset, separate from logits .pt)"
 echo "DISTILL_HUB=${DISTILL_HUB}"
 echo "DISTILL_HUB_BEST=${DISTILL_HUB_BEST}"
 
@@ -54,9 +56,22 @@ python - <<'PY' "$HF_TOKEN" "$CACHE_HUB"
 import sys
 from huggingface_hub import HfApi
 token, repo = sys.argv[1], sys.argv[2]
-HfApi(token=token).update_repo_settings(repo_id=repo, repo_type="dataset", private=False)
+api = HfApi(token=token)
+api.update_repo_settings(repo, private=False, token=token, repo_type="dataset")
 print(f"dataset {repo} set public")
 PY
+
+CACHE_PT=$(find "${CACHE_RUN}/checkpoints" -name '*-topk-logits.pt' | head -1)
+echo "--- Subtask 1b: push function sample texts to ${SAMPLES_HUB} ---"
+SAMPLES_WALL_START=$(date +%s)
+python tools/push_function_samples_to_hub.py \
+  --from-cache-pt "$CACHE_PT" \
+  --push-to-hub "$SAMPLES_HUB" \
+  --hub-public \
+  --write-jsonl "${CACHE_RUN}/checkpoints/function-samples-hub.jsonl" \
+  "${HF_ARGS[@]}"
+SAMPLES_WALL_END=$(date +%s)
+echo "SAMPLES_WALL_CLOCK_SEC=$((SAMPLES_WALL_END - SAMPLES_WALL_START))"
 
 echo "--- Subtask 2: full-parameter KD vs function cache (${STEPS} steps, warmup ${WARMUP}, peak_lr ${PEAK_LR}) ---"
 KD_WALL_START=$(date +%s)

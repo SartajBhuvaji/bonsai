@@ -1737,6 +1737,12 @@ sitting in `docs/debug/`.
    Push to a **new** cache repo, `sartajbhuvaji/bonsai-teacher-logits-baseline-functions`
    (distinct from the existing raw-file `…-baseline` cache -- different
    sample set, same teacher). Public is fine (storage-quota policy below).
+   **Also** publish the extracted function **texts** (not just tokenized logits
+   in the `.pt`) to a separate dataset repo
+   `sartajbhuvaji/bonsai-kd-function-samples-baseline-12k` via
+   `tools/push_function_samples_to_hub.py` (decode rows from the cache `.pt`
+   so the Hub dataset matches the cache exactly; future cache runs also write
+   `function-samples.jsonl` under the run dir).
 2. **(today) KD retrain depth12/experts80** against the new cache,
    full-parameter (not LoRA -- plan.md above already shows LoRA doesn't
    change the outcome, so default to the simpler recipe), same lr1e4/
