@@ -47,6 +47,13 @@ eval = [
     "bigcode-eval @ git+https://github.com/bigcode-project/bigcode-evaluation-harness",
     "lm-eval>=0.4.13",
 ]
+# Real TypeScript parsing for bonsai.data.functions (function-level KD
+# samples, Phase 4). Small, pure, prebuilt-wheel packages -- unlike the eval
+# extra, cheap enough to also run for real in the dev/test env (see tox.ini).
+data = [
+    "tree-sitter>=0.23",
+    "tree-sitter-typescript>=0.23",
+]
 
 [build-system]
 requires = ["hatchling"]

@@ -1670,6 +1670,89 @@ and baseline teacher cache as full-parameter run; **only** change is
   TS continuations, no bounded complete functions) regardless of full vs LoRA updates.
   LoRA-teacher 3k cache arm **still on hold**.
 
+**Root cause confirmed in code, not just inferred (2026-10-09):**
+`bonsai.data.tokenize_samples` feeds `cache_teacher_logit_file` the raw
+`content` field of whole files from `the-stack-dedup/typescript`, truncated
+to `max_length=2048` tokens from wherever the file happens to start — no
+concept of a complete function, no leading docstring/signature shape, no EOS
+at a real stopping point. KD trains the student to continue an arbitrary
+code span; HumanEval-TS evaluates "finish one bounded function and stop."
+Both full-parameter and LoRA KD converge cleanly on this objective (val loss
+~0.40–0.50, no divergence) — training isn't broken, the training *data's
+shape* doesn't match the eval task.
+
+**Function-level KD dataset built and verified (2026-10-09/10):** new module
+`bonsai.data.functions` (`extract_functions`, `load_function_samples`) pulls
+one complete, bounded top-level function per sample — `function foo() {}`
+declarations and `const foo = (...) => ...` / `const foo = function () {}`
+single-declarator assignments, `export`/`export default` included, plus the
+function's immediately-preceding comment if any — using real TypeScript
+parsing (`tree-sitter-typescript`), not a brace-counting heuristic (strings,
+template literals, and regexes can all contain unbalanced `{`/`}`). 22 real
+unit tests (`tests/test_data_functions.py`), all passing. Wired into
+`cache_teacher_logit_file`/`tools/cache_teacher_logits.py` as
+`--sample-mode function` (default stays `file`, unchanged behavior for
+existing re-runs). New optional dep `tree-sitter`/`tree-sitter-typescript`
+(`pyproject.toml`'s new `data` extra; both ship real stubs, no mypy override
+needed), added to the `dev`/`type`/`cov` tox envs so it's exercised for real
+in CI, not just the GPU instance.
+- **Verified against real data before using it for anything**, per explicit
+  instruction: pulled 300 real function samples from the live
+  `the-stack-dedup/typescript` shards (not synthetic test strings). 0 exact
+  duplicates; length distribution min=23 p25=167 median=302 p75=628
+  max=2578 chars, mean 474 — well inside HumanEval-TS problem scale.
+  Manually read the first 40 extracted samples end-to-end: every one is a
+  syntactically complete, correctly-bounded function (balanced
+  braces/strings/template literals/JSX/generics all handled right), JSDoc
+  and `//`/`@deprecated` leading comments attached correctly when present,
+  no truncation artifacts.
+  Known limitation, not a bug: an extracted function can reference free
+  variables from its original file's imports/outer scope (e.g. a React
+  component using an outer `useUserId()`), since the span is deliberately
+  function+comment only — fine for teaching the "bounded completion" shape,
+  since the goal is next-token KD signal, not runtime-executable isolation.
+**Function-level KD run, split into 4 GPU subtasks (2026-10-10):** same H100
+box, GPU time budget split across today/tomorrow (GPU gets released after
+subtask 2; subtasks 3-4 resume on a fresh instance). Each subtask: archive
+full logs/metrics under `docs/debug/` (pipeline log, `kd_metrics.jsonl`,
+val-trajectory summary, cache run config) the same way prior arms did, then
+update this file with the real numbers before opening a PR. **New habit,
+starting now:** once subtask 4's numbers are in, build a notebook for this
+experiment (logic in `src/bonsai/`, notebook calls it, committed with
+outputs -- same convention as `10b_teacher_corrected_mbpp_ts.ipynb` /
+`11a_teacher_corrected_lora_humaneval_ts_sample.ipynb`), so the raw
+logs/metrics turn into an actual readable learning artifact, not just files
+sitting in `docs/debug/`.
+
+1. **(today) Cache teacher logits, function mode.** `--teacher baseline
+   --sample-mode function --num-samples 12000` (3000 steps x batch_size=4 =
+   12,000 sample-slots/epoch; 12000 unique function samples means ~1 pass
+   with minimal repetition, vs. cycling through the same pool 2x+ at the
+   old default of 6000 -- reasoning is "enough unique functions that 3000
+   steps doesn't repeat heavily," not an attempt to match the old raw-file
+   token volume, which was never itself validated as the right target).
+   `load_function_samples`'s default `raw_file_budget = max(n*3, 500)` means
+   this streams ~36,000 raw files to find 12,000 usable functions --
+   genuinely unmeasured how long that takes, log the real wall time.
+   Push to a **new** cache repo, `sartajbhuvaji/bonsai-teacher-logits-baseline-functions`
+   (distinct from the existing raw-file `…-baseline` cache -- different
+   sample set, same teacher). Public is fine (storage-quota policy below).
+2. **(today) KD retrain depth12/experts80** against the new cache,
+   full-parameter (not LoRA -- plan.md above already shows LoRA doesn't
+   change the outcome, so default to the simpler recipe), same lr1e4/
+   warmup450/3000-step hyperparameters as every other arm in this
+   investigation for a fair comparison. Push both final and best-val
+   checkpoints to the Hub, public.
+3. **(tomorrow, fresh GPU) HumanEval-TS n=40 on the final checkpoint.**
+4. **(tomorrow, fresh GPU) HumanEval-TS n=40 on the best-val checkpoint.**
+   Three-way-plus comparison table (pruned-only 0.475, full-param KD 0.0,
+   LoRA KD 0.0, function-mode KD ?) goes in this file once both land.
+
+Open parameter carried over from the dataset-build writeup above: average
+function length (~474 chars, roughly 120-150 tokens) is far shorter than the
+old 2048-token raw-file samples -- `--num-samples 12000` is a reasoned
+starting point (see above), not a guess validated by a real run yet.
+
 **Checkpoint cleanup (2026-10-08):** the four superseded distilled checkpoints
 (`…-vs-baseline`, `…-vs-corrected`, `…-vs-baseline-3k`,
 `…-vs-baseline-3k-warmup450`) were deleted from the Hub -- their numbers are
@@ -1678,7 +1761,9 @@ still-active checkpoints (`…-lr1e4` final and `…-lr1e4-best`) were set back 
 **private** now that deleting the others freed the account's private-storage
 quota. **Exception (2026-10-09):** depth0/experts97 isolation checkpoints were
 published **public** by explicit decision after private quota blocked best-val push.
-Elsewhere: **do not flip a repo public to work around a quota limit** without asking.
+**Policy update (2026-10-10):** private storage keeps getting hit; public pushes
+are fine going forward (explicit decision, not a one-off workaround) — superseded
+checkpoints get deleted outright when no longer needed rather than re-privatized.
 
 **Backlog (when there is time, post-ablation): persist teacher logit caches on
 Hub and teach the trainer to fetch them.** The cache is reusable across every
