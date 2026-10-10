@@ -52,23 +52,67 @@ def make_kd_loss_fn(cache: dict[int, tuple[torch.Tensor, torch.Tensor]]) -> Loss
             )
         teacher_topk_ids, teacher_topk_logprobs = cache[key]
 
-        # Predict token t+1 from position t, same convention as `labels=input_ids`'s
-        # own shift inside the model's built-in loss -- made explicit here since KD
-        # never goes through that built-in loss at all.
+        # `teacher_topk_ids[t]`/`teacher_topk_logprobs[t]` is the top-k of the
+        # teacher's logits at position t -- i.e. its prediction for token t+1,
+        # the exact same position convention as `student_logits[t]` below
+        # (both come from indexing `model(input_ids).logits[0]` directly, no
+        # shift applied during caching -- see cache_teacher_logit_file). The
+        # last position (predicting one token past the end of the sequence)
+        # has nothing to compare against on either side, so it's dropped from
+        # both with the same `[:-1]` slice -- not a `[1:]` shift on the
+        # teacher side, which was a real bug (plan.md, 2026-10-10): it paired
+        # the student's prediction for token t+1 (context 0..t) against the
+        # teacher's prediction for token t+2 (context 0..t+1), a target one
+        # position ahead of what the student could possibly produce from the
+        # context it had. Confirmed via the regression test next to this file
+        # (comparing the teacher against its own cache no longer leaves a
+        # position-mismatch gap once this is `[:-1]` on both sides).
         student_logits = model(input_ids=input_ids).logits[0, :-1]  # [seq_len-1, vocab]
         dev = student_logits.device
-        topk_ids = teacher_topk_ids[1:].to(dev)  # [seq_len-1, k]
-        topk_logprobs = teacher_topk_logprobs[1:].to(dev)  # [seq_len-1, k]
+        topk_ids = teacher_topk_ids[:-1].to(dev)  # [seq_len-1, k]
+        topk_logprobs = teacher_topk_logprobs[:-1].to(dev)  # [seq_len-1, k]
 
+        # `topk_logprobs` is the teacher's distribution *conditioned on* the
+        # token being in its own top-k support (renormalized to sum to 1 over
+        # just those k, per cache_teacher_logits.py) -- it carries no
+        # information about how much of the teacher's real probability mass
+        # that support actually covers. Matching it against the student's
+        # conditional top-k distribution (gather, then softmax over just
+        # those k logits) is the standard top-k-KD approximation and is
+        # what this loss computes below (`kl_within_support`).
+        #
+        # That comparison alone is exactly the bug found in practice
+        # (plan.md, 2026-10-10): it is blind by construction to what the
+        # student does with every logit *outside* the support, since both
+        # sides are renormalized away from the full vocab before comparing.
+        # A student trained against it converged to a healthy-looking KD
+        # loss in every arm tried (full-parameter, LoRA, function-mode
+        # data) while its real (full-vocab) argmax was dominated by an
+        # unconstrained off-support token from the first generated token on
+        # -- HumanEval-TS repetition collapse in all three.
+        #
+        # The missing term is how much of the student's *real* probability
+        # mass lands inside the support at all: coverage = P(token in
+        # top-k) = topk_logsumexp - full_logsumexp (computed from the
+        # correctly-normalized log-space -- not the student-wide KL this
+        # project's caching intentionally avoids, just the one extra scalar
+        # needed to constrain the complement). `-coverage` is 0 when all of
+        # the student's mass is inside the support and grows the instant
+        # an off-support logit inflates, independent of `kl_within_support`
+        # which only ever compares ranking *inside* the support. Together
+        # they are the standard decomposition of cross-entropy into
+        # "which side of the support" and "where within it" (derived and
+        # verified against a trained toy model before this fix landed; see
+        # the regression test next to this file).
         student_topk_logits = torch.gather(student_logits, -1, topk_ids)
         student_topk_logprobs = torch.log_softmax(student_topk_logits, dim=-1)
+        full_logsumexp = torch.logsumexp(student_logits, dim=-1)
+        topk_logsumexp = torch.logsumexp(student_topk_logits, dim=-1)
+        coverage_loss = full_logsumexp - topk_logsumexp  # -log P(token in top-k), >= 0
 
         teacher_probs = topk_logprobs.exp()
-        # Forward KL, teacher || student, restricted to the teacher's own top-k
-        # support -- the standard top-k KD approximation this project's caching
-        # pass is built around (plan.md 4.1), not the full-vocab KL.
-        kl_per_token = (teacher_probs * (topk_logprobs - student_topk_logprobs)).sum(-1)
-        return kl_per_token.mean()
+        kl_within_support = (teacher_probs * (topk_logprobs - student_topk_logprobs)).sum(-1)
+        return (kl_within_support + coverage_loss).mean()
 
     return loss_fn
 
