@@ -1,0 +1,13 @@
+{
+  "kd_wall_clock_sec": 8405,
+  "kd_wall_clock_human": "2h 20m 5s",
+  "val_best_step": 239,
+  "val_best": 0.27849485784769057,
+  "val_final_step": 2999,
+  "val_final": 0.5260525114834309,
+  "humaneval_final_pass_at_1": 0.35,
+  "humaneval_best_pass_at_1": 0.55,
+  "distill_run": "runs/20261011T182939Z-cba49b-distill-depth12-experts80-rawfile-vs-baseline-3000-warmup450-lr1e4-fixedloss",
+  "humaneval_final_run": "runs/20261011T204930Z-1550a0-distill-depth12-experts80-rawfile-fixedloss-humaneval-ts-n40-final",
+  "humaneval_best_run": "runs/20261011T210006Z-cdd44b-distill-depth12-experts80-rawfile-fixedloss-humaneval-ts-n40-best"
+}
