@@ -1762,7 +1762,9 @@ top-p 0.95, batch 8):**
 | Pruned-only (no KD) | **0.475** |
 | Full-parameter KD (raw-file continuations) | **0.0** |
 | LoRA KD (same raw-file cache/recipe) | **0.0** |
-| **Function-mode KD** (bounded functions, 12k cache) | **0.0** |
+| **Function-mode KD** (bounded functions, **broken** loss, PR #71 pre-fix) | **0.0** |
+| **Function-mode KD** (same cache, **fixed** loss — best-val @ step **199**) | **0.55** |
+| **Function-mode KD** (fixed loss — final @ step **2999**) | **0.175** |
 
 **Function-mode HumanEval (2026-10-10, GPU `162.243.79.40`):** model
 `sartajbhuvaji/bonsai-distilled-depth12-experts80-functions-vs-baseline-3k-warmup450-lr1e4`;
@@ -1805,12 +1807,22 @@ and well-tested.
    since the cached teacher distribution is itself renormalized/conditional).
    Two new regression tests cover both bugs; both fail on the pre-fix code.
 
-**Next (once GPU available): re-run KD with the fixed loss, same cache,
-same hyperparameters.** No new teacher-logit caching needed — reuse whichever
-cache is already on the Hub (function-mode cache
-`sartajbhuvaji/bonsai-teacher-logits-baseline-functions` is the natural pick,
-since it's also the right data shape). Then re-eval HumanEval-TS n=40. This is
-the actual decisive test the whole investigation has been building toward.
+**Fixed-loss re-run complete (2026-10-10, GPU `162.243.79.40`):** reused
+`sartajbhuvaji/bonsai-teacher-logits-baseline-functions`; KD
+`runs/20261010T201948Z-db6602-distill-depth12-experts80-functions-vs-baseline-3000-warmup450-lr1e4-fixedloss/`
+(**KD wall ~11443 s**). **Best val 0.3155 @ step 199** (not step 2999 — early
+checkpoint is materially better than training to completion). Hub
+`…-lr1e4-fixedloss` + `…-fixedloss-best`. HumanEval n=40 (both checkpoints,
+since `best_step ≠ final_step`):
+- **best-val @ 199:** **pass@1 = 0.55** (`runs/20261010T234252Z-9b2ac3-…-best`)
+- **final @ 2999:** **pass@1 = 0.175** (`runs/20261010T233024Z-cf881a-…-final`)
+Artifacts: `docs/debug/phase4_depth12_experts80_functions_fixedloss_*`.
+**Qualitative (best-val):** real TypeScript on problems 0–2 (e.g. problem 0
+correct double-loop ~556 chars) — not repetition-collapse. **Conclusion:** the
+KD loss bugs were the dominant blocker for every prior **0/40** arm; fixing
+them recovers substantial coding ability (**0.55** vs pruned-only **0.475** is
+in the same ballpark, with headroom if early-stop / checkpoint selection is
+treated as part of the recipe). Notebook: `12e_phase4_function_kd_fixedloss_humaneval_ts.ipynb`.
 
 **Subtasks 1–2 complete (2026-10-10, GPU `162.243.22.219`):** orchestration
 `tools/run_phase4_depth12_experts80_functions_cache_kd.sh` (cache leg aborted

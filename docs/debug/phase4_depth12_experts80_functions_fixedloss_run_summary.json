@@ -1,0 +1,10 @@
+{
+  "kd_wall_clock_sec": 11443,
+  "kd_wall_clock_human": "3h 10m 43s",
+  "val_best_step": 199,
+  "val_best": 0.3154929044066618,
+  "val_final_step": 2999,
+  "val_final": 0.4507074132654816,
+  "humaneval_final_pass_at_1": 0.175,
+  "humaneval_best_pass_at_1": 0.55
+}
