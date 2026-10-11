@@ -144,12 +144,28 @@ data-quality defect in the retraining pool has been found and fixed, and
 neither the method change nor the fix closes the gap to the uncorrected
 baseline
 (\cref{sec:teacher-correction,sec:teacher-correction-eval,sec:teacher-correction-lora}).
-A first real pruned candidate has been built and distilled against both
-teacher variants, but the result is a negative one: both distilled
-students degenerate into repetition rather than working code at the
-token budget tested, leaving the corrected-vs-uncorrected question open
-and pointing instead to a real, unmet lower bound on retraining budget
-(\cref{sec:phase4-negative}); no candidate has been finalized yet.
+A first real pruned candidate was distilled against the uncorrected
+teacher under four independent combinations of update method
+(full-parameter vs.\ LoRA) and training-data shape (raw-file
+continuations vs.\ a purpose-built function-bounded extractor) --
+every one converging to a healthy knowledge-distillation validation
+loss yet scoring zero on the primary downstream benchmark, with an
+identical repetition-collapse failure in all four cases. Root-caused
+directly in the implementation rather than inferred from further
+ablations: two bugs in the knowledge-distillation loss itself, an
+off-by-one misalignment between the cached teacher targets and the
+student's own logits, and a softmax normalized only over the
+teacher's top-20 logits rather than the full vocabulary, leaving the
+loss structurally blind to the student inflating any other token's
+logit without penalty. Fixing both recovers substantial downstream
+capability -- pass@1 $=0.55$ at the best validation checkpoint,
+matching or exceeding the pruned-but-undistilled candidate's own
+$0.475$ -- and a direct follow-up isolation shows the training-data-shape
+hypothesis explored along the way was never the actual cause
+(\cref{sec:phase4-negative}). The original corrected-vs-uncorrected-teacher
+comparison that motivated this section remains unresolved, since every
+result to date, before and after the fix, uses only the uncorrected
+teacher; no candidate has been finalized yet.
 
 \section{Related Work}
 \label{sec:related}
@@ -1160,7 +1176,7 @@ step: it is the only way to test the thing that actually matters for
 Phase 4, instead of continuing to relitigate the corrected teacher's own
 benchmark scores (\cref{sec:discussion}).
 
-\section{Distillation Retraining: A Negative Result}
+\section{Distillation Retraining: A Negative Result, and Its Resolution}
 \label{sec:phase4-negative}
 
 Motivated directly by the question raised at the end of
@@ -1430,6 +1446,194 @@ collapses to near-$0.0$ with the same repetition signature, the training
 data itself is the remaining suspect, and no further change of training
 method alone would be expected to help.
 
+\subsection{LoRA Retry: Ruling Out Update Method}
+\label{sec:phase4-lora-kd}
+
+The LoRA retry described at the end of \cref{sec:phase4-revised-interpretation}
+completed with the same negative result. LoRA adapters (rank 16,
+$\alpha=32$, dropout 0.05) on the attention projections only ($W^Q$,
+$W^K$, $W^V$, $W^O$; 0.106\% of parameters trainable), trained against
+the identical raw-file teacher cache and schedule as every
+full-parameter run above, reach final validation KD loss $0.4984$ at
+step 2999 (best equals final -- no early peak this time) and score
+\textbf{pass@1 $=0.0$} on both the final and best-val checkpoints,
+identically to the full-parameter arm.
+
+The completions themselves differ in degree, not in outcome: LoRA's
+average completion length ($\sim$6.5k characters) is under half the
+full-parameter arm's ($\sim$15k), and only 2 of 40 completions show the
+obvious long-repetition heuristic that dominates 33--35 of 40
+full-parameter completions -- the more common LoRA failure is stopping
+immediately after the function signature, or emitting a trivially wrong
+one-token body. The headline number is unchanged regardless:
+\textbf{a far gentler, far more constrained update does not recover any
+of the pruned-only candidate's $0.475$}. This makes update magnitude an
+unlikely root cause and leaves training-data shape as the sole
+remaining hypothesis from \cref{sec:phase4-revised-interpretation} --
+tested directly next.
+
+\subsection{A Function-Bounded Training Set, and a Fourth Identical Failure}
+\label{sec:phase4-functions}
+
+Every KD run to this point trains on raw, uninterrupted continuations
+of whole TypeScript files -- the student never sees a single example of
+what a complete, correctly terminated function looks like, while
+HumanEval-TS specifically evaluates ``produce one complete function and
+stop.'' To test this directly, we built \texttt{bonsai.data.functions},
+a real TypeScript-parsing extractor (via \texttt{tree-sitter-typescript},
+not a brace-counting heuristic, since strings, template literals, and
+regexes can all contain unbalanced braces) that pulls one complete,
+bounded top-level function per sample -- \texttt{function} declarations
+and single-declarator \texttt{const}/arrow-function assignments,
+together with any immediately preceding comment -- from the same
+retraining pool used everywhere else in this paper. Verified against
+300 real samples before use: zero exact duplicates, a length
+distribution (min 23, median 302, mean 474, max 2578 characters)
+comfortably inside HumanEval-TS's own problem scale, and a manual read
+of the first 40 extracted samples found every one syntactically
+complete and correctly bounded, with no truncation artifacts.
+
+Caching the uncorrected teacher's top-20 logits over 12,000 such
+function samples and distilling the same depth12/experts80 candidate
+under the identical schedule (\texttt{warmup\_steps}$=450$, peak LR
+$1\times10^{-4}$, 3000 steps) reaches best validation KD loss $0.4094$
+at step 2999 (best equals final) -- the same healthy ballpark as every
+raw-file arm before it ($\sim$0.40--0.41). \textbf{HumanEval-TS n=40:
+pass@1 $=0.0$, a fourth time}, with the same repetition-collapse
+failure class as every prior arm, only the specific garbage token
+differing.
+
+At this point, every combination of the two hypotheses this
+investigation had been testing -- full-parameter vs.\ LoRA update,
+raw-file vs.\ function-bounded data -- had been tried, each converging
+cleanly to a healthy KD loss, and every one failed identically. Neither
+hypothesis from \cref{sec:phase4-revised-interpretation} survives
+four-for-four confirmation of the opposite prediction. What all four
+runs share, and nothing else does, is the loss function itself.
+
+\subsection{The Actual Root Cause: Two Bugs in the KD Loss}
+\label{sec:phase4-root-cause}
+
+Direct inspection of the loss implementation -- not a further ablation
+-- found two independent bugs, both present, unexamined, in every one
+of the four runs above.
+
+\textbf{An off-by-one target misalignment.} The teacher cache stores
+its top-20 logit indices and log-probabilities using the same
+convention as the student's own logits: position $t$'s entry is the
+prediction \emph{for} token $t+1$, with no shift applied when the cache
+is written. The loss correctly dropped the student's final,
+target-less position (\texttt{student\_logits[:-1]}), but then sliced
+the teacher side one position later than it should have
+(\texttt{teacher\_topk[1:]} instead of \texttt{teacher\_topk[:-1]}),
+pairing the student's prediction at position $t$ against the teacher's
+target for position $t+1$ -- training the student, in effect, to
+predict token $t+2$ from context that only extends to token $t$. This
+is not a label-smoothing-scale error; it is an unsatisfiable target at
+every single position of every single training example.
+
+\textbf{Top-$k$-only softmax normalization.} Let $z_t \in
+\mathbb{R}^{|V|}$ be the student's logits at position $t$ and $K_t
+\subset V$, $|K_t|{=}20$, the teacher's cached support with conditional
+probabilities $q_t(k)$ for $k \in K_t$ (the cache stores a distribution
+already renormalized over the support, $\sum_{k \in K_t} q_t(k) = 1$,
+not the teacher's real full-vocabulary distribution). The deployed loss
+computed
+\begin{equation}
+\label{eq:kd-broken}
+L_{\text{broken},t} = -\sum_{k \in K_t} q_t(k) \log \frac{\exp(z_t[k])}{\sum_{k' \in K_t} \exp(z_t[k'])},
+\end{equation}
+a softmax taken only over the 20 gathered logits, with every other
+coordinate of $z_t$ excluded from the normalizer. Nothing in
+\cref{eq:kd-broken} relates $z_t[k]$, $k \in K_t$, to $z_t[j]$, $j
+\notin K_t$: a student that drives one off-support logit arbitrarily
+high pays no penalty, since $j \notin K_t$ never appears in the sum --
+precisely consistent with what every generation showed, a converged,
+healthy-looking loss alongside one off-support token dominating the
+real (full-vocabulary) softmax from the first generated token onward,
+in all four arms.
+
+The fix restores the full-vocabulary normalizer and decomposes the
+result into two interpretable terms:
+\begin{equation}
+\label{eq:kd-fixed}
+L_t = \underbrace{\sum_{k \in K_t} q_t(k) \log \frac{q_t(k)}{\tilde p_t(k)}}_{\text{KL within support}} \;+\; \underbrace{\Big(\mathrm{LSE}(z_t) - \mathrm{LSE}(z_t[K_t])\Big)}_{\text{coverage loss}},
+\end{equation}
+where $\tilde p_t(k) = \exp(z_t[k]) / \sum_{k' \in K_t}\exp(z_t[k'])$ is
+the student's own within-support conditional and $\mathrm{LSE}$ denotes
+log-sum-exp over the indicated coordinates. The coverage term equals
+$-\log P_{\text{student}}(\text{token}\in K_t)$ under the student's
+real, full-vocabulary distribution, and is zero only when every bit of
+the student's real probability mass falls inside the teacher's own
+top-20 -- a genuine floor, not an arbitrary one, since even the teacher
+matching itself does not reach exactly zero (the teacher's own top-20
+never captures its full probability mass either). This also meant
+re-deriving what ``student equals teacher exactly $\Rightarrow$ loss
+$\approx 0$'' should mean: it is now the teacher's own coverage floor,
+not zero, since the cached distribution is itself a renormalized,
+conditional one. Two regression tests were added covering each bug
+individually; both fail against the pre-fix implementation and pass
+against \cref{eq:kd-fixed}.
+
+\subsection{Confirming the Fix}
+\label{sec:phase4-fix-confirmed}
+
+Re-running KD on the identical function-mode cache from
+\cref{sec:phase4-functions}, same candidate, same schedule, changing
+only the loss, produces a qualitatively different trajectory:
+validation loss now reaches its minimum early (best $0.3155$ at step
+199) and \emph{worsens} with further training (final $0.4507$ at step
+2999) -- a real overfitting signal the broken loss never exhibited,
+since it was never actually measuring the quantity that determines
+downstream quality. \textbf{HumanEval-TS n=40 on the best-validation
+checkpoint: pass@1 $=0.55$} -- above the pruned-but-undistilled
+candidate's own $0.475$ (\cref{sec:phase4-pruned-only-diagnostic}) --
+while the final (step 2999) checkpoint scores $0.175$, degraded by
+overfitting but not collapsed: generations are shorter and sometimes
+prematurely truncated, not the single-token repetition-to-the-length-cap
+failure seen throughout
+\cref{sec:phase4-negative,sec:phase4-lr-chase,sec:phase4-depth-isolation,sec:phase4-lora-kd,sec:phase4-functions}.
+Manual inspection of the best-validation checkpoint's completions
+confirms genuinely correct, idiomatic TypeScript (a correct nested-loop
+\texttt{has\_close\_elements}, a correct one-line \texttt{truncate\_number}),
+not a near-miss.
+
+\subsection{Isolating Data Shape, At Last: It Was Never the Cause}
+\label{sec:phase4-rawfile-fixedloss}
+
+\Cref{sec:phase4-functions}'s function-bounded dataset and the loss fix
+landed in the same training run, so \cref{sec:phase4-fix-confirmed}'s
+result alone cannot separate ``the loss fix mattered'' from ``the loss
+fix mattered only once combined with better-shaped data.'' A direct
+isolation re-runs the identical fixed loss on the \emph{original}
+raw-file cache (\cref{sec:phase4-negative}'s teacher cache, no function
+extraction, no re-caching step), same candidate, same schedule.
+
+The result matches \cref{sec:phase4-fix-confirmed}'s headline number
+exactly: \textbf{best-validation checkpoint (step 239) scores pass@1
+$=0.55$} on HumanEval-TS n=40, identical to the function-mode run, with
+the final checkpoint (step 2999) at $0.35$ -- milder degradation than
+the function-mode arm's $0.175$, but the same qualitative shape
+(coherent, non-repetitive TypeScript at both checkpoints, confirmed by
+direct inspection of the raw generations). \textbf{Training-data shape
+never mattered.} The function-bounded extraction built in
+\cref{sec:phase4-functions} was a reasonable hypothesis, worth testing,
+and remains useful for interpretability and shorter training sequences
+-- but it was not the fix. The two bugs in \cref{sec:phase4-root-cause}
+fully account for every one of the four identical failures in
+\cref{sec:phase4-negative,sec:phase4-lr-chase,sec:phase4-depth-isolation,sec:phase4-lora-kd,sec:phase4-functions}:
+full-parameter vs.\ LoRA and raw-file vs.\ function-bounded data were
+both, in the end, orthogonal to the actual cause.
+
+One question this investigation raised remains genuinely open, not
+resolved by the fix: every result in this section, before and after
+it, distills against the \emph{uncorrected} teacher only
+(\cref{sec:phase4-negative}'s original corrected-vs-uncorrected
+comparison was itself confounded by the same shared bug, so it answers
+nothing either way). Whether a corrected-teacher KD arm, re-run with
+the fixed loss, changes this picture is untested at the time of
+writing.
+
 \section{Discussion and Open Questions}
 \label{sec:discussion}
 
@@ -1486,22 +1690,29 @@ resolved prematurely:
   shortlist) for retraining depends on real eval-suite numbers this
   section doesn't have yet -- the actual selection criteria are refined
   where the retraining/distillation plan is finalized, not decided here.
-\item \textbf{Lightweight-retrain token budget.} \citet{minitron2024}'s
-  1.8B-token budget was calibrated for a 15B dense model, not a $\sim$3.35B
-  active-parameter MoE; the right budget for this model's retraining
-  passes has no direct precedent to scale from. This is no longer simply
-  an absence of precedent:
-  \cref{sec:phase4-negative,sec:phase4-lr-chase,sec:phase4-depth-isolation}
+\item \textbf{Lightweight-retrain schedule, now that the loss is
+  correct.} \citet{minitron2024}'s 1.8B-token budget was calibrated for
+  a 15B dense model, not a $\sim$3.35B active-parameter MoE, so the
+  right budget for this model's retraining passes had no direct
+  precedent to scale from.
+  \Cref{sec:phase4-negative,sec:phase4-lr-chase,sec:phase4-depth-isolation,sec:phase4-lora-kd,sec:phase4-functions}
   tried $6\times$ the original step budget, three independent
-  schedule/learning-rate fixes, best-checkpoint selection, and swapping
-  which axis the parameter cut comes from -- seven configurations in
-  total -- and every one produced the same repetition-collapse failure on
-  HumanEval-TS, despite KD validation loss reaching as low as 0.406 (well
-  below the original 500-step run's 0.535). Token budget alone no longer
-  looks like the explanation; \cref{sec:phase4-revised-interpretation}'s
-  two remaining hypotheses (a real capability ceiling at this pruning
-  fraction, or a mismatch between the KD training data's shape and the
-  evaluation task's) are both still open.
+  schedule/learning-rate fixes, best-checkpoint selection, swapping
+  which axis the parameter cut comes from, swapping the update method
+  (full-parameter vs.\ LoRA), and swapping the training-data shape
+  (raw-file vs.\ function-bounded) -- and every configuration produced
+  the same repetition-collapse failure on HumanEval-TS, despite KD
+  validation loss reaching as low as 0.401. None of this was actually a
+  token-budget, method, or data-shape problem:
+  \cref{sec:phase4-root-cause} root-causes it directly to two bugs in
+  the KD loss implementation, fixed and confirmed in
+  \cref{sec:phase4-fix-confirmed,sec:phase4-rawfile-fixedloss}. What
+  remains open now that the loss is correct is the schedule itself: both
+  fixed-loss runs peak well before the 3000-step budget completes (step
+  199 and step 239 respectively) and measurably overfit past that point,
+  so a shorter schedule with more frequent validation checks likely
+  recovers the same or better downstream accuracy at a fraction of the
+  compute -- untested directly at the time of writing.
 \item \textbf{Whether the teacher-correction token budget itself needs
   revisiting.} \Cref{sec:teacher-correction-eval,sec:teacher-correction-lora}
   find the corrected teacher's HumanEval-TS pass@1 regresses well below
