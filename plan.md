@@ -1765,6 +1765,8 @@ top-p 0.95, batch 8):**
 | **Function-mode KD** (bounded functions, **broken** loss, PR #71 pre-fix) | **0.0** |
 | **Function-mode KD** (same cache, **fixed** loss — best-val @ step **199**) | **0.55** |
 | **Function-mode KD** (fixed loss — final @ step **2999**) | **0.175** |
+| **Raw-file KD** (original cache, **fixed** loss — best-val @ step **239**) | **0.55** |
+| **Raw-file KD** (fixed loss — final @ step **2999**) | **0.35** |
 
 **Function-mode HumanEval (2026-10-10, GPU `162.243.79.40`):** model
 `sartajbhuvaji/bonsai-distilled-depth12-experts80-functions-vs-baseline-3k-warmup450-lr1e4`;
@@ -1823,6 +1825,27 @@ KD loss bugs were the dominant blocker for every prior **0/40** arm; fixing
 them recovers substantial coding ability (**0.55** vs pruned-only **0.475** is
 in the same ballpark, with headroom if early-stop / checkpoint selection is
 treated as part of the recipe). Notebook: `12e_phase4_function_kd_fixedloss_humaneval_ts.ipynb`.
+
+**Raw-file fixed-loss isolation (2026-10-11, GPU `162.243.233.33`):** reused
+`sartajbhuvaji/bonsai-teacher-logits-baseline` (no re-cache); KD
+`runs/20261011T182939Z-cba49b-distill-depth12-experts80-rawfile-vs-baseline-3000-warmup450-lr1e4-fixedloss/`
+(**KD wall ~8405 s**). **Best val 0.2785 @ step 239**; final val **0.526 @ 2999**.
+Hub `sartajbhuvaji/bonsai-distilled-depth12-experts80-rawfile-vs-baseline-3k-warmup450-lr1e4-fixedloss`
++ `…-fixedloss-best`. HumanEval n=40 (`best_step ≠ final_step`):
+- **best-val @ 239:** **pass@1 = 0.55**
+  (`runs/20261011T210006Z-cdd44b-distill-depth12-experts80-rawfile-fixedloss-humaneval-ts-n40-best`)
+- **final @ 2999:** **pass@1 = 0.35**
+  (`runs/20261011T204930Z-1550a0-distill-depth12-experts80-rawfile-fixedloss-humaneval-ts-n40-final`)
+Orchestration: `tools/run_phase4_depth12_experts80_rawfile_fixedloss_kd_eval.sh`.
+Artifacts: `docs/debug/phase4_depth12_experts80_rawfile_fixedloss_*`.
+**Qualitative (best-val):** coherent TypeScript on problems 0–2 (e.g. problem 0
+double-loop ~555 chars; problem 2 `truncate_number` one-liner) — same headline
+**0.55** as function-mode fixed-loss best-val, not repetition-collapse.
+**Conclusion:** with the loss fixed, **raw-file continuations are sufficient** to
+reach the same best-val HumanEval score; the function-mode extraction work was not
+required for this recovery (still useful for interpretability / shorter sequences,
+but not the blocker that explained prior **0/40** arms). Notebook:
+`12f_phase4_rawfile_kd_fixedloss_humaneval_ts.ipynb`.
 
 **Subtasks 1–2 complete (2026-10-10, GPU `162.243.22.219`):** orchestration
 `tools/run_phase4_depth12_experts80_functions_cache_kd.sh` (cache leg aborted

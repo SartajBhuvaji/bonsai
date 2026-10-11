@@ -1,0 +1,115 @@
+HumanEval-TS n=40 FINAL (raw-file fixed-loss KD)
+model: sartajbhuvaji/bonsai-distilled-depth12-experts80-rawfile-vs-baseline-3k-warmup450-lr1e4-fixedloss
+pass@1: 0.35
+
+========================================================================
+FINAL problem 0 (len=493)
+========================================================================
+//Check if in given array of numbers, are any two numbers closer to each other than
+// given threshold.
+// >>> has_close_elements([1.0, 2.0, 3.0], 0.5)
+// false
+// >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)
+// true
+function has_close_elements(numbers: number[], threshold: number): boolean {
+  const sortedNumbers = numbers.sort((a, b) => a - b);
+  const first = sortedNumbers[0];
+  const last = sortedNumbers[sortedNumbers.length - 1];
+  return (last - first) <= threshold;
+}
+
+--- tail (last 400 chars) ---
+threshold.
+// >>> has_close_elements([1.0, 2.0, 3.0], 0.5)
+// false
+// >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)
+// true
+function has_close_elements(numbers: number[], threshold: number): boolean {
+  const sortedNumbers = numbers.sort((a, b) => a - b);
+  const first = sortedNumbers[0];
+  const last = sortedNumbers[sortedNumbers.length - 1];
+  return (last - first) <= threshold;
+}
+
+========================================================================
+FINAL problem 1 (len=834)
+========================================================================
+//Input to this function is a string containing multiple groups of nested parentheses. Your goal is to
+// separate those group into separate strings and return the array of those.
+// Separate groups are balanced (each open brace is properly closed) and not nested within each other
+// Ignore any spaces in the input string.
+// >>> separate_paren_groups("( ) (( )) (( )( ))")
+// ["()", "(())", "(()())"]
+function separate_paren_groups(paren_string: string): string[] {
+  const arr = [];
+  let i = 0;
+  let j = 0;
+  let str = "";
+  while (i < paren_string.length) {
+    if (paren_string[i] === "(") {
+      str = "";
+      j = i + 1;
+    } else if (paren_string[i] === ")") {
+      str += paren_string.substring(i, j);
+      arr.push(str);
+      j = i + 1;
+    } else {
+      str += paren_string[i];
+    }
+    i++;
+  }
+  return arr;
+}
+
+
+
+--- tail (last 400 chars) ---
+paren_string: string): string[] {
+  const arr = [];
+  let i = 0;
+  let j = 0;
+  let str = "";
+  while (i < paren_string.length) {
+    if (paren_string[i] === "(") {
+      str = "";
+      j = i + 1;
+    } else if (paren_string[i] === ")") {
+      str += paren_string.substring(i, j);
+      arr.push(str);
+      j = i + 1;
+    } else {
+      str += paren_string[i];
+    }
+    i++;
+  }
+  return arr;
+}
+
+
+
+========================================================================
+FINAL problem 2 (len=338)
+========================================================================
+//Given a positive floating point number, it can be decomposed into
+// and integer part (largest integer smaller than given number) and decimals
+// (leftover part always smaller than 1).
+// Return the decimal part of the number.
+// >>> truncate_number(3.5)
+// 0.5
+function truncate_number(number: number): number {
+  return number % 1;
+}
+
+
+--- tail (last 400 chars) ---
+//Given a positive floating point number, it can be decomposed into
+// and integer part (largest integer smaller than given number) and decimals
+// (leftover part always smaller than 1).
+// Return the decimal part of the number.
+// >>> truncate_number(3.5)
+// 0.5
+function truncate_number(number: number): number {
+  return number % 1;
+}
+
+
