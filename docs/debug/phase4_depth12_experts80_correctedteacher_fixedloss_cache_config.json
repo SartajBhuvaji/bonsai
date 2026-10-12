@@ -1,0 +1,9 @@
+{
+  "teacher_repo_id": "sartajbhuvaji/bonsai-qwen3-30b-a3b-teacher-corrected-lora",
+  "num_samples": 6000,
+  "seed": 11,
+  "top_k": 20,
+  "dataset_id": "bigcode/the-stack-dedup",
+  "data_dir": "data/typescript",
+  "sample_mode": "file"
+}

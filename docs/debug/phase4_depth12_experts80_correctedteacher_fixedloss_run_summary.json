@@ -1,0 +1,16 @@
+{
+  "cache_wall_clock_sec": 539,
+  "cache_wall_clock_human": "0h 8m 59s",
+  "kd_wall_clock_sec": 8178,
+  "kd_wall_clock_human": "2h 16m 18s",
+  "cache_run": "runs/20261011T215422Z-7d9d9d-cache-teacher-logits-lora-corrected",
+  "val_best_step": 259,
+  "val_best": 0.34729012052218117,
+  "val_final_step": 2999,
+  "val_final": 3.892869665225347,
+  "humaneval_final_pass_at_1": 0.0,
+  "humaneval_best_pass_at_1": 0.5,
+  "distill_run": "runs/20261011T220323Z-13a41e-distill-depth12-experts80-correctedteacher-vs-baseline-3000-warmup450-lr1e4-fixedloss",
+  "humaneval_final_run": "runs/20261012T003433Z-765250-distill-depth12-experts80-correctedteacher-fixedloss-humaneval-ts-n40-final",
+  "humaneval_best_run": "runs/20261012T001934Z-f7792a-distill-depth12-experts80-correctedteacher-fixedloss-humaneval-ts-n40-best"
+}

@@ -1767,6 +1767,8 @@ top-p 0.95, batch 8):**
 | **Function-mode KD** (fixed loss — final @ step **2999**) | **0.175** |
 | **Raw-file KD** (original cache, **fixed** loss — best-val @ step **239**) | **0.55** |
 | **Raw-file KD** (fixed loss — final @ step **2999**) | **0.35** |
+| **LoRA-corrected teacher KD** (raw-file cache, **fixed** loss — best-val @ step **259**) | **0.50** |
+| **LoRA-corrected teacher KD** (fixed loss — final @ step **2999**) | **0.0** |
 
 **Function-mode HumanEval (2026-10-10, GPU `162.243.79.40`):** model
 `sartajbhuvaji/bonsai-distilled-depth12-experts80-functions-vs-baseline-3k-warmup450-lr1e4`;
@@ -1846,6 +1848,27 @@ reach the same best-val HumanEval score; the function-mode extraction work was n
 required for this recovery (still useful for interpretability / shorter sequences,
 but not the blocker that explained prior **0/40** arms). Notebook:
 `12f_phase4_rawfile_kd_fixedloss_humaneval_ts.ipynb`.
+
+**LoRA-corrected teacher + fixed loss (2026-10-11/12, GPU `162.243.233.33`):** fresh
+cache `sartajbhuvaji/bonsai-teacher-logits-corrected` (n=6000, raw-file mode;
+**cache wall ~539 s**), then KD
+`runs/20261011T220323Z-13a41e-distill-depth12-experts80-correctedteacher-vs-baseline-3000-warmup450-lr1e4-fixedloss/`
+(**KD wall ~8178 s**). **Best val 0.3473 @ step 259**; final val **3.893 @ 2999**
+(severe overfit past early stop). Hub
+`sartajbhuvaji/bonsai-distilled-depth12-experts80-correctedteacher-3k-warmup450-lr1e4-fixedloss`
++ `…-fixedloss-best`. HumanEval n=40:
+- **best-val @ 259:** **pass@1 = 0.50**
+  (`runs/20261012T001934Z-f7792a-…-n40-best`)
+- **final @ 2999:** **pass@1 = 0.0**
+  (`runs/20261012T003433Z-765250-…-n40-final`)
+Orchestration: `tools/run_phase4_depth12_experts80_correctedteacher_fixedloss_cache_kd_eval.sh`.
+Artifacts: `docs/debug/phase4_depth12_experts80_correctedteacher_fixedloss_*`.
+**Conclusion (trustworthy loss):** corrected teacher is **not better** than
+uncorrected baseline-teacher fixed-loss (**0.55** best-val on both raw-file and
+function-mode); best-val **0.50** is in the same band as pruned-only **0.475** but
+slightly below the uncorrected KD sweet spot. Training to completion still
+destroys coding (**0.0** final). Notebook:
+`12g_phase4_correctedteacher_kd_fixedloss_humaneval_ts.ipynb`.
 
 **Subtasks 1–2 complete (2026-10-10, GPU `162.243.22.219`):** orchestration
 `tools/run_phase4_depth12_experts80_functions_cache_kd.sh` (cache leg aborted

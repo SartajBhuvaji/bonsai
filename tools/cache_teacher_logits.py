@@ -54,7 +54,12 @@ def main() -> None:
     parser.add_argument(
         "--push-to-hub",
         default=None,
-        help="Private HF dataset repo id (uploads the .pt as e.g. baseline-topk-logits.pt)",
+        help="HF dataset repo id (uploads the .pt as baseline-topk-logits.pt)",
+    )
+    parser.add_argument(
+        "--hub-public",
+        action="store_true",
+        help="Create/push the dataset repo as public (default: private).",
     )
     args = parser.parse_args()
 
@@ -75,7 +80,12 @@ def main() -> None:
         sample_mode=args.sample_mode,
     )
     if args.push_to_hub:
-        push_teacher_cache_to_hub(Path(cache_path), args.push_to_hub, hf_token=args.hf_token)
+        push_teacher_cache_to_hub(
+            Path(cache_path),
+            args.push_to_hub,
+            hf_token=args.hf_token,
+            hub_public=args.hub_public,
+        )
 
 
 if __name__ == "__main__":

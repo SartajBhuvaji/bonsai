@@ -1,0 +1,5 @@
+{
+  "best_step": 259,
+  "best_val_loss": 0.34729012052218117,
+  "path": "runs/20261011T220323Z-13a41e-distill-depth12-experts80-correctedteacher-vs-baseline-3000-warmup450-lr1e4-fixedloss/checkpoints/distilled-best"
+}
