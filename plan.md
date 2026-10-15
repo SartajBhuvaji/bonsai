@@ -1798,15 +1798,24 @@ early peak (depth12 still edges both ~28% cuts on n=40). Notebooks:
 grid — a **large** experts-only cut vs a **deep** aggressive cut. Depth0/experts60
 build reused from H100 (`SKIP_BUILD_DEPTH0=1`); depth22/experts92 built on B300.
 
-| Candidate (~params) | Zero-shot loss | Fixed-loss KD val (best step) | HumanEval pass@1 (n=40) |
-|---------------------|----------------|-------------------------------|-------------------------|
-| Depth0/experts60 (**16.94B**, 55.5%) | **0.959** | **0.136** @ **49** (final 0.204 @ 499) | **0.70** best / **0.675** final |
-| Depth22/experts92 (**5.53B**, 18.1%) | **2.496** | **0.513** @ **499** (best = final) | **0.225** |
-| Depth12/experts80 (**9.46B**, 31.0%) — ref | — | 0.55 @ ~200–240 (3k) | 0.55 best-val |
-| Depth0/experts97 (**8.55B**, 28.0%) — ref | — | 0.40 @ 499 | 0.40 |
+| Candidate (~params) | Zero-shot loss | Fixed-loss KD val (best step) | HumanEval pass@1 (n=40) | HumanEval pass@1 (full suite) |
+|---------------------|----------------|-------------------------------|-------------------------|------------------------------|
+| Depth0/experts60 (**16.94B**, 55.5%) | **0.959** | **0.136** @ **49** (final 0.204 @ 499) | **0.70** best / **0.675** final | **0.572** (best ckpt; vs base **0.671**) |
+| Depth22/experts92 (**5.53B**, 18.1%) | **2.496** | **0.513** @ **499** (best = final) | **0.225** | — (n=40 only) |
+| Depth12/experts80 (**9.46B**, 31.0%) — ref | — | 0.55 @ ~200–240 (3k) | 0.55 best-val | — |
+| Depth0/experts97 (**8.55B**, 28.0%) — ref | — | 0.40 @ 499 | 0.40 | — |
+
+**Full-suite HumanEval-TS (no `--limit`, same harness as baseline
+`02a_baseline_humaneval_ts.ipynb`):** `…-distilled-depth0-experts60-…-fixedloss-best`
+@ step 49 scored **0.572** pass@1 (GPU `201.79.44.29` B300, 2026-10-15) — **below**
+the unpruned teacher **0.671**; the prior **0.70** n=40 sample is not apples-to-apples
+with baseline and overshoots due to small-*n* noise. Artifacts:
+`docs/debug/phase4_depth0_experts60_fixedloss_short_humaneval_ts_full.json`,
+`…_humaneval_generations_full.json`, `…_humaneval_generations_full_problems_0-2.txt`.
+Notebook: `12l_phase4_depth0_experts60_fixedloss_short_humaneval_ts_full.ipynb`.
 
 The **55%** candidate distills well under fixed loss (best checkpoint early, strong
-n=40) despite needing B300 VRAM for full-parameter KD; the **18%** deep cut has a
+n=40 sample) despite needing B300 VRAM for full-parameter KD; the **18%** deep cut has a
 much worse zero-shot surface and only reaches **0.225** after KD — smaller is not
 better on this pair. Orchestration:
 `tools/run_phase4_depth0_experts60_depth22_experts92_fixedloss_short_build_kd_eval.sh`.
@@ -1816,7 +1825,8 @@ Hub: `…-distilled-depth0-experts60-500-warmup75-lr1e4-fixedloss` (+ `-best`),
 `docs/debug/phase4_depth0_experts60_fixedloss_short_*`,
 `docs/debug/phase4_depth22_experts92_fixedloss_short_*`. Notebooks:
 `12j_phase4_depth0_experts60_fixedloss_short_humaneval_ts.ipynb`,
-`12k_phase4_depth22_experts92_fixedloss_short_humaneval_ts.ipynb`.
+`12k_phase4_depth22_experts92_fixedloss_short_humaneval_ts.ipynb`,
+`12l_phase4_depth0_experts60_fixedloss_short_humaneval_ts_full.ipynb`.
 
 **Function-mode HumanEval (2026-10-10, GPU `162.243.79.40`):** model
 `sartajbhuvaji/bonsai-distilled-depth12-experts80-functions-vs-baseline-3k-warmup450-lr1e4`;
