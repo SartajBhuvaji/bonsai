@@ -1770,6 +1770,29 @@ top-p 0.95, batch 8):**
 | **LoRA-corrected teacher KD** (raw-file cache, **fixed** loss — best-val @ step **259**) | **0.50** |
 | **LoRA-corrected teacher KD** (fixed loss — final @ step **2999**) | **0.0** |
 
+**Fixed-loss short schedule (500 steps / warmup 75 / lr1e-4, raw-file baseline cache,
+GPU `192.241.169.71`, 2026-10-15):** re-KD two ~28% candidates that only had
+**broken-loss** numbers before. Val minimum landed on the **final step** for both
+(best = final @ **499** — no separate early-stop checkpoint this time).
+
+| Candidate (~params) | Broken-loss KD (3k) | Fixed-loss KD (500 @ step 499) |
+|---------------------|---------------------|--------------------------------|
+| Aggressive depth16/experts80 (**8.48B**, 27.8%) | **0.0** | **0.50** |
+| Depth0/experts97 (**8.55B**, 28.0%) | **0.0** | **0.40** |
+| Depth12/experts80 (**9.46B**, 31.0%) — pruned-only ref | — | **0.475** (no KD) |
+| Depth12/experts80 — fixed-loss 3k best-val | **0.0** | **0.55** @ ~step 200–240 |
+
+Orchestration: `tools/run_phase4_aggressive_depth0_fixedloss_short_kd_eval.sh`.
+Hub: `…-distilled-aggressive-depth-experts-500-warmup75-lr1e4-fixedloss`,
+`…-distilled-depth0-experts97-500-warmup75-lr1e4-fixedloss` (best = final).
+Artifacts: `docs/debug/phase4_aggressive_depth_experts_fixedloss_short_*`,
+`docs/debug/phase4_depth0_experts97_fixedloss_short_*`. KD wall **~31 min**
+(aggressive) / **~39 min** (depth0) vs **~2h 20m** for 3k depth12 runs — short
+schedule matches prior 3k **best-val** ballpark without training past the known
+early peak (depth12 still edges both ~28% cuts on n=40). Notebooks:
+`12h_phase4_aggressive_fixedloss_short_humaneval_ts.ipynb`,
+`12i_phase4_depth0_experts97_fixedloss_short_humaneval_ts.ipynb`.
+
 **Function-mode HumanEval (2026-10-10, GPU `162.243.79.40`):** model
 `sartajbhuvaji/bonsai-distilled-depth12-experts80-functions-vs-baseline-3k-warmup450-lr1e4`;
 `runs/20261010T182958Z-8cdee7-distill-depth12-experts80-functions-humaneval-ts-n40-lr1e4`;

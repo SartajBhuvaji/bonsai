@@ -1,0 +1,18 @@
+{
+  "kd_wall_clock_sec": 1845,
+  "kd_wall_clock_human": "0h 30m 45s",
+  "steps": 500,
+  "warmup_steps": 75,
+  "peak_lr": 0.0001,
+  "teacher_cache_hub": "sartajbhuvaji/bonsai-teacher-logits-baseline",
+  "candidate_hub": "sartajbhuvaji/bonsai-candidate-aggressive-depth-experts",
+  "val_best_step": 499,
+  "val_best": 0.337740004726996,
+  "val_final_step": 499,
+  "val_final": 0.337740004726996,
+  "humaneval_final_pass_at_1": 0.5,
+  "humaneval_best_pass_at_1": 0.5,
+  "distill_run": "runs/20261015T013526Z-e9c800-distill-aggressive-depth-experts-vs-baseline-500-warmup75-lr1e4-fixedloss",
+  "humaneval_final_run": "runs/20261015T020604Z-a53b8d-distill-aggressive-depth-experts-fixedloss-short-humaneval-ts-n40",
+  "humaneval_best_run": "runs/20261015T020604Z-a53b8d-distill-aggressive-depth-experts-fixedloss-short-humaneval-ts-n40"
+}
