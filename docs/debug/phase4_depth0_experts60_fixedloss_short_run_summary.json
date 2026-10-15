@@ -1,0 +1,22 @@
+{
+  "build_wall_clock_sec": null,
+  "build_wall_clock_human": "0h 0m 0s",
+  "zero_shot_loss": 0.9594,
+  "build_run": null,
+  "kd_wall_clock_sec": 2529,
+  "kd_wall_clock_human": "0h 42m 9s",
+  "steps": 500,
+  "warmup_steps": 75,
+  "peak_lr": 0.0001,
+  "teacher_cache_hub": "sartajbhuvaji/bonsai-teacher-logits-baseline",
+  "candidate_hub": "sartajbhuvaji/bonsai-candidate-depth0-experts60",
+  "val_best_step": 49,
+  "val_best": 0.13568666631666323,
+  "val_final_step": 499,
+  "val_final": 0.2036684040352702,
+  "humaneval_final_pass_at_1": 0.675,
+  "humaneval_best_pass_at_1": 0.7,
+  "distill_run": "runs/20261015T192407Z-a0f888-distill-depth0-experts60-vs-baseline-500-warmup75-lr1e4-fixedloss",
+  "humaneval_final_run": "runs/20261015T201216Z-d804ca-distill-depth0-experts60-fixedloss-short-humaneval-ts-n40-final",
+  "humaneval_best_run": "runs/20261015T200608Z-fd8b99-distill-depth0-experts60-fixedloss-short-humaneval-ts-n40-best"
+}

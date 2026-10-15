@@ -1,0 +1,11 @@
+{
+  "candidate_hub": "sartajbhuvaji/bonsai-candidate-depth0-experts60",
+  "depth_n": 0,
+  "expert_n": 60,
+  "zero_shot_loss": 0.9594,
+  "params_after": 16936679424,
+  "params_before": 30532122624,
+  "params_fraction": 0.555,
+  "build_skipped": true,
+  "note": "built on H100 2026-10-15; see prior pipeline log on 138.197.135.194"
+}
