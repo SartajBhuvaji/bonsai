@@ -11,6 +11,7 @@ set +a
 export HUGGING_FACE_HUB_TOKEN="${HUGGING_FACE_HUB_TOKEN:-${HF_TOKEN:-}}"
 
 LOG="${LOG:-/root/phase4_depth0_experts60_depth22_experts92_fixedloss_short_pipeline.log}"
+: >"$LOG"
 exec > >(tee -a "$LOG") 2>&1
 
 CACHE_HUB="${CACHE_HUB:-sartajbhuvaji/bonsai-teacher-logits-baseline}"
@@ -215,11 +216,32 @@ PY
 
 echo "=== build + fixed-loss short (depth0/e60, depth22/e92) start $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
 
-build_arm \
-  "depth0/experts60" \
-  "/root/phase4_depth0_experts60_fixedloss_short" \
-  0 60 \
-  "sartajbhuvaji/bonsai-candidate-depth0-experts60"
+if [ "${SKIP_BUILD_DEPTH0:-0}" = "1" ]; then
+  echo "SKIP_BUILD_DEPTH0=1 — reusing Hub sartajbhuvaji/bonsai-candidate-depth0-experts60"
+  python3 - <<'PY'
+import json
+from pathlib import Path
+out = Path("/root/phase4_depth0_experts60_fixedloss_short_build_summary.json")
+out.write_text(json.dumps({
+    "candidate_hub": "sartajbhuvaji/bonsai-candidate-depth0-experts60",
+    "depth_n": 0,
+    "expert_n": 60,
+    "zero_shot_loss": 0.9594,
+    "params_after": 16936679424,
+    "params_before": 30532122624,
+    "params_fraction": 0.555,
+    "build_skipped": True,
+    "note": "built on H100 2026-10-15; see prior pipeline log on 138.197.135.194",
+}, indent=2) + "\n")
+print(out.read_text())
+PY
+else
+  build_arm \
+    "depth0/experts60" \
+    "/root/phase4_depth0_experts60_fixedloss_short" \
+    0 60 \
+    "sartajbhuvaji/bonsai-candidate-depth0-experts60"
+fi
 
 run_arm \
   "depth0/experts60" \
