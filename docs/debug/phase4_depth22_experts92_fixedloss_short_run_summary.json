@@ -1,0 +1,22 @@
+{
+  "build_wall_clock_sec": 140,
+  "build_wall_clock_human": "0h 2m 20s",
+  "zero_shot_loss": 2.496346652507782,
+  "build_run": "runs/20261015T201903Z-aaac59-build-candidate-depth22-experts92",
+  "kd_wall_clock_sec": 1564,
+  "kd_wall_clock_human": "0h 26m 4s",
+  "steps": 500,
+  "warmup_steps": 75,
+  "peak_lr": 0.0001,
+  "teacher_cache_hub": "sartajbhuvaji/bonsai-teacher-logits-baseline",
+  "candidate_hub": "sartajbhuvaji/bonsai-candidate-depth22-experts92",
+  "val_best_step": 499,
+  "val_best": 0.5133399152259032,
+  "val_final_step": 499,
+  "val_final": 0.5133399152259032,
+  "humaneval_final_pass_at_1": 0.225,
+  "humaneval_best_pass_at_1": 0.225,
+  "distill_run": "runs/20261015T202124Z-61c80e-distill-depth22-experts92-vs-baseline-500-warmup75-lr1e4-fixedloss",
+  "humaneval_final_run": "runs/20261015T204723Z-e108a3-distill-depth22-experts92-fixedloss-short-humaneval-ts-n40",
+  "humaneval_best_run": "runs/20261015T204723Z-e108a3-distill-depth22-experts92-fixedloss-short-humaneval-ts-n40"
+}
