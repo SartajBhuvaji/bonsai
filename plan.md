@@ -1814,20 +1814,18 @@ with baseline and overshoots due to small-*n* noise. Artifacts:
 `…_humaneval_generations_full.json`, `…_humaneval_generations_full_problems_0-2.txt`.
 Notebook: `12l_phase4_depth0_experts60_fixedloss_short_humaneval_ts_full.ipynb`.
 
-**Pure-axis fill (fixed-loss short KD + full HumanEval-TS, GPU
-`201.79.46.187` B300, 2026-10-17):** seven single-axis candidates (experts-only
-`depth_n=0` or depth-only `expert_n=0`) to complete the depth/expert grid before
-paper reporting. Orchestration: `tools/run_phase4_pure_axis_fill_build_kd_eval_full.sh`.
+**Experts-only axis fill (`depth_n=0`, fixed-loss short KD + full HumanEval-TS,
+GPU `201.79.46.187` B300, 2026-10-17):** five expert-pruning points on the
+single-axis grid (depth-only arms deferred). Orchestration:
+`tools/run_phase4_pure_axis_fill_build_kd_eval_full.sh`.
 
-| Candidate (axis) | ~params | Zero-shot loss | KD val (best) | HumanEval pass@1 (full suite) |
-|------------------|---------|----------------|---------------|-------------------------------|
-| depth0 / experts112 | ~5.15B | TBD | TBD | TBD |
-| depth24 / experts0 | ~15.58B | TBD | TBD | TBD |
-| depth0 / experts64 | ~16.03B | TBD | TBD | TBD |
-| depth16 / experts0 | ~20.56B | TBD | TBD | TBD |
-| depth0 / experts32 | ~23.28B | TBD | TBD | TBD |
-| depth0 / experts16 | ~26.91B | TBD | TBD | TBD |
-| depth0 / experts8 | ~28.72B | TBD | TBD | TBD |
+| Candidate (`depth_n=0`) | ~params | Zero-shot loss | KD val (best) | HumanEval pass@1 (full suite) |
+|-------------------------|---------|----------------|---------------|-------------------------------|
+| experts112 | ~5.15B | TBD | TBD | TBD |
+| experts64 | ~16.03B | TBD | TBD | TBD |
+| experts32 | ~23.28B | TBD | TBD | TBD |
+| experts16 | ~26.91B | TBD | TBD | TBD |
+| experts8 | ~28.72B | TBD | TBD | TBD |
 
 The **55%** candidate distills well under fixed loss (best checkpoint early, strong
 n=40 sample) despite needing B300 VRAM for full-parameter KD; the **18%** deep cut has a

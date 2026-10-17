@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Pure-axis fill: build → fixed-loss short KD (500/warmup75) → full HumanEval-TS (no --limit).
-# Order: smallest student first (sanity → largest). Run on B300 as root under /root/bonsai.
+# Experts-only axis fill (depth_n=0): build → fixed-loss short KD → full HumanEval-TS.
+# Order: smallest student first (e112 → e64 → e32 → e16 → e8). B300 /root/bonsai.
 set -euo pipefail
 export PYTHONUNBUFFERED=1
 cd /root/bonsai
@@ -220,7 +220,7 @@ PY
   echo "========== ${LABEL} done $(date -u +%Y-%m-%dT%H:%M:%SZ) =========="
 }
 
-echo "=== pure-axis fill pipeline start $(date -u +%Y-%m-%dT%H:%M:%SZ) GPU=$(nvidia-smi --query-gpu=name --format=csv,noheader | head -1) ==="
+echo "=== experts-only fill pipeline start $(date -u +%Y-%m-%dT%H:%M:%SZ) GPU=$(nvidia-smi --query-gpu=name --format=csv,noheader | head -1) ==="
 
 run_candidate "depth0/experts112" 0 112 \
   /root/phase4_pure_axis_depth0_experts112_fixedloss_short \
@@ -229,26 +229,12 @@ run_candidate "depth0/experts112" 0 112 \
   distill-depth0-experts112-vs-baseline-500-warmup75-lr1e4-fixedloss \
   distill-depth0-experts112-fixedloss-short-humaneval-ts-full
 
-run_candidate "depth24/experts0" 24 0 \
-  /root/phase4_pure_axis_depth24_experts0_fixedloss_short \
-  sartajbhuvaji/bonsai-candidate-depth24-experts0 \
-  sartajbhuvaji/bonsai-distilled-depth24-experts0-500-warmup75-lr1e4-fixedloss \
-  distill-depth24-experts0-vs-baseline-500-warmup75-lr1e4-fixedloss \
-  distill-depth24-experts0-fixedloss-short-humaneval-ts-full
-
 run_candidate "depth0/experts64" 0 64 \
   /root/phase4_pure_axis_depth0_experts64_fixedloss_short \
   sartajbhuvaji/bonsai-candidate-depth0-experts64 \
   sartajbhuvaji/bonsai-distilled-depth0-experts64-500-warmup75-lr1e4-fixedloss \
   distill-depth0-experts64-vs-baseline-500-warmup75-lr1e4-fixedloss \
   distill-depth0-experts64-fixedloss-short-humaneval-ts-full
-
-run_candidate "depth16/experts0" 16 0 \
-  /root/phase4_pure_axis_depth16_experts0_fixedloss_short \
-  sartajbhuvaji/bonsai-candidate-depth16-experts0 \
-  sartajbhuvaji/bonsai-distilled-depth16-experts0-500-warmup75-lr1e4-fixedloss \
-  distill-depth16-experts0-vs-baseline-500-warmup75-lr1e4-fixedloss \
-  distill-depth16-experts0-fixedloss-short-humaneval-ts-full
 
 run_candidate "depth0/experts32" 0 32 \
   /root/phase4_pure_axis_depth0_experts32_fixedloss_short \
@@ -271,4 +257,4 @@ run_candidate "depth0/experts8" 0 8 \
   distill-depth0-experts8-vs-baseline-500-warmup75-lr1e4-fixedloss \
   distill-depth0-experts8-fixedloss-short-humaneval-ts-full
 
-echo "=== pure-axis fill all done $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
+echo "=== experts-only fill all done $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
