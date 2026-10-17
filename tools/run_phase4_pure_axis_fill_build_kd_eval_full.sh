@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Experts-only axis fill (depth_n=0): build → fixed-loss short KD → full HumanEval-TS.
-# Order: smallest student first (e112 → e64 → e32 → e16 → e8). B300 /root/bonsai.
+# Order: e112 → e64 → e32. B300 /root/bonsai.
 set -euo pipefail
 export PYTHONUNBUFFERED=1
 cd /root/bonsai
@@ -242,19 +242,5 @@ run_candidate "depth0/experts32" 0 32 \
   sartajbhuvaji/bonsai-distilled-depth0-experts32-500-warmup75-lr1e4-fixedloss \
   distill-depth0-experts32-vs-baseline-500-warmup75-lr1e4-fixedloss \
   distill-depth0-experts32-fixedloss-short-humaneval-ts-full
-
-run_candidate "depth0/experts16" 0 16 \
-  /root/phase4_pure_axis_depth0_experts16_fixedloss_short \
-  sartajbhuvaji/bonsai-candidate-depth0-experts16 \
-  sartajbhuvaji/bonsai-distilled-depth0-experts16-500-warmup75-lr1e4-fixedloss \
-  distill-depth0-experts16-vs-baseline-500-warmup75-lr1e4-fixedloss \
-  distill-depth0-experts16-fixedloss-short-humaneval-ts-full
-
-run_candidate "depth0/experts8" 0 8 \
-  /root/phase4_pure_axis_depth0_experts8_fixedloss_short \
-  sartajbhuvaji/bonsai-candidate-depth0-experts8 \
-  sartajbhuvaji/bonsai-distilled-depth0-experts8-500-warmup75-lr1e4-fixedloss \
-  distill-depth0-experts8-vs-baseline-500-warmup75-lr1e4-fixedloss \
-  distill-depth0-experts8-fixedloss-short-humaneval-ts-full
 
 echo "=== experts-only fill all done $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="

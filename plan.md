@@ -1815,8 +1815,8 @@ with baseline and overshoots due to small-*n* noise. Artifacts:
 Notebook: `12l_phase4_depth0_experts60_fixedloss_short_humaneval_ts_full.ipynb`.
 
 **Experts-only axis fill (`depth_n=0`, fixed-loss short KD + full HumanEval-TS,
-GPU `201.79.46.187` B300, 2026-10-17):** five expert-pruning points on the
-single-axis grid (depth-only arms deferred). Orchestration:
+GPU `201.79.46.187` B300, 2026-10-17):** three expert-pruning points (e112, e64,
+e32; larger e16/e8 and depth-only arms deferred). Orchestration:
 `tools/run_phase4_pure_axis_fill_build_kd_eval_full.sh`.
 
 | Candidate (`depth_n=0`) | ~params | Zero-shot loss | KD val (best) | HumanEval pass@1 (full suite) |
@@ -1824,8 +1824,6 @@ single-axis grid (depth-only arms deferred). Orchestration:
 | experts112 | ~5.15B | TBD | TBD | TBD |
 | experts64 | ~16.03B | TBD | TBD | TBD |
 | experts32 | ~23.28B | TBD | TBD | TBD |
-| experts16 | ~26.91B | TBD | TBD | TBD |
-| experts8 | ~28.72B | TBD | TBD | TBD |
 
 The **55%** candidate distills well under fixed loss (best checkpoint early, strong
 n=40 sample) despite needing B300 VRAM for full-parameter KD; the **18%** deep cut has a
