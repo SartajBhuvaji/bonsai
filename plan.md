@@ -1817,16 +1817,21 @@ Notebook: `12l_phase4_depth0_experts60_fixedloss_short_humaneval_ts_full.ipynb`.
 **Experts-only axis fill (`depth_n=0`, fixed-loss short KD + full HumanEval-TS,
 GPU `201.79.46.187` B300, 2026-10-17):** three expert-pruning points (e112, e64,
 e32; larger e16/e8 and depth-only arms deferred). Orchestration:
-`tools/run_phase4_pure_axis_fill_build_kd_eval_full.sh`. **Branch
-`phase4/pure-axis-fill-depth-experts` stays open** — GPU runs, artifact pull,
-`plan.md` / notebook updates, and the PR land incrementally over the next couple
-of days rather than in one shot (deferred arms can follow on the same branch).
+`tools/run_phase4_pure_axis_fill_build_kd_eval_full.sh`. Full eval uses **best-val
+checkpoint** when best ≠ final (e64 @ **39**, e32 @ **29**); e112 best = final @
+**499** so full eval used the final hub. Artifacts:
+`docs/debug/phase4_pure_axis_depth0_experts{112,64,32}_fixedloss_short_*`.
+Notebooks `12q`–`12s`.
 
-| Candidate (`depth_n=0`) | ~params | Zero-shot loss | KD val (best) | HumanEval pass@1 (full suite) |
-|-------------------------|---------|----------------|---------------|-------------------------------|
-| experts112 | ~5.15B | TBD | TBD | TBD |
-| experts64 | ~16.03B | TBD | TBD | TBD |
-| experts32 | ~23.28B | TBD | TBD | TBD |
+| Candidate (`depth_n=0`) | ~params | Zero-shot loss | KD val (best step) | HumanEval pass@1 (full suite) |
+|-------------------------|---------|----------------|--------------------|-------------------------------|
+| experts112 | ~5.15B | **2.567** | **0.569** @ **499** | **0.082** (final) |
+| experts64 | ~16.03B | **0.970** | **0.145** @ **39** (final 0.219 @ 499) | **0.579** (best ckpt) |
+| experts32 | ~23.28B | **0.889** | **0.070** @ **29** (final 0.179 @ 499) | **0.604** (best ckpt) |
+
+e64/e32 full scores sit **just under** baseline **0.671** with **fewer** experts
+than depth0/e60 (**0.572** at 55.5% params); e112 is too aggressively pruned on
+experts alone (**0.082** full).
 
 The **55%** candidate distills well under fixed loss (best checkpoint early, strong
 n=40 sample) despite needing B300 VRAM for full-parameter KD; the **18%** deep cut has a
