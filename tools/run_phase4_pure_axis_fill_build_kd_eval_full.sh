@@ -63,27 +63,35 @@ run_candidate() {
   local HE_SLUG="$8"
 
   local LOG="${ARCHIVE_PREFIX}_pipeline.log"
-  : >"$LOG"
 
-  echo ""
-  echo "========== ${LABEL} BUILD start $(date -u +%Y-%m-%dT%H:%M:%SZ) =========="
-  local BUILD_WALL_START BUILD_WALL_END BUILD_WALL
-  BUILD_WALL_START=$(date +%s)
-  python tools/build_candidate.py \
-    --depth-n "$DEPTH_N" \
-    --expert-n "$EXPERT_N" \
-    --push-to-hub "$CANDIDATE_HUB" \
-    --hub-public \
-    --hf-token "$HF_TOKEN"
-  BUILD_WALL_END=$(date +%s)
-  BUILD_WALL=$((BUILD_WALL_END - BUILD_WALL_START))
-  echo "BUILD_WALL_CLOCK_SEC=${BUILD_WALL}" | tee -a "$LOG"
+  if [ -f "${ARCHIVE_PREFIX}_run_summary.json" ]; then
+    echo "SKIP ${LABEL} (run_summary exists)" | tee -a "$MASTER_LOG"
+    return 0
+  fi
 
-  local BUILD_RUN
-  BUILD_RUN=$(ls -dt runs/*"build-candidate-depth${DEPTH_N}-experts${EXPERT_N}"* | head -1)
-  echo "BUILD_RUN=${BUILD_RUN}" | tee -a "$LOG"
-  cp "${BUILD_RUN}/config.json" "${ARCHIVE_PREFIX}_build_config.json"
-  python3 - <<PY | tee -a "$LOG"
+  if [ -f "${ARCHIVE_PREFIX}_build_summary.json" ]; then
+    echo "Resume ${LABEL}: build already archived, starting at KD" | tee -a "$LOG" | tee -a "$MASTER_LOG"
+  else
+    : >"$LOG"
+    echo ""
+    echo "========== ${LABEL} BUILD start $(date -u +%Y-%m-%dT%H:%M:%SZ) =========="
+    local BUILD_WALL_START BUILD_WALL_END BUILD_WALL
+    BUILD_WALL_START=$(date +%s)
+    python tools/build_candidate.py \
+      --depth-n "$DEPTH_N" \
+      --expert-n "$EXPERT_N" \
+      --push-to-hub "$CANDIDATE_HUB" \
+      --hub-public \
+      --hf-token "$HF_TOKEN"
+    BUILD_WALL_END=$(date +%s)
+    BUILD_WALL=$((BUILD_WALL_END - BUILD_WALL_START))
+    echo "BUILD_WALL_CLOCK_SEC=${BUILD_WALL}" | tee -a "$LOG"
+
+    local BUILD_RUN
+    BUILD_RUN=$(ls -dt runs/*"build-candidate-depth${DEPTH_N}-experts${EXPERT_N}"* | head -1)
+    echo "BUILD_RUN=${BUILD_RUN}" | tee -a "$LOG"
+    cp "${BUILD_RUN}/config.json" "${ARCHIVE_PREFIX}_build_config.json"
+    python3 - <<PY | tee -a "$LOG"
 import json
 from pathlib import Path
 build = Path("$BUILD_RUN")
@@ -101,6 +109,7 @@ out = {
 Path("${ARCHIVE_PREFIX}_build_summary.json").write_text(json.dumps(out, indent=2) + "\n")
 print(json.dumps(out, indent=2))
 PY
+  fi
 
   echo "========== ${LABEL} KD start ==========" | tee -a "$LOG"
   local DISTILL_HUB_BEST="${DISTILL_HUB}-best"
