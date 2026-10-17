@@ -1,0 +1,57 @@
+========================================================================
+problem 0 (len=469)
+//Check if in given array of numbers, are any two numbers closer to each other than
+// given threshold.
+// >>> has_close_elements([1.0, 2.0, 3.0], 0.5)
+// false
+// >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)
+// true
+function has_close_elements(numbers: number[], threshold: number): boolean {
+  let i = 0;
+  while (i < numbers.length) {
+    if (Math.abs(numbers[i] - numbers[i + 1]) < threshold) {
+      return true;
+    }
+    i++;
+  }
+  return false;
+}
+========================================================================
+problem 1 (len=864)
+//Input to this function is a string containing multiple groups of nested parentheses. Your goal is to
+// separate those group into separate strings and return the array of those.
+// Separate groups are balanced (each open brace is properly closed) and not nested within each other
+// Ignore any spaces in the input string.
+// >>> separate_paren_groups("( ) (( )) (( )( ))")
+// ["()", "(())", "(()())"]
+function separate_paren_groups(paren_string: string): string[] {
+  const groups = [];
+  let i = 0;
+  let group = "";
+  while (paren_string[i] === "(" || paren_string[i] === ")") {
+    if (paren_string[i] === "(") {
+      group += paren_string[i];
+      i++;
+      while (paren_string[i] === ")") {
+        group += paren_string[i];
+        i++;
+      }
+    } else {
+      group += paren_string[i];
+      i++;
+    }
+    groups.push(group);
+  }
+  return groups;
+}
+========================================================================
+problem 2 (len=337)
+//Given a positive floating point number, it can be decomposed into
+// and integer part (largest integer smaller than given number) and decimals
+// (leftover part always smaller than 1).
+// Return the decimal part of the number.
+// >>> truncate_number(3.5)
+// 0.5
+function truncate_number(number: number): number {
+  return number % 1;
+}
