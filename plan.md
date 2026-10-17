@@ -1817,7 +1817,10 @@ Notebook: `12l_phase4_depth0_experts60_fixedloss_short_humaneval_ts_full.ipynb`.
 **Experts-only axis fill (`depth_n=0`, fixed-loss short KD + full HumanEval-TS,
 GPU `201.79.46.187` B300, 2026-10-17):** three expert-pruning points (e112, e64,
 e32; larger e16/e8 and depth-only arms deferred). Orchestration:
-`tools/run_phase4_pure_axis_fill_build_kd_eval_full.sh`.
+`tools/run_phase4_pure_axis_fill_build_kd_eval_full.sh`. **Branch
+`phase4/pure-axis-fill-depth-experts` stays open** — GPU runs, artifact pull,
+`plan.md` / notebook updates, and the PR land incrementally over the next couple
+of days rather than in one shot (deferred arms can follow on the same branch).
 
 | Candidate (`depth_n=0`) | ~params | Zero-shot loss | KD val (best) | HumanEval pass@1 (full suite) |
 |-------------------------|---------|----------------|---------------|-------------------------------|
