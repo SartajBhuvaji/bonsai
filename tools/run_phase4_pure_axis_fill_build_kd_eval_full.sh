@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Pure-axis fill: build → fixed-loss short KD → full HumanEval-TS.
-# Order: depth0 e112 → e64 → e32, then depth16/experts0. B300 /root/bonsai.
+# Order: depth0 e112 → e64 → e32, depth16/experts0, depth24/experts0. B300 /root/bonsai.
 # Arms with ${ARCHIVE_PREFIX}_run_summary.json on the box are skipped (resume-safe).
 set -euo pipefail
 export PYTHONUNBUFFERED=1
@@ -259,5 +259,12 @@ run_candidate "depth16/experts0" 16 0 \
   sartajbhuvaji/bonsai-distilled-depth16-experts0-500-warmup75-lr1e4-fixedloss \
   distill-depth16-experts0-vs-baseline-500-warmup75-lr1e4-fixedloss \
   distill-depth16-experts0-fixedloss-short-humaneval-ts-full
+
+run_candidate "depth24/experts0" 24 0 \
+  /root/phase4_pure_axis_depth24_experts0_fixedloss_short \
+  sartajbhuvaji/bonsai-candidate-depth24-experts0 \
+  sartajbhuvaji/bonsai-distilled-depth24-experts0-500-warmup75-lr1e4-fixedloss \
+  distill-depth24-experts0-vs-baseline-500-warmup75-lr1e4-fixedloss \
+  distill-depth24-experts0-fixedloss-short-humaneval-ts-full
 
 echo "=== pure-axis fill all done $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
