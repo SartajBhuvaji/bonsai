@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Experts-only axis fill (depth_n=0): build → fixed-loss short KD → full HumanEval-TS.
-# Order: e112 → e64 → e32. B300 /root/bonsai.
+# Pure-axis fill: build → fixed-loss short KD → full HumanEval-TS.
+# Order: depth0 e112 → e64 → e32, then depth16/experts0. B300 /root/bonsai.
+# Arms with ${ARCHIVE_PREFIX}_run_summary.json on the box are skipped (resume-safe).
 set -euo pipefail
 export PYTHONUNBUFFERED=1
 cd /root/bonsai
@@ -229,7 +230,7 @@ PY
   echo "========== ${LABEL} done $(date -u +%Y-%m-%dT%H:%M:%SZ) =========="
 }
 
-echo "=== experts-only fill pipeline start $(date -u +%Y-%m-%dT%H:%M:%SZ) GPU=$(nvidia-smi --query-gpu=name --format=csv,noheader | head -1) ==="
+echo "=== pure-axis fill pipeline start $(date -u +%Y-%m-%dT%H:%M:%SZ) GPU=$(nvidia-smi --query-gpu=name --format=csv,noheader | head -1) ==="
 
 run_candidate "depth0/experts112" 0 112 \
   /root/phase4_pure_axis_depth0_experts112_fixedloss_short \
@@ -252,4 +253,11 @@ run_candidate "depth0/experts32" 0 32 \
   distill-depth0-experts32-vs-baseline-500-warmup75-lr1e4-fixedloss \
   distill-depth0-experts32-fixedloss-short-humaneval-ts-full
 
-echo "=== experts-only fill all done $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
+run_candidate "depth16/experts0" 16 0 \
+  /root/phase4_pure_axis_depth16_experts0_fixedloss_short \
+  sartajbhuvaji/bonsai-candidate-depth16-experts0 \
+  sartajbhuvaji/bonsai-distilled-depth16-experts0-500-warmup75-lr1e4-fixedloss \
+  distill-depth16-experts0-vs-baseline-500-warmup75-lr1e4-fixedloss \
+  distill-depth16-experts0-fixedloss-short-humaneval-ts-full
+
+echo "=== pure-axis fill all done $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
