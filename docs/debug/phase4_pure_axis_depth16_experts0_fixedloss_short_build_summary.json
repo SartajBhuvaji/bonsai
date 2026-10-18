@@ -1,0 +1,16 @@
+{
+  "build_run": "runs/20261018T145950Z-197360-build-candidate-depth16-experts0",
+  "depth_n": 16,
+  "expert_n": 0,
+  "candidate_hub": "sartajbhuvaji/bonsai-candidate-depth16-experts0",
+  "build_wall_clock_sec": 270,
+  "zero_shot_loss": 1.1571128387004137,
+  "metrics": [
+    {
+      "zero_shot_loss": 1.1571128387004137,
+      "depth_n": 16,
+      "expert_n": 0,
+      "time": "2026-10-18T15:01:50.767783+00:00"
+    }
+  ]
+}
