@@ -1822,8 +1822,9 @@ deferred. Orchestration:
 checkpoint** when best ≠ final (e64 @ **39**, e32 @ **29**); e112 best = final @
 **499** so full eval used the final hub. Artifacts:
 `docs/debug/phase4_pure_axis_depth0_experts{112,64,32}_fixedloss_short_*`,
-`docs/debug/phase4_pure_axis_depth16_experts0_fixedloss_short_*`.
-Notebooks `12q`–`12s`, `12t`.
+`docs/debug/phase4_pure_axis_depth16_experts0_fixedloss_short_*`,
+`docs/debug/phase4_pure_axis_depth24_experts0_fixedloss_short_*`.
+Notebooks `12q`–`12s`, `12t`, `12u`.
 
 | Candidate | ~params | Zero-shot loss | KD val (best step) | HumanEval pass@1 (full suite) |
 |-----------|---------|----------------|--------------------|-------------------------------|
@@ -1831,6 +1832,7 @@ Notebooks `12q`–`12s`, `12t`.
 | depth0 / experts64 | ~16.03B | **0.970** | **0.145** @ **39** (final 0.219 @ 499) | **0.579** (best ckpt) |
 | depth0 / experts32 | ~23.28B | **0.889** | **0.070** @ **29** (final 0.179 @ 499) | **0.604** (best ckpt) |
 | depth16 / experts0 | ~20.56B | **1.157** | **0.207** @ **49** (final 0.264 @ 499) | **0.283** (best ckpt) |
+| depth24 / experts0 | ~15.58B | **2.109** | **0.335** @ **499** (best = final) | **0.107** (final) |
 
 e64/e32 full scores sit **just under** baseline **0.671** with **fewer** experts
 than depth0/e60 (**0.572** at 55.5% params); e112 is too aggressively pruned on
