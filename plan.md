@@ -1866,6 +1866,21 @@ e64/e32 full scores sit **just under** baseline **0.671** with **fewer** experts
 than depth0/e60 (**0.572** at 55.5% params); e112 is too aggressively pruned on
 experts alone (**0.082** full).
 
+**CORRECTED (baseline reconciliation, 2026-10-19 — see \S1.2 update above):**
+the two paragraphs above compare against **0.671**, Phase 1.2's original
+baseline run (**108/161** problems) — a different, 161-problem split than
+every full-suite number in this table (**159** problems). Re-measured on the
+exact 159-problem harness: baseline pass@1 = **0.717** (**114/159**). Against
+the correct, denominator-matched baseline, **e16 (0.648) was never above
+baseline** (0.648 < 0.671 even under the old number) — that line was wrong
+independent of the denominator issue. **e8 (0.704) does not beat baseline
+either** once compared correctly: it lands **2 problems short** (**112** vs
+**114** of 159, **98.2%** retention) — the closest any candidate in this
+project has come to matching the unpruned teacher, but not a win over it.
+e64/e32's gap to baseline is larger than originally stated (**0.717 − 0.579 =
+0.138**, **0.717 − 0.604 = 0.113**), not "just under." The original
+paragraphs are left above for the record rather than silently rewritten.
+
 The **55%** candidate distills well under fixed loss (best checkpoint early, strong
 n=40 sample) despite needing B300 VRAM for full-parameter KD; the **18%** deep cut has a
 much worse zero-shot surface and only reaches **0.225** after KD — smaller is not
