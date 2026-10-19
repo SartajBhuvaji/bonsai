@@ -53,7 +53,8 @@ pip install -q bitsandbytes
 pip install -q -e ".[notebook]"
 
 if [ "${WITH_EVAL:-0}" = "1" ]; then
-  pip install -q -e ".[eval]"
+  # KD imports bonsai.data.functions (tree-sitter); eval extra needs MultiPL-E TS.
+  pip install -q -e ".[eval,data]"
   if ! command -v node >/dev/null; then
     curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
     apt-get install -y -qq nodejs
