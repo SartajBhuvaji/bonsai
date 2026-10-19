@@ -1748,7 +1748,7 @@ candidate (\cref{sec:phase4-negative}, 8.48B, 27.8\%) and the
 experts-only isolation candidate at a matched parameter budget
 (\cref{sec:phase4-depth-isolation}, depth0/experts97, 8.55B, 28.0\%).
 
-\begin{table}[t]
+\begin{table*}[t]
 \caption{Short-schedule (500-step) fixed-loss KD, $n{=}40$ HumanEval-TS.
 Both candidates' validation minimum lands on the final step itself --
 no separate early-stop checkpoint.}
@@ -1758,13 +1758,13 @@ no separate early-stop checkpoint.}
 \setlength{\tabcolsep}{3pt}
 \begin{tabular}{lrrr}
 \toprule
-Candidate (\textapprox params) & Zero-shot loss & KD val (step) & $n{=}40$ \\
+Candidate ($\sim$params) & Zero-shot loss & KD val (step) & $n{=}40$ \\
 \midrule
 Aggressive, depth16/e80 (8.48B) & 1.848 & 0.338 @ 499 & 0.50 \\
 Depth0/experts97 (8.55B) & 1.322 & 0.382 @ 499 & 0.40 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 Wall-clock drops from $\sim$2h20m (3000 steps) to $\sim$31--39 minutes --
 roughly $3.6$--$4.6\times$ faster -- while landing in the same $n{=}40$
@@ -1799,7 +1799,7 @@ sample used throughout this paper for iteration speed. We re-evaluate
 all five on the full 159-problem suite, no \texttt{--limit}, identical
 harness settings.
 
-\begin{table}[t]
+\begin{table*}[t]
 \caption{$n{=}40$ vs.\ full-suite (159-problem) HumanEval-TS pass@1, same
 checkpoints. Every candidate overstates at $n{=}40$, by an inconsistent
 margin.}
@@ -1818,7 +1818,7 @@ Depth22/experts92 & 0.225 & 0.069 (11/159) & $+226\%$ \\
 Depth0/experts60 (best ckpt) & 0.70 & 0.572 (91/159) & $+22\%$ \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 \begin{figure}[t]
 \centering
@@ -1898,7 +1898,7 @@ two pure depth-only candidates ($\mathrm{expert}_n{=}0$,
 $\mathrm{depth}_n \in \{16,24\}$), chosen to bracket the depth cuts
 already measured in combined candidates (12, 16, 22 layers).
 
-\begin{table}[t]
+\begin{table*}[t]
 \caption{Seven single-axis candidates, fixed-loss short KD, full
 159-problem HumanEval-TS. Unpruned baseline (\cref{sec:baseline},
 reconciled denominator): pass@1 $=0.717$ (114/159).}
@@ -1908,7 +1908,7 @@ reconciled denominator): pass@1 $=0.717$ (114/159).}
 \setlength{\tabcolsep}{3pt}
 \begin{tabular}{lrrrr}
 \toprule
-Candidate & \textapprox params & Zero-shot loss & KD val (step) & Full pass@1 \\
+Candidate & $\sim$params & Zero-shot loss & KD val (step) & Full pass@1 \\
 \midrule
 depth0/experts112 & 5.15B & 2.567 & 0.569 @ 499 & 0.082 (13/159) \\
 depth0/experts64 & 16.03B & 0.970 & 0.145 @ 39 & 0.579 (92/159) \\
@@ -1919,7 +1919,7 @@ depth16/experts0 & 20.56B & 1.157 & 0.207 @ 49 & 0.283 (45/159) \\
 depth24/experts0 & 15.58B & 2.109 & 0.335 @ 499 & 0.107 (17/159) \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 \subsection{Depth Costs More Per Parameter Than Experts}
 \label{sec:depth-vs-experts}
