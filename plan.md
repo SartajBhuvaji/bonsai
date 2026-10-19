@@ -327,12 +327,24 @@ against Qwen3-30B-A3B-Base as-is. This is the number everything else in the
 project gets compared to, so it happens once, early, and gets recorded
 somewhere durable (not just a terminal scrollback).
 
-Done. Primary/gating: HumanEval-TS pass@1 = 0.6708, MBPP-TS pass@1 = 0.7333
+Done. Primary/gating: HumanEval-TS pass@1 = **0.6708** (**108/161** problems,
+2026-09-15, notebook `02a_baseline_humaneval_ts.ipynb`) — the original Phase 1.2
+MultiPL-E TypeScript split. Later full-suite runs (teacher correction, Phase 4
+full HumanEval-TS) use a **159**-problem `multiple-ts` set instead; that
+denominator mismatch was never reconciled against the teacher. Re-measured
+**2026-10-19** (B300, same harness as Phase 4: `batch_size=8`, no `--limit`):
+pass@1 = **0.717** (**114/159**). Use **0.717** when comparing to any
+159-problem full-suite distilled/pruned score; keep **0.6708 (108/161)** on record
+for the historical 1.2 run. Artifacts:
+`docs/debug/phase4_baseline_humaneval_ts_full159_*`, notebook
+`02d_baseline_humaneval_ts_full159.ipynb`, orchestration
+`tools/run_baseline_humaneval_ts_full159.sh`. MBPP-TS pass@1 = 0.7333
 (both full test sets, temperature 0.2, top-p 0.95). Tracked, not
 optimized-for: MMLU acc = 0.8101 (5-shot, full 14,042), ARC-Challenge
 acc = 0.6536 / acc_norm = 0.6749 (25-shot, full 1,172), Winogrande
 acc = 0.7798 (5-shot, full 1,267). Notebooks `02a_baseline_humaneval_ts.ipynb`,
-`02b_baseline_mbpp_ts.ipynb`, `02c_baseline_general_knowledge.ipynb`.
+`02b_baseline_mbpp_ts.ipynb`, `02c_baseline_general_knowledge.ipynb`,
+`02d_baseline_humaneval_ts_full159.ipynb`.
 
 **1.3 — Shared importance-scoring infrastructure.** Mirrors how the papers
 actually structured this (checked directly against Section 2.2 of
@@ -1853,6 +1865,21 @@ deep depth-only cuts stay far below.
 e64/e32 full scores sit **just under** baseline **0.671** with **fewer** experts
 than depth0/e60 (**0.572** at 55.5% params); e112 is too aggressively pruned on
 experts alone (**0.082** full).
+
+**CORRECTED (baseline reconciliation, 2026-10-19 — see \S1.2 update above):**
+the two paragraphs above compare against **0.671**, Phase 1.2's original
+baseline run (**108/161** problems) — a different, 161-problem split than
+every full-suite number in this table (**159** problems). Re-measured on the
+exact 159-problem harness: baseline pass@1 = **0.717** (**114/159**). Against
+the correct, denominator-matched baseline, **e16 (0.648) was never above
+baseline** (0.648 < 0.671 even under the old number) — that line was wrong
+independent of the denominator issue. **e8 (0.704) does not beat baseline
+either** once compared correctly: it lands **2 problems short** (**112** vs
+**114** of 159, **98.2%** retention) — the closest any candidate in this
+project has come to matching the unpruned teacher, but not a win over it.
+e64/e32's gap to baseline is larger than originally stated (**0.717 − 0.579 =
+0.138**, **0.717 − 0.604 = 0.113**), not "just under." The original
+paragraphs are left above for the record rather than silently rewritten.
 
 The **55%** candidate distills well under fixed loss (best checkpoint early, strong
 n=40 sample) despite needing B300 VRAM for full-parameter KD; the **18%** deep cut has a
