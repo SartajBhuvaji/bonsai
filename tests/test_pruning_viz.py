@@ -9,7 +9,12 @@ import matplotlib
 
 matplotlib.use("Agg")  # no display in CI
 
-from bonsai.pruning.viz import plot_combined_pruning_sweep, plot_pruning_sweep
+from bonsai.pruning.viz import (
+    plot_axis_isolation,
+    plot_combined_pruning_sweep,
+    plot_n40_vs_full_suite,
+    plot_pruning_sweep,
+)
 
 
 def test_plot_pruning_sweep_draws() -> None:
@@ -128,6 +133,80 @@ def test_plot_combined_pruning_sweep_rejects_mismatched_lengths() -> None:
 
     try:
         plot_combined_pruning_sweep(tiers, combo_losses, baseline_loss=0.97)
+    except ValueError:
+        return
+    raise AssertionError("expected ValueError for a mismatched series length")
+
+
+def test_plot_axis_isolation_draws() -> None:
+    series = {
+        "experts-only": ([5.15, 16.03, 23.28], [0.082, 0.579, 0.604]),
+        "depth-only": ([15.58, 20.56], [0.107, 0.283]),
+    }
+
+    fig = plot_axis_isolation(series, baseline_pass_at_1=0.717)
+
+    assert len(fig.axes) == 1
+    assert fig.axes[0].get_ylim() == (0.0, 1.0)
+
+
+def test_plot_axis_isolation_only_connects_three_or_more_points() -> None:
+    series = {
+        "experts-only": ([5.15, 16.03, 23.28], [0.082, 0.579, 0.604]),
+        "depth-only": ([15.58, 20.56], [0.107, 0.283]),
+    }
+
+    fig = plot_axis_isolation(series, baseline_pass_at_1=0.717)
+
+    lines = {line.get_label(): line for line in fig.axes[0].get_lines()}
+    assert lines["experts-only"].get_linestyle() == "-"
+    assert lines["depth-only"].get_linestyle() == "None"
+
+
+def test_plot_axis_isolation_rejects_too_many_series() -> None:
+    series = {
+        "a": ([1.0], [0.5]),
+        "b": ([1.0], [0.5]),
+        "c": ([1.0], [0.5]),
+        "d": ([1.0], [0.5]),
+        "e": ([1.0], [0.5]),
+    }
+
+    try:
+        plot_axis_isolation(series, baseline_pass_at_1=0.717)
+    except ValueError:
+        return
+    raise AssertionError("expected ValueError for more than 4 series")
+
+
+def test_plot_axis_isolation_rejects_mismatched_lengths() -> None:
+    series = {"experts-only": ([5.15, 16.03], [0.082])}  # wrong length
+
+    try:
+        plot_axis_isolation(series, baseline_pass_at_1=0.717)
+    except ValueError:
+        return
+    raise AssertionError("expected ValueError for a mismatched series length")
+
+
+def test_plot_n40_vs_full_suite_draws() -> None:
+    candidates = ["aggressive", "depth0/experts97"]
+    n40 = [0.50, 0.40]
+    full = [0.208, 0.283]
+
+    fig = plot_n40_vs_full_suite(candidates, n40, full)
+
+    assert len(fig.axes) == 1
+    assert [t.get_text() for t in fig.axes[0].get_xticklabels()] == candidates
+
+
+def test_plot_n40_vs_full_suite_rejects_mismatched_lengths() -> None:
+    candidates = ["a", "b", "c"]
+    n40 = [0.5, 0.4]  # wrong length
+    full = [0.2, 0.3, 0.1]
+
+    try:
+        plot_n40_vs_full_suite(candidates, n40, full)
     except ValueError:
         return
     raise AssertionError("expected ValueError for a mismatched series length")

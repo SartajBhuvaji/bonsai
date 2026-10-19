@@ -121,6 +121,28 @@ applied to a model with this property, and in particular, how to score the
 importance of this axis -- expert pruning -- that has no precedent in
 either source paper.
 
+A second contribution is methodological, independent of any single
+axis's result. Every pruning decision in this paper -- which layers,
+which experts, which attention heads to remove -- comes from the same
+family of procedure: a real, measured importance signal (Block
+Importance or perplexity ablation for depth, a gate-weighted output-norm
+score for experts, an activation-based score for heads), greedily ranked
+and selected, never a random or positional baseline. Applying one
+consistent selection principle across axes, instead of a different ad
+hoc rule per axis, is what makes \cref{sec:pure-axis}'s single-axis
+isolation meaningful: depth24/experts0 and depth0/experts64 can be
+compared at a matched parameter budget (15.58B vs.\ 16.03B) specifically
+because both were
+chosen the same way, not because one is a tuned good candidate and the
+other a careless point for comparison. The same discipline extends to
+how results are reported: every negative or null outcome in this paper
+(\cref{sec:phase4-negative}'s identical repetition-collapse failure
+across four independent configurations; \cref{sec:phase4-full-suite-noise}'s
+finding that every candidate's accuracy was overstated at $n{=}40$, not
+just one surprising case; \cref{sec:baseline}'s own late-caught baseline
+denominator mismatch) is reported and root-caused rather than quietly
+dropped or reframed.
+
 Our target model is Qwen3-30B-A3B-Base
 \cite{qwen3moe}: 48 decoder layers, 32 query / 4 key-value attention heads
 (GQA), 128 routed experts per layer with 8 active per token, no shared
@@ -163,9 +185,26 @@ matching or exceeding the pruned-but-undistilled candidate's own
 $0.475$ -- and a direct follow-up isolation shows the training-data-shape
 hypothesis explored along the way was never the actual cause
 (\cref{sec:phase4-negative}). The original corrected-vs-uncorrected-teacher
-comparison that motivated this section remains unresolved, since every
-result to date, before and after the fix, uses only the uncorrected
-teacher; no candidate has been finalized yet.
+comparison that motivated this section was resolved next: re-run with
+the now-trustworthy loss, a corrected teacher still does not help a
+distilled student's downstream accuracy
+(\cref{sec:phase4-correctedteacher-fixedloss}). A shorter, 500-step
+retraining schedule was then shown to recover the same accuracy as the
+original 3000-step budget in a fraction of the wall-clock time, and
+adopted as the standard recipe for every subsequent candidate
+(\cref{sec:phase4-short-schedule}). Five candidates measured only on a
+40-problem HumanEval-TS sample up to that point were re-evaluated on the
+full 159-problem suite, and every single one scored substantially lower
+than its sampled score, by an inconsistent margin
+(\cref{sec:phase4-full-suite-noise}) -- a finding that directly motivated
+re-measuring the project's own unpruned baseline as well, which turned
+out to have been evaluated on a different, 161-problem split all along
+(\cref{sec:baseline}). Finally, depth and experts were each isolated
+into a seven-candidate single-axis sweep, retrained and fully evaluated,
+confirming after retraining -- not only zero-shot -- that depth removal
+costs substantially more accuracy per parameter than expert removal;
+attention heads were deliberately left out of this isolation, for
+reasons given directly (\cref{sec:pure-axis,sec:pure-axis-no-heads}).
 
 \section{Related Work}
 \label{sec:related}
@@ -256,6 +295,24 @@ project specializes toward. MMLU, ARC-Challenge, and Winogrande are tracked
 but not optimized for, giving a comparison point against both Minitron
 papers' own general-knowledge tables without over-indexing on general
 capability at the expense of TypeScript performance.
+
+\textbf{A denominator correction, caught late.} \Cref{tab:baseline}'s
+HumanEval-TS score was measured on a 161-problem MultiPL-E TypeScript split
+(108/161). Every full-suite HumanEval-TS number reported anywhere else in
+this paper (\cref{sec:teacher-correction-eval} onward) instead uses a
+159-problem split, and this mismatch went unreconciled for over a month of
+project time -- every comparison against the unpruned baseline in that
+window was silently comparing two different denominators. Caught while
+re-deriving exact pass@1 fractions for \cref{sec:pure-axis} below, by
+noticing $0.6708\overline{074\ldots} = 108/161$ does not reduce to any clean
+$k/159$. Re-running the identical unpruned model through the identical
+159-problem harness (same temperature, top-$p$, batch size, no \texttt{limit})
+gives \textbf{pass@1 $=0.7170$ (114/159)} -- the number \cref{sec:pure-axis}
+and every full-suite comparison from here on actually use. Both numbers
+stay on record rather than one silently overwriting the other: $0.6708$
+(108/161) is the historical Phase 1.2 result and remains in
+\cref{tab:baseline} unchanged; $0.7170$ (114/159) is the number comparable
+to every subsequent pruned/distilled candidate in this paper.
 
 \section{Importance Estimation}
 \label{sec:importance}
@@ -1634,6 +1691,281 @@ nothing either way). Whether a corrected-teacher KD arm, re-run with
 the fixed loss, changes this picture is untested at the time of
 writing.
 
+\section{Retraining Under the Fixed Loss: A Full Candidate Sweep}
+\label{sec:phase4-full-sweep}
+
+With the loss fixed and confirmed on two independent isolations
+(\cref{sec:phase4-fix-confirmed,sec:phase4-rawfile-fixedloss}), this
+section answers the questions those fixes left open: whether a corrected
+teacher helps once KD loss is trustworthy, whether a shorter schedule
+recovers the same accuracy at a fraction of the compute, and -- once
+every candidate measured so far is re-evaluated on the full 159-problem
+suite rather than a 40-problem sample -- how much of what this paper has
+reported up to this point was sampling noise rather than signal.
+
+\subsection{Does a Corrected Teacher Help, Now the Loss Is Right?}
+\label{sec:phase4-correctedteacher-fixedloss}
+
+\Cref{sec:phase4-negative}'s original corrected-vs-uncorrected comparison
+was confounded by the same KD-loss bugs \cref{sec:phase4-root-cause}
+later found, so it settled nothing. We re-run it with the fixed loss:
+the same depth12/experts80 candidate (9.46B, 31.0\% of the unpruned
+30.5B; pruned-only diagnostic pass@1 $=0.475$,
+\cref{sec:phase4-pruned-only-diagnostic}) distilled against the
+LoRA-corrected teacher's logits (\cref{sec:teacher-correction-lora}),
+same 3000-step/warmup-450/peak-LR-$10^{-4}$ schedule as every other arm
+in this investigation, fresh cache (6,000 raw-file samples).
+
+Validation loss reaches a clear early minimum -- \textbf{best 0.3473 at
+step 259} -- then overfits severely with further training (\textbf{final
+3.893 at step 2999}, an order of magnitude worse). HumanEval-TS $n{=}40$:
+\textbf{best-validation checkpoint, pass@1 $=0.50$}; \textbf{final
+checkpoint, pass@1 $=0.0$}. Against the same candidate distilled on the
+\emph{uncorrected} teacher with the identical fixed loss and schedule
+(\cref{sec:phase4-rawfile-fixedloss}: best-val $0.55$ at step 239, final
+$0.35$ at step 2999), the corrected teacher is not better -- it scores
+slightly lower at its own early peak ($0.50$ vs.\ $0.55$) and collapses
+further by the final step ($0.0$ vs.\ $0.35$). \textbf{The
+corrected-vs-uncorrected teacher question is now answered, with a
+trustworthy loss: correction does not help this candidate's downstream
+coding ability, consistent with \cref{sec:teacher-correction-eval}'s
+finding that correction regresses the teacher's own HumanEval-TS score
+directly.} The remaining open question from \cref{sec:discussion} --
+whether a larger correction token budget would close this gap -- is
+untouched by this result and remains open.
+
+\subsection{A Short, Early-Stopped Schedule}
+\label{sec:phase4-short-schedule}
+
+Every fixed-loss run so far peaks well before its 3000-step budget
+completes (step 199--259) and measurably overfits past that point
+(\cref{sec:phase4-fix-confirmed,sec:phase4-rawfile-fixedloss,sec:phase4-correctedteacher-fixedloss}).
+We test a 500-step schedule (75-step warmup, the same 15\% warmup
+fraction, identical peak LR and optimizer) with more frequent validation
+checks, on two candidates that previously had only broken-loss ($0.0$)
+numbers at the full 3000-step budget: the aggressive depth+experts
+candidate (\cref{sec:phase4-negative}, 8.48B, 27.8\%) and the
+experts-only isolation candidate at a matched parameter budget
+(\cref{sec:phase4-depth-isolation}, depth0/experts97, 8.55B, 28.0\%).
+
+\begin{table}[t]
+\caption{Short-schedule (500-step) fixed-loss KD, $n{=}40$ HumanEval-TS.
+Both candidates' validation minimum lands on the final step itself --
+no separate early-stop checkpoint.}
+\label{table:phase4-short-schedule}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrr}
+\toprule
+Candidate (\textapprox params) & Zero-shot loss & KD val (step) & $n{=}40$ \\
+\midrule
+Aggressive, depth16/e80 (8.48B) & 1.848 & 0.338 @ 499 & 0.50 \\
+Depth0/experts97 (8.55B) & 1.322 & 0.382 @ 499 & 0.40 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Wall-clock drops from $\sim$2h20m (3000 steps) to $\sim$31--39 minutes --
+roughly $3.6$--$4.6\times$ faster -- while landing in the same $n{=}40$
+ballpark as depth12/experts80's own 3000-step best ($0.55$,
+\cref{sec:phase4-rawfile-fixedloss}), not obviously worse for using a
+sixth of the steps. (Depth12/experts80 still edges both candidates here,
+plausibly because it keeps more parameters, 31.0\% vs.\ 27.8--28.0\%,
+rather than anything about the schedule.) \textbf{The shorter schedule
+recovers comparable downstream accuracy at a fraction of the compute},
+resolving \cref{sec:discussion}'s open question on this point -- adopted
+as the standard recipe for every remaining candidate in this paper.
+
+Two further candidates test the same schedule at opposite ends of an
+accuracy-vs-size curve: a large experts-only cut, depth0/experts60
+(16.94B, 55.5\%, zero-shot loss $0.959$), and a deep combined cut,
+depth22/experts92 (5.53B, 18.1\%, zero-shot loss $2.496$).
+Depth0/experts60 distills well: validation loss best $0.136$ at step 49
+(final $0.204$ at 499, a real early peak this time), $n{=}40$ pass@1
+$0.70$ best / $0.675$ final. Depth22/experts92's much worse zero-shot
+surface does not recover as well: validation best $=$ final $0.513$ at
+step 499, $n{=}40$ pass@1 $0.225$. Smaller is not better on this pair --
+consistent with \cref{sec:phase4-pruned-only-diagnostic}'s earlier
+``a lighter cut'' framing -- though depth0/experts60's full-parameter KD
+needed a GPU with more than 80GB of memory, a real cost the $n{=}40$
+number alone does not capture.
+
+\subsection{Full-Suite Re-Evaluation: $n{=}40$ Systematically Overstates Accuracy}
+\label{sec:phase4-full-suite-noise}
+
+Every candidate above is measured on a fixed 40-problem sample, the same
+sample used throughout this paper for iteration speed. We re-evaluate
+all five on the full 159-problem suite, no \texttt{--limit}, identical
+harness settings.
+
+\begin{table}[t]
+\caption{$n{=}40$ vs.\ full-suite (159-problem) HumanEval-TS pass@1, same
+checkpoints. Every candidate overstates at $n{=}40$, by an inconsistent
+margin.}
+\label{table:phase4-full-suite-noise}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrr}
+\toprule
+Candidate & $n{=}40$ & Full (159) & Relative overstatement \\
+\midrule
+Aggressive, depth16/e80 & 0.50 & 0.208 (33/159) & $+140\%$ \\
+Depth0/experts97 & 0.40 & 0.283 (45/159) & $+41\%$ \\
+Depth12/experts80 (raw-file best) & 0.55 & 0.302 (48/159) & $+82\%$ \\
+Depth22/experts92 & 0.225 & 0.069 (11/159) & $+226\%$ \\
+Depth0/experts60 (best ckpt) & 0.70 & 0.572 (91/159) & $+22\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/phase4_n40_vs_full_suite.pdf}
+\caption{$n{=}40$ vs.\ full-suite pass@1, the same five candidates as
+\cref{table:phase4-full-suite-noise}.}
+\label{fig:phase4-n40-vs-full-suite}
+\end{figure}
+
+\textbf{Every single candidate's full-suite score is substantially lower
+than its $n{=}40$ score} -- not just depth0/experts60, which earlier
+notes in this project's working log had flagged as a single surprising
+case. The relative overstatement ranges from $+22\%$ to $+226\%$, and is
+not simply explained by how aggressively a candidate is pruned: the
+three candidates that keep the most similar fraction of parameters
+(27.8--31.0\%, aggressive/depth0-experts97/depth12-experts80) span
+$+41\%$ to $+140\%$ among themselves, a wider spread than their
+pruning fractions would suggest. The \emph{direction} of the bias is
+consistent -- $n{=}40$ never understates -- but its \emph{magnitude} is
+not reliably predictable from the $n{=}40$ number alone, which has a
+direct methodological consequence:
+\textbf{a confirmatory full-suite run cannot be skipped for any
+candidate, including ones whose $n{=}40$ score looks unremarkable.}
+Every $n{=}40$ number elsewhere in this paper should be read as a
+provisional triage signal, not a final one -- it correctly ranked
+candidates relative to each other in every case checked here, but not
+their absolute accuracy.
+
+\section{Isolating the Pruning Axes After Retraining}
+\label{sec:pure-axis}
+
+Every full-suite candidate in \cref{sec:phase4-full-sweep} combines
+depth and experts in one step (or, for depth0/experts60 and
+depth0/experts97, prunes experts alone at zero depth). No result yet
+isolates each axis's own contribution across a real range after
+retraining -- \cref{sec:phase4-depth-isolation} asked this question
+zero-shot, at a single matched parameter budget, but never followed it
+through distillation and a full-suite eval. This section fills that gap
+on two axes, and explains why a third -- heads -- is deliberately left
+out.
+
+\subsection{Why Not Heads}
+\label{sec:pure-axis-no-heads}
+
+\Cref{sec:head-pruning-sweep} characterizes head pruning zero-shot and
+\cref{sec:combined-pruning-sweep} includes it in the three-axis combined
+sweep, but no head-only or head-combined candidate was carried into
+retraining and full-suite evaluation alongside the depth-only and
+experts-only candidates below. Three findings, all already established
+earlier in this paper, motivate that choice rather than a late one:
+\textbf{heads are not cheap to prune} (at matched 50\%-pruned-fraction,
+greedy head pruning costs $+129.6\%$ zero-shot loss, comparable to
+depth's $+153.8\%$ and nowhere near experts' $+25.5\%$,
+\cref{sec:head-pruning-sweep}); \textbf{heads barely reduce model size}
+(query heads are a small fraction of total parameters in this MoE model,
+dominated by the per-layer expert MLPs, \cref{sec:experts} --
+even an aggressive per-group head cut moves total parameter count very
+little); and \textbf{combining heads with depth compounds unfavorably,
+not favorably} (\cref{sec:combined-pruning-sweep}'s interaction-effects
+finding: depth+heads costs more than the sum of its independent
+zero-shot costs, unlike depth+experts, which compounds better than
+independent). Given a head-only axis that is simultaneously expensive to
+prune and ineffective at shrinking the model, the GPU budget this section
+spends instead isolates depth and experts -- both of which show far more
+favorable cost curves, and depth in particular directly extends the
+``is depth specifically the problem'' question
+\cref{sec:phase4-depth-isolation} raised but never settled after
+retraining.
+
+\subsection{Seven Single-Axis Candidates}
+\label{sec:pure-axis-results}
+
+We build, distill (\cref{sec:phase4-short-schedule}'s short fixed-loss
+schedule), and fully evaluate five pure experts-only candidates
+($\mathrm{depth}_n{=}0$, $\mathrm{expert}_n \in \{112,64,32,16,8\}$) and
+two pure depth-only candidates ($\mathrm{expert}_n{=}0$,
+$\mathrm{depth}_n \in \{16,24\}$), chosen to bracket the depth cuts
+already measured in combined candidates (12, 16, 22 layers).
+
+\begin{table}[t]
+\caption{Seven single-axis candidates, fixed-loss short KD, full
+159-problem HumanEval-TS. Unpruned baseline (\cref{sec:baseline},
+reconciled denominator): pass@1 $=0.717$ (114/159).}
+\label{table:pure-axis-results}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrrr}
+\toprule
+Candidate & \textapprox params & Zero-shot loss & KD val (step) & Full pass@1 \\
+\midrule
+depth0/experts112 & 5.15B & 2.567 & 0.569 @ 499 & 0.082 (13/159) \\
+depth0/experts64 & 16.03B & 0.970 & 0.145 @ 39 & 0.579 (92/159) \\
+depth0/experts32 & 23.28B & 0.889 & 0.070 @ 29 & 0.604 (96/159) \\
+depth0/experts16 & 26.91B & 0.874 & 0.047 @ 29 & 0.648 (103/159) \\
+depth0/experts8 & 28.72B & 0.869 & 0.042 @ 29 & \textbf{0.704 (112/159)} \\
+depth16/experts0 & 20.56B & 1.157 & 0.207 @ 49 & 0.283 (45/159) \\
+depth24/experts0 & 15.58B & 2.109 & 0.335 @ 499 & 0.107 (17/159) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Depth Costs More Per Parameter Than Experts}
+\label{sec:depth-vs-experts}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/pure_axis_isolation.pdf}
+\caption{Full-suite pass@1 vs.\ approximate parameters, pure experts-only
+(six points, including depth0/experts60) vs.\ pure depth-only (two
+points). Dashed line: reconciled baseline (\cref{sec:baseline}).}
+\label{fig:pure-axis-isolation}
+\end{figure}
+
+The experts-only axis in \cref{table:pure-axis-results}, together with
+depth0/experts60 from \cref{sec:phase4-short-schedule} (16.94B, also
+$\mathrm{depth}_n{=}0$, full pass@1 $0.572$), spans six points from
+barely-pruned (experts8, 94\% of experts kept) to heavily-pruned
+(experts112, 12.5\% kept). Every point from experts8 through experts64
+tracks close to the unpruned baseline; only the heaviest cut,
+experts112, collapses. The depth-only axis has only two points, and both
+are far below baseline despite comparable or larger parameter counts:
+\textbf{depth16/experts0 (20.56B) scores $0.283$ -- worse than
+depth0/experts64, which has 4.5B \emph{fewer} parameters (16.03B,
+$0.579$)}. Depth24/experts0 (15.58B, $0.107$) and depth0/experts64
+(16.03B, $0.579$) sit at nearly identical parameter counts with a
+$5.4\times$ difference in full-suite accuracy. \textbf{This directly
+answers, after retraining rather than only zero-shot, the question
+\cref{sec:phase4-depth-isolation} raised but left open: depth removal
+specifically -- not aggressive pruning in general -- is what drives the
+worse downstream outcome, at a matched parameter budget, consistently
+across every depth-vs-experts comparison available in this paper.} (The
+near-tie between depth0/experts60's $0.572$ and depth0/experts64's
+$0.579$ -- a 1-problem difference in opposite directions from what
+pruning 4 \emph{additional} experts would predict -- is small enough to
+plausibly be KD-run-to-run noise rather than a real non-monotonicity;
+it does not change the axis-level comparison above.)
+
+The lightest experts-only cut, \textbf{depth0/experts8 (28.72B, 112/159
+$=0.704$), comes within two problems of the reconciled baseline (114/159
+$=0.717$, \cref{sec:baseline}) -- 98.2\% retention, the closest any
+candidate in this paper comes to the unpruned teacher, though not a win
+over it.} An earlier working draft of this result, before the baseline
+denominator correction above, reported this candidate as exceeding
+baseline; it does not, once compared against a baseline measured on the
+same 159-problem split.
+
 \section{Discussion and Open Questions}
 \label{sec:discussion}
 
@@ -1706,13 +2038,12 @@ resolved prematurely:
   token-budget, method, or data-shape problem:
   \cref{sec:phase4-root-cause} root-causes it directly to two bugs in
   the KD loss implementation, fixed and confirmed in
-  \cref{sec:phase4-fix-confirmed,sec:phase4-rawfile-fixedloss}. What
-  remains open now that the loss is correct is the schedule itself: both
-  fixed-loss runs peak well before the 3000-step budget completes (step
-  199 and step 239 respectively) and measurably overfit past that point,
-  so a shorter schedule with more frequent validation checks likely
-  recovers the same or better downstream accuracy at a fraction of the
-  compute -- untested directly at the time of writing.
+  \cref{sec:phase4-fix-confirmed,sec:phase4-rawfile-fixedloss}. \textbf{Resolved}
+  in \cref{sec:phase4-short-schedule}: a 500-step schedule with the same
+  warmup fraction and more frequent validation checks recovers comparable
+  $n{=}40$ accuracy to the full 3000-step budget in $3.6$--$4.6\times$ less
+  wall-clock time, and is adopted as the standard recipe for every
+  candidate in \cref{sec:phase4-full-sweep,sec:pure-axis}.
 \item \textbf{Whether the teacher-correction token budget itself needs
   revisiting.} \Cref{sec:teacher-correction-eval,sec:teacher-correction-lora}
   find the corrected teacher's HumanEval-TS pass@1 regresses well below
@@ -1725,10 +2056,40 @@ resolved prematurely:
   Method (LoRA vs.\ full-parameter) and a real retraining-data defect
   (\cref{sec:teacher-correction-lora}) have now both been tested and
   each closed part of the gap without resolving it; a larger token
-  budget itself has not yet been tried directly. The project has three
-  data points now (full-parameter regresses most, LoRA regresses less,
-  neither closes the gap), still no configuration that matches or beats
-  the uncorrected baseline.
+  budget itself has not yet been tried directly. A fourth data point,
+  with a trustworthy loss this time, adds further weight without closing
+  the question either: \cref{sec:phase4-correctedteacher-fixedloss} finds
+  that distilling a \emph{pruned student} against the corrected teacher
+  does not beat the same student distilled against the uncorrected
+  teacher ($n{=}40$ $0.50$ vs.\ $0.55$). The project now has four data
+  points (full-parameter teacher regresses most, LoRA regresses less,
+  a corrected-teacher-distilled student does not benefit, neither closes
+  the gap), still no configuration -- teacher or student -- that matches
+  or beats the uncorrected baseline. A larger correction token budget
+  itself remains the one untested lever.
+\item \textbf{Why does $n{=}40$ sampling noise vary so much in
+  magnitude?} \Cref{sec:phase4-full-suite-noise} finds every candidate's
+  full-159-problem score below its $n{=}40$ score, but the relative
+  overstatement ranges from $+22\%$ to $+226\%$, and is not simply
+  explained by pruning aggressiveness (three similarly-pruned candidates
+  span $+41\%$ to $+140\%$ among themselves). Whether this variation
+  tracks some other property of a candidate (e.g.\ how unevenly its errors
+  cluster across the 159 problems, or how close its $n{=}40$ sample
+  happens to sit to a decision boundary at that candidate's true
+  accuracy) is untested here -- the practical consequence
+  (\cref{sec:phase4-full-suite-noise}) does not depend on explaining it,
+  but the explanation itself is open.
+\item \textbf{A late-caught baseline denominator mismatch, and what it
+  implies about this paper's own numbers.} \Cref{sec:baseline}'s
+  reconciliation was caught by chance, while re-deriving exact pass@1
+  fractions for \cref{sec:pure-axis} -- not by a systematic audit. It is
+  reasonable to ask whether other numbers in this paper carry similar
+  unreconciled mismatches (a different sample seed, a different harness
+  flag, a different dataset revision between two runs being compared)
+  that have not yet been caught the same way. No specific instance is
+  known at the time of writing; this is flagged as a standing risk in a
+  project with this many independent GPU runs over this much time, not
+  a confirmed second instance.
 \end{itemize}
 
 No results are reported for these open questions; they are listed to make
