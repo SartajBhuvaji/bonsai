@@ -136,7 +136,6 @@ def check_sglang(model: str, prompt: str, gpu_mem: float, max_model_len: int) ->
             return int(meta["completion_tokens"])
         if "output_token_logprobs" in meta:
             return len(meta["output_token_logprobs"])
-        text = body.get("text", "")
         raise RuntimeError(f"could not read completion length from SGLang response: {body!r}")
     finally:
         proc.terminate()
