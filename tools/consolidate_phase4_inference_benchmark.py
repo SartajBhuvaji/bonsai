@@ -102,8 +102,19 @@ def main() -> None:
     manifest = json.loads(args.manifest.read_text())
     rows: list[dict[str, Any]] = []
 
+    manifest_dir = args.manifest.resolve().parent
+
+    def resolve_result_path(raw: str) -> Path:
+        p = Path(raw)
+        if p.is_file():
+            return p
+        by_name = manifest_dir / p.name
+        if by_name.is_file():
+            return by_name
+        return p
+
     for entry in manifest:
-        result_path = Path(entry["result_json"])
+        result_path = resolve_result_path(entry["result_json"])
         if not result_path.is_file():
             print(f"skip missing result: {result_path}")
             continue
@@ -138,8 +149,11 @@ def main() -> None:
         "fixed_output_tokens": 512,
         "ignore_eos": True,
         "methodology_note": (
-            "Rerun 2026-10-20: vLLM --ignore-eos + --custom-output-len 512; "
-            "SGLang --sharegpt-output-len 512 with ignore-EOS default (no --disable-ignore-eos)."
+            "2026-10-20 B300 HumanEval-TS serving (159 prompts, 512 output tokens, "
+            "concurrency 1/4/16/32). SGLang: --sharegpt-output-len 512 (ignore EOS by "
+            "default). vLLM: --custom-output-len 512 --ignore-eos after a VLLM_ONLY=1 "
+            "re-sweep; earlier committed vLLM raw JSONs were EOS-shortened while summary "
+            "incorrectly reported 512 until that re-sweep (raw total_output_tokens/159=512)."
         ),
     }
     out_doc = {"meta": meta, "rows": rows}
