@@ -1966,6 +1966,130 @@ denominator correction above, reported this candidate as exceeding
 baseline; it does not, once compared against a baseline measured on the
 same 159-problem split.
 
+\section{Inference-Engine Serving Benchmarks}
+\label{sec:inference-benchmark}
+
+Accuracy and parameter count are not the whole story for a model meant to
+actually serve TypeScript completions: the project's original hypothesis
+(\S4.3 of the project plan, recorded before any pruning was done) was that
+expert pruning shrinks \emph{total} parameters without necessarily
+shrinking \emph{active} compute per token -- the model still routes to the
+same 8 experts per token regardless of how many total experts remain in
+the pool -- while depth pruning directly removes sequential layers every
+token must pass through, the opposite tradeoff. We test this with real
+inference-engine serving benchmarks rather than parameter-count proxies.
+
+\subsection{Setup}
+\label{sec:inference-benchmark-setup}
+
+We benchmark the unpruned teacher and three pure-axis candidates from
+\cref{table:pure-axis-results} -- depth0/experts64 (16.03B, best
+accuracy/compression), depth16/experts0 (20.56B, the depth-only candidate
+closest in size to depth0/experts64), and depth0/experts8 (28.72B,
+lightest experts-only cut) -- on vLLM \cite{vllm2023} and SGLang
+\cite{sglang2024}, both installed box-local (not a project dependency,
+since their pinned kernel/CUDA requirements conflict with each other and
+with this project's own `pyproject.toml` extras). All three pruned Hub
+checkpoints load and serve correctly in both engines despite non-standard
+\texttt{num\_hidden\_layers}/\texttt{num\_experts} in \texttt{config.json}
+-- not guaranteed in advance, since neither engine's Qwen3-MoE
+implementation had previously been exercised against a config-modified
+checkpoint in this project.
+
+The workload is all 159 HumanEval-TS prompts, concurrency swept over
+$\{1, 4, 16, 32\}$, \texttt{gpu\_memory\_utilization}/\texttt{mem\_fraction\_static}
+$=0.9$ on a single B300. Every request is forced to generate exactly 512
+output tokens (\texttt{ignore\_eos}, overriding each engine's default of
+stopping at the model's own end-of-sequence token) rather than letting
+generation length vary by completion. This matters: an earlier attempt
+let one engine stop at natural completion length (which varies
+$4$--$6\times$ across candidates, since a worse model's completions are
+simply shorter) while the other generated a fixed 512 tokens regardless --
+making every cross-engine and even some cross-candidate comparisons an
+artifact of how much text was generated, not how fast it was served. With
+generation length pinned equal everywhere, throughput, latency, and
+inter-token timing all measure the same thing for every (candidate,
+engine) pair.
+
+\subsection{Results}
+\label{sec:inference-benchmark-results}
+
+\cref{table:inference-benchmark-results} reports throughput, mean
+inter-token latency (ITL), and p50 end-to-end latency at concurrency 16
+(the middle of the sweep); \cref{fig:inference-throughput} plots
+throughput for all four candidates on both engines. Every candidate's
+absolute numbers differ between vLLM and SGLang -- SGLang is consistently
+a few percent faster across every row -- but the ranking across candidates
+is identical on both engines, which is what the next subsection's
+comparison relies on.
+
+\begin{table*}[t]
+\caption{Serving benchmarks at concurrency 16, 512 fixed output tokens/request,
+159 HumanEval-TS prompts, 1$\times$ B300.}
+\label{table:inference-benchmark-results}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrrrr}
+\toprule
+Candidate & $\sim$params & Engine & tok/s & ITL (ms) & p50 e2e (ms) \\
+\midrule
+baseline & 30.50B & vLLM & 2546 & 6.20 & 3193 \\
+baseline & 30.50B & SGLang & 2690 & 5.80 & 2970 \\
+depth0/experts64 & 16.03B & vLLM & 2986 & 5.28 & 2717 \\
+depth0/experts64 & 16.03B & SGLang & 3254 & 4.83 & 2498 \\
+depth16/experts0 & 20.56B & vLLM & \textbf{3661} & \textbf{4.30} & \textbf{2219} \\
+depth16/experts0 & 20.56B & SGLang & \textbf{3936} & \textbf{3.99} & \textbf{2056} \\
+depth0/experts8 & 28.72B & vLLM & 2535 & 6.22 & 3195 \\
+depth0/experts8 & 28.72B & SGLang & 2731 & 5.77 & 2968 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/phase4_inference_throughput.pdf}
+\caption{Output throughput by candidate and engine, concurrency 16, 512
+fixed output tokens/request.}
+\label{fig:inference-throughput}
+\end{figure}
+
+\subsection{Depth Pruning Serves Faster Per Token at a Matched Parameter Budget}
+\label{sec:inference-benchmark-hypothesis}
+
+Comparing depth16/experts0 (20.56B) to depth0/experts64 (16.03B) --
+\emph{more} total parameters, not fewer -- depth16/experts0 is faster on
+every metric, on both engines, by a consistent margin: inter-token latency
+is $18$--$19\%$ lower (vLLM: 4.30ms vs.\ 5.28ms; SGLang: 3.99ms vs.\
+4.83ms), throughput is $21$--$23\%$ higher, and p50 end-to-end latency is
+$18\%$ lower, on both engines. \textbf{A model with 28\% more stored
+parameters serves measurably faster, because serving latency is governed
+by how many layers a token sequentially passes through, not by how many
+parameters are resident in memory.} This confirms the project's original
+hypothesis directly: expert pruning reduces total parameter count without
+a proportional reduction in per-token serving cost (every request still
+routes to the same 8 experts per token, as noted above),
+while depth pruning's layer removal translates almost linearly into lower
+per-token latency. The three metrics -- throughput, mean inter-token
+latency, and end-to-end latency -- agree with each other here (unlike an
+earlier, methodologically flawed attempt at this same comparison, where
+forcing equal generation length across engines was the fix that made them
+agree), which is itself a useful internal consistency check now that
+generation length is no longer a confound.
+
+depth0/experts8, the lightest experts-only cut (28.72B, 98.2\% of
+baseline's full-suite accuracy per \cref{sec:pure-axis-results}), tracks
+baseline's serving numbers closely on both engines (vLLM: 2535 vs.\ 2546
+tok/s; SGLang: 2731 vs.\ 2690 tok/s) -- a light experts trim costs
+essentially nothing in serving latency, consistent with the hypothesis
+that experts pruning's cost is almost entirely in memory footprint, not
+compute. Taken together, a deployment decision between depth0/experts64
+and depth16/experts0 is not just an accuracy tradeoff
+(\cref{sec:pure-axis-results}: $0.579$ vs.\ $0.283$ full-suite pass@1,
+strongly favoring depth0/experts64) -- it is also a size-vs-latency
+tradeoff in the opposite direction, smaller favoring accuracy, larger
+favoring speed, with neither axis free.
+
 \section{Discussion and Open Questions}
 \label{sec:discussion}
 
