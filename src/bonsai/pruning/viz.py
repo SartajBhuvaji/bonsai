@@ -311,9 +311,65 @@ def plot_n40_vs_full_suite(
     return fig
 
 
+def plot_inference_throughput(
+    candidates: Sequence[str],
+    vllm_tok_s: Sequence[float],
+    sglang_tok_s: Sequence[float],
+    *,
+    title: str = "Serving throughput by candidate and engine",
+) -> Figure:
+    """Grouped bar chart: one group per candidate, two bars (vLLM, SGLang throughput).
+
+    Same shape as `plot_n40_vs_full_suite` (candidate on the x-axis, two
+    bars per candidate), reused here because the comparison is the same
+    kind -- two measurements per candidate that should be read side by
+    side, not a continuous sweep. `candidates[i]`'s two bars are
+    `vllm_tok_s[i]` and `sglang_tok_s[i]`; the first two categorical colors
+    are the two engines, not assigned per candidate, since the comparison
+    that matters is engine vs. engine within each candidate. `candidates`
+    should be kept short (e.g. `"d0/e64"`), drawn horizontal, matching
+    every other sweep figure in this project.
+    """
+    lengths = {len(candidates), len(vllm_tok_s), len(sglang_tok_s)}
+    if len(lengths) != 1:
+        raise ValueError(
+            f"candidates, vllm_tok_s, and sglang_tok_s must have the same "
+            f"length, got {len(candidates)}, {len(vllm_tok_s)}, {len(sglang_tok_s)}"
+        )
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+
+    x = np.arange(len(candidates))
+    bar_width = 0.35
+
+    ax.bar(
+        x - bar_width / 2, vllm_tok_s, width=bar_width * 0.9, color=_CATEGORICAL[0], label="vLLM"
+    )
+    ax.bar(
+        x + bar_width / 2,
+        sglang_tok_s,
+        width=bar_width * 0.9,
+        color=_CATEGORICAL[1],
+        label="SGLang",
+    )
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(candidates, fontsize=9)
+    ax.set_title(title, fontsize=11)
+    ax.set_xlabel("candidate", fontsize=9)
+    ax.set_ylabel("output throughput (tok/s)", fontsize=9)
+    ax.legend(fontsize=8, frameon=False)
+    fig.tight_layout()
+    return fig
+
+
 __all__ = [
     "plot_axis_isolation",
     "plot_combined_pruning_sweep",
+    "plot_inference_throughput",
     "plot_n40_vs_full_suite",
     "plot_pruning_sweep",
 ]
