@@ -117,6 +117,7 @@ run_vllm_bench() {
     --max-concurrency "$conc" \
     --request-rate inf \
     --temperature 0 \
+    --ignore-eos \
     --save-result \
     --percentile-metrics ttft,tpot,itl,e2el \
     --metric-percentiles 50,90,99 \
@@ -163,6 +164,7 @@ run_sglang_bench() {
     --num-prompts "$NUM_PROMPTS" \
     --max-concurrency "$conc" \
     --request-rate inf \
+    --output-details \
     --output-file "$result_json" \
     2>&1 | tee "$log_file"
 

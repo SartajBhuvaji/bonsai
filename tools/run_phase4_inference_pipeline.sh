@@ -14,8 +14,10 @@ echo "[$(date -Iseconds)] vLLM deps" | tee -a "$LOG"
 bash tools/setup_inference_engine_deps.sh vllm 2>&1 | tee -a "$LOG"
 
 if [[ "${SKIP_SANITY:-0}" != "1" ]]; then
-  echo "[$(date -Iseconds)] sanity (pruned)" | tee -a "$LOG"
-  bash tools/run_phase4_inference_sanity_pruned.sh 2>&1 | tee -a "$LOG"
+  echo "[$(date -Iseconds)] export prompts for sanity" | tee -a "$LOG"
+  python tools/export_humaneval_ts_inference_prompts.py --out-dir "$ROOT/docs/debug" 2>&1 | tee -a "$LOG"
+  echo "[$(date -Iseconds)] fixed output length sanity (512 tokens, ignore EOS)" | tee -a "$LOG"
+  python tools/phase4_inference_fixed_output_sanity.py 2>&1 | tee -a "$LOG"
 else
   echo "[$(date -Iseconds)] sanity skipped (SKIP_SANITY=1)" | tee -a "$LOG"
 fi

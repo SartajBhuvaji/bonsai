@@ -16,6 +16,29 @@ CANDIDATE_PARAMS_B: dict[str, float] = {
 }
 
 
+def _mean_output_tokens(data: dict[str, Any]) -> float | None:
+    completed = data.get("completed", data.get("successful_requests"))
+    total_out = data.get("total_output_tokens")
+    if completed and total_out:
+        return float(total_out) / float(completed)
+    return None
+
+
+def load_result_document(path: Path) -> dict[str, Any]:
+    """vLLM bench writes one JSON object; SGLang --output-details appends JSONL."""
+    text = path.read_text(encoding="utf-8").strip()
+    if not text:
+        raise ValueError(f"empty result file: {path}")
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        for line in text.splitlines():
+            line = line.strip()
+            if line:
+                return json.loads(line)
+        raise
+
+
 def _get(d: dict[str, Any], *keys: str, default: object | None = None) -> object | None:
     for key in keys:
         if key in d:
@@ -37,7 +60,9 @@ def parse_vllm_result(data: dict[str, Any]) -> dict[str, Any]:
         "e2e_latency_ms_p90": _get(data, "p90_e2el_ms", "p90_e2e_latency_ms"),
         "e2e_latency_ms_p99": _get(data, "p99_e2el_ms", "p99_e2e_latency_ms"),
         "itl_ms_mean": _get(data, "mean_itl_ms", "mean_tpot_ms"),
+        "tpot_ms_mean": _get(data, "mean_tpot_ms", "mean_itl_ms"),
         "completed_requests": _get(data, "completed", "successful_requests"),
+        "mean_output_tokens_per_request": _mean_output_tokens(data),
     }
 
 
@@ -53,7 +78,9 @@ def parse_sglang_result(data: dict[str, Any]) -> dict[str, Any]:
         "e2e_latency_ms_p90": _get(data, "p90_e2e_latency_ms"),
         "e2e_latency_ms_p99": _get(data, "p99_e2e_latency_ms"),
         "itl_ms_mean": _get(data, "mean_itl_ms"),
+        "tpot_ms_mean": _get(data, "mean_tpot_ms", "mean_itl_ms"),
         "completed_requests": _get(data, "completed"),
+        "mean_output_tokens_per_request": _mean_output_tokens(data),
     }
 
 
@@ -80,7 +107,7 @@ def main() -> None:
         if not result_path.is_file():
             print(f"skip missing result: {result_path}")
             continue
-        raw = json.loads(result_path.read_text())
+        raw = load_result_document(result_path)
         completed = raw.get("completed", raw.get("successful_requests"))
         if completed == 0:
             print(f"skip zero completions: {result_path}")
@@ -108,6 +135,12 @@ def main() -> None:
         "sglang_version": manifest[0].get("sglang_version") if manifest else None,
         "gpu": manifest[0].get("gpu") if manifest else None,
         "prompt_stats_path": manifest[0].get("prompt_stats_path") if manifest else None,
+        "fixed_output_tokens": 512,
+        "ignore_eos": True,
+        "methodology_note": (
+            "Rerun 2026-10-20: vLLM --ignore-eos + --custom-output-len 512; "
+            "SGLang --sharegpt-output-len 512 with ignore-EOS default (no --disable-ignore-eos)."
+        ),
     }
     out_doc = {"meta": meta, "rows": rows}
     args.out.write_text(json.dumps(out_doc, indent=2) + "\n", encoding="utf-8")
