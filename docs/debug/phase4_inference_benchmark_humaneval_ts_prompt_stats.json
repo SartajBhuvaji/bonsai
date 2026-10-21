@@ -1,0 +1,11 @@
+{
+  "n_prompts": 159,
+  "output_tokens_per_request": 512,
+  "prompt_char_len_mean": 434.2704402515723,
+  "prompt_char_len_median": 397,
+  "prompt_char_len_min": 115,
+  "prompt_char_len_max": 1324,
+  "vllm_dataset_path": "docs/debug/phase4_inference_benchmark_humaneval_ts_vllm.jsonl",
+  "sglang_dataset_path": "docs/debug/phase4_inference_benchmark_humaneval_ts_sglang.jsonl",
+  "note": "SGLang custom loader requires two-turn conversations; output length is set via --sharegpt-output-len at bench time."
+}

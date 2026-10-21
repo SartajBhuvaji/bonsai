@@ -2153,15 +2153,79 @@ needs more than Phase-4.1's loss numbers:
   that param count alone doesn't settle.
 Save the resulting shortlist's checkpoints per 4.0.
 
-**4.3 — Full retraining of the winners**, then real inference-engine
-benchmarking once GPU capacity allows (stated goal, 2026-09-20: "when we
-get a free H100," so this is explicitly deferred, not blocking anything
-before it) -- load each saved winner in vLLM and SGLang, measure real
-serving throughput/latency, not just the accuracy metrics above. This is
-the actual point of saving real, correctly-configured checkpoints in 4.0
-rather than only recording loss numbers in a `.pt` file: an eval-suite
-winner that doesn't serve efficiently isn't actually the right answer for
-"servable to a TypeScript-heavy-inference customer."
+**4.3 — Inference-engine benchmarking (ran 2026-10-20 on 1× NVIDIA B300).**
+Distilled winners from 4.2 were already on Hub; this pass is inference-only
+(no training). Engines installed box-local via pip (not in `pyproject.toml`):
+**vLLM 0.32.0** (stable) and **SGLang 0.5.22** (stable). Blackwell required
+pin-swapping kernel deps between engines (`tools/setup_inference_engine_deps.sh`)
+because their torch/flashinfer/humming-kernels pins conflict.
+
+**Candidates (4):** unpruned `Qwen/Qwen3-30B-A3B-Base`; `depth0/experts64`
+(~16.03B, best accuracy/compression); `depth16/experts0` (~20.56B, depth-only
+comparison to experts64); `depth0/experts8` (~28.72B, light experts cut).
+
+**Workload:** 159 HumanEval-TS prompts from `TsMultiPLE` / `nuprl/MultiPL-E`
+(`tools/export_humaneval_ts_inference_prompts.py`); fixed **512** output tokens
+per request; `max-model-len` / context **8192**; `gpu_memory_utilization` /
+`mem_fraction_static` **0.9**. Mean prompt length **~434 characters**
+(`docs/debug/phase4_inference_benchmark_humaneval_ts_prompt_stats.json`).
+Concurrency sweep **{1, 4, 16, 32}** per (candidate, engine). Raw JSON/logs:
+`docs/debug/phase4_inference_benchmark_{candidate}_{engine}_*`; consolidated
+`docs/debug/phase4_inference_benchmark_summary.json`. Notebook:
+`notebooks/13_inference_engine_benchmarking.ipynb`.
+
+**Methodology history (same B300 box, 2026-10-20).** Three passes matter:
+
+1. **First sweep:** vLLM respected EOS (variable completion length ~85–298
+   tokens); SGLang forced 512 tokens — not a fair cross-engine comparison.
+2. **`af515ee` rerun claim:** `--ignore-eos` was wired into the sweep script,
+   but the committed vLLM raw JSON files were **byte-identical** to pass (1);
+   `phase4_inference_benchmark_summary.json` incorrectly showed
+   `mean_output_tokens_per_request: 512` for vLLM anyway. SGLang raw files from
+   pass (2) are valid (512 tokens/request verified on disk).
+3. **vLLM-only re-sweep (`VLLM_ONLY=1`):** Re-ran all 16 vLLM benches with
+   `--ignore-eos` live; every raw file has `total_output_tokens / completed =
+   512.0` (159 prompts × 512 = 81408). Summary regenerated from manifest (16
+   fresh vLLM + 16 SGLang rows). Fixed-output sanity:
+   `tools/phase4_inference_fixed_output_sanity.py` (8 checks, all 512).
+
+**Sanity (pruned checkpoints):** All three pruned Hub checkpoints load and
+complete a single prompt in both vLLM and SGLang with non-standard
+`num_hidden_layers` / `num_experts` from `config.json` (see
+`docs/debug/phase4_inference_sanity_pruned.log`).
+
+**Representative results @ concurrency 16** (output tok/s, mean ITL ms, mean
+TPOT ms, p50 end-to-end ms — all with **512** completion tokens/request):
+
+| Candidate | ~params | vLLM tok/s | vLLM ITL | vLLM TPOT | vLLM p50 e2e | SGLang tok/s | SGLang ITL | SGLang TPOT | SGLang p50 e2e |
+|-----------|---------|------------|----------|------------|--------------|--------------|------------|-------------|----------------|
+| baseline | 30.5B | 2553 | 6.18 | 6.18 | 3176 | 2690 | 5.80 | 5.80 | 2970 |
+| depth0 / experts64 | 16.03B | 2979 | 5.29 | 5.29 | 2722 | 3254 | 4.83 | 4.83 | 2498 |
+| depth16 / experts0 | 20.56B | 3656 | 4.31 | 4.31 | 2219 | 3936 | 3.99 | 3.99 | 2056 |
+| depth0 / experts8 | 28.72B | 2538 | 6.21 | 6.21 | 3178 | 2731 | 5.77 | 5.77 | 2968 |
+
+(Rounded from `docs/debug/phase4_inference_benchmark_summary.json`; ITL ≈ TPOT
+on this harness.)
+
+**Depth-only vs experts-only (hypothesis test).** Comparing **depth0/experts64**
+(~16B) to **depth16/experts0** (~21B) at c=16 with matched 512-token outputs:
+
+- **vLLM:** depth16/e0 wins on throughput (3656 vs 2979 tok/s), per-token
+  latency (ITL/TPOT 4.31 vs 5.29 ms), and p50 e2e (2219 vs 2722 ms) despite
+  *more* total parameters — experts-only does not win on serving latency here.
+- **SGLang:** same direction — 3936 vs 3254 tok/s; ITL 3.99 vs 4.83 ms; p50
+  e2e 2056 vs 2498 ms.
+
+So with generation length held fixed, depth pruning still looks faster per
+token and end-to-end than the smaller experts64 model on both engines — consistent
+with depth removing serial layers while expert pruning leaves the full depth
+stack and MoE routing cost. **depth0/experts8** stays near baseline on vLLM
+(2538 tok/s, ~6.2 ms ITL, p50 e2e ~3178 ms vs baseline 2553 / 6.18 / 3176).
+
+Engines disagree on absolute numbers (SGLang higher p50 e2e than vLLM at c=16
+for the same candidate); treat cross-engine rows as engine-specific. Phase 5
+can use these for the deployment tradeoff story alongside HumanEval pass@1 from
+4.2.
 
 ### Phase 5 — Evaluation and writeup
 

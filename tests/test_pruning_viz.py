@@ -12,6 +12,7 @@ matplotlib.use("Agg")  # no display in CI
 from bonsai.pruning.viz import (
     plot_axis_isolation,
     plot_combined_pruning_sweep,
+    plot_inference_throughput,
     plot_n40_vs_full_suite,
     plot_pruning_sweep,
 )
@@ -207,6 +208,29 @@ def test_plot_n40_vs_full_suite_rejects_mismatched_lengths() -> None:
 
     try:
         plot_n40_vs_full_suite(candidates, n40, full)
+    except ValueError:
+        return
+    raise AssertionError("expected ValueError for a mismatched series length")
+
+
+def test_plot_inference_throughput_draws() -> None:
+    candidates = ["baseline", "d0/e64", "d16/e0", "d0/e8"]
+    vllm = [2545.6, 2985.7, 3660.5, 2535.4]
+    sglang = [2690.0, 3253.6, 3935.5, 2730.5]
+
+    fig = plot_inference_throughput(candidates, vllm, sglang)
+
+    assert len(fig.axes) == 1
+    assert [t.get_text() for t in fig.axes[0].get_xticklabels()] == candidates
+
+
+def test_plot_inference_throughput_rejects_mismatched_lengths() -> None:
+    candidates = ["a", "b", "c"]
+    vllm = [1.0, 2.0]  # wrong length
+    sglang = [1.0, 2.0, 3.0]
+
+    try:
+        plot_inference_throughput(candidates, vllm, sglang)
     except ValueError:
         return
     raise AssertionError("expected ValueError for a mismatched series length")
