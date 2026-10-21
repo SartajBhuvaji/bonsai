@@ -89,8 +89,16 @@ redundant axis on this model, with heads and depth comparably
 interaction effects beyond simple compounding: depth+heads combines
 genuinely worse than independent pruning would predict, while
 depth+experts is actually cheaper than independent compounding predicts.
-This is a living document, updated as further pruning, distillation, and
-retraining experiments complete; no candidate has been retrained yet.
+Thirteen candidates are retrained (fixed-loss knowledge distillation) and
+evaluated on the full 159-problem HumanEval-TS suite: experts-only
+pruning dominates depth-only and combined depth+experts at every matched
+parameter budget, no candidate beats the unpruned baseline on TypeScript
+specifically, and real vLLM/SGLang serving benchmarks on a subset confirm
+that expert pruning trades parameter count for little serving-speed cost
+while depth pruning trades accuracy for real per-token latency gains --
+two genuinely different deployment tradeoffs, not interchangeable proxies
+for the same thing. This is a living document, updated as further
+pruning, distillation, and retraining experiments complete.
 \end{abstract}
 
 \section{Introduction}
@@ -2218,6 +2226,91 @@ resolved prematurely:
 
 No results are reported for these open questions; they are listed to make
 the project's actual state legible, not to imply an answer.
+
+\section{Conclusion and Recommendation}
+\label{sec:conclusion}
+
+Thirteen candidates were pruned, distilled under the fixed-loss short
+schedule (\cref{sec:phase4-short-schedule}), and evaluated on the full
+159-problem HumanEval-TS suite -- every candidate this project actually
+carried through retraining, not a subset. \cref{fig:final-results} plots
+all of them against the reconciled baseline.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/phase4_final_results.pdf}
+\caption{Full-suite HumanEval-TS pass@1 vs.\ approximate parameters,
+every fully-retrained candidate (13), grouped by pruning axis.}
+\label{fig:final-results}
+\end{figure}
+
+\textbf{What each axis bought.} Experts-only pruning dominates the other
+two families at every parameter budget where a comparison exists: at
+$\sim$8.5B params, experts-only (experts97, $0.283$) already matches
+depth16/experts0's score at $\sim$20.56B -- less than half the size for
+the same accuracy. Depth-only and combined depth+experts candidates both
+sit well below the experts-only curve across their entire range
+(\cref{sec:depth-vs-experts}). Serving speed tells a different story,
+though: comparing depth16/experts0 and depth0/experts64 directly
+(\cref{sec:inference-benchmark-hypothesis}), the depth-pruned candidate
+serves $18$--$23\%$ faster on every metric despite being 28\% larger. So
+the two axes are not interchangeable cost dimensions -- experts pruning
+buys parameter count and accuracy retention; depth pruning buys per-token
+serving speed, independent of its (worse) accuracy. Neither axis is
+simply ``better''; they trade along different, real deployment
+constraints.
+
+\textbf{Does expert pruning behave like width pruning, or like something
+new?} Like something new. Width/depth pruning in a dense model cuts
+compute roughly in proportion to parameters removed, since every
+parameter participates in every forward pass. Expert pruning does not:
+this model routes to the same 8 experts per token regardless of how many
+total experts remain in the pool (\cref{sec:inference-benchmark}), so
+removing experts shrinks stored parameters and accuracy risk without a
+proportional compute reduction -- confirmed directly by the serving
+benchmarks, not just inferred from the routing mechanism. This decoupling
+of memory cost from compute cost has no equivalent in dense-model
+pruning, where the two are the same thing.
+
+\textbf{Did teacher correction matter as much as it did for
+\citet{minitron2024practice}?} No -- the opposite. Their framing is
+``minor,'' with some tasks improving and some degrading. Ours is a clear
+regression on the one benchmark that matters most for this project:
+every corrected-teacher configuration tested (full-parameter,
+\cref{sec:teacher-correction-eval}; LoRA plus a data-quality fix,
+\cref{sec:teacher-correction-lora}; distilling a pruned student against
+the corrected teacher, \cref{sec:phase4-correctedteacher-fixedloss})
+scored \emph{worse} on HumanEval-TS than the uncorrected teacher, despite
+improving validation loss in every case and leaving general knowledge
+(MMLU, ARC-Challenge, Winogrande) untouched. Every candidate in
+\cref{fig:final-results} was ultimately distilled against the
+\emph{uncorrected} teacher for this reason -- correction, as configured
+here, was tried and rejected, not simply skipped.
+
+\textbf{Did any candidate beat the unpruned baseline on TypeScript?} No.
+The closest is depth0/experts8: $0.704$ vs.\ baseline's $0.717$, 98.2\%
+accuracy retention -- but at 94.2\% of baseline's parameter count, which
+is a weak case for pruning at all if accuracy parity, not size, is the
+goal. No candidate in this paper's thirteen-candidate sweep improves on
+the unpruned teacher for TypeScript specifically, the question this
+project set out to answer.
+
+\textbf{Recommendation.} For a TypeScript-focused deployment where size
+and serving cost matter (the actual motivating scenario for this
+project), \textbf{depth0/experts64} is the recommended candidate:
+$16.03$B params (47\% smaller than baseline), $0.579$ full-suite pass@1
+(80.7\% of baseline's accuracy), and -- uniquely among this paper's
+candidates -- real measured serving throughput on both vLLM and SGLang
+that matches or exceeds the unpruned baseline's own throughput
+(\cref{table:inference-benchmark-results}), not just a smaller footprint
+on paper. depth0/experts8 is the better choice only when accuracy parity
+matters more than any size reduction, since it barely shrinks the model.
+depth-only and combined depth+experts candidates are not recommended at
+any size in this sweep: every one scores below the experts-only curve at
+a matched or smaller parameter budget, and the one depth-pruned candidate
+with real serving numbers (depth16/experts0) trades the bulk of its
+accuracy for a speed advantage that depth0/experts8's near-baseline
+accuracy does not require giving up.
 
 \section*{Acknowledgements}
 This is an independent research project with no external funding.

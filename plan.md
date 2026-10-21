@@ -2229,24 +2229,53 @@ can use these for the deployment tradeoff story alongside HumanEval pass@1 from
 
 ### Phase 5 — Evaluation and writeup
 
-**5.1 — Full eval suite on every fully-retrained candidate**, including
-the vLLM/SGLang throughput/latency numbers from 4.3 once available.
+**5.1/5.2 — Done (2026-10-20).** User explicitly deferred further
+benchmarking ("I dont do any more benchmarks for now") -- this
+consolidation uses only what was already measured: HumanEval-TS full-159
+pass@1 for all 13 fully-retrained candidates (every candidate this
+project actually carried through fixed-loss distillation), plus real
+vLLM/SGLang serving throughput for the 4-candidate inference-benchmark
+subset from 4.3. The tracked MMLU/Winogrande/ARC-Challenge numbers exist
+only for the corrected teacher (sec:teacher-correction-eval), not per
+pruned candidate -- not re-run here per the above.
 
-**5.2 — Report.** What each axis bought (params saved vs. accuracy vs. real
-inference throughput/latency, not just a proxy), whether expert pruning
-behaved like width or like something new, whether teacher correction
-mattered as much for us as it did in 2408.11796, whether any candidate
-actually beat the unpruned baseline on TypeScript specifically (the actual
-question this project is trying to answer, per the 2026-09-20 goal), and
-which combination we'd recommend for a TypeScript-focused deployment if
-this stops being hypothetical. Lands in `docs/`.
-*Notebook:* `04_results.ipynb` — the final comparison table and charts across
-every candidate (params vs. TypeScript pass@1 vs. the tracked
-MMLU/Winogrande/ARC-Challenge numbers vs. vLLM/SGLang throughput once
-available), the same one the writeup's numbers come from. Whether the
-fuller suite (Python regression, HellaSwag) is worth running for just the
-overall winner is a call for this step, not decided
-now.
+*Notebook:* `04_results.ipynb` -- loads every `docs/debug/phase4_*_humaneval_ts_full.json`
+plus `phase4_inference_benchmark_summary.json`, builds the full
+params-vs-accuracy table/figure (`figures/phase4_final_results.pdf`) and
+the accuracy+throughput deployment table for the benchmarked subset.
+
+**Report, written into `docs/latex/main.tex` as `\section{Conclusion and
+Recommendation}` (same incremental-paper convention as every other phase)
+rather than a separate doc:**
+- **What each axis bought:** experts-only dominates depth-only and
+  combined depth+experts at every matched parameter budget (e.g.
+  experts97 at ~8.5B matches depth16/experts0's accuracy at ~20.56B --
+  less than half the size for the same score). Serving speed inverts
+  this: depth16/experts0 serves 18-23% faster than depth0/experts64
+  despite being 28% larger (4.3's finding) -- the two axes trade along
+  genuinely different constraints, not substitutable.
+- **Expert pruning vs. width pruning:** behaves like something new, not
+  width pruning -- decouples parameter count from per-token compute
+  (fixed top-8 routing regardless of pool size), confirmed directly by
+  the serving benchmarks, not just inferred from the mechanism.
+- **Teacher correction:** did not matter the way it did for 2408.11796 --
+  regressed HumanEval-TS in every configuration tested (full-parameter,
+  LoRA+data-fix, corrected-teacher-distilled student), unlike their
+  "minor" framing. Every candidate in the final sweep was distilled
+  against the uncorrected teacher for this reason.
+- **Beat baseline?** No. Closest is depth0/experts8 (98.2% accuracy
+  retention) but only 94.2% of baseline's params -- weak case for pruning
+  if accuracy parity is the actual goal.
+- **Recommendation:** depth0/experts64 for a TypeScript deployment where
+  size/serving cost matter (47% smaller, 80.7% accuracy retention, real
+  measured throughput matching or beating baseline on both engines);
+  depth0/experts8 only if accuracy parity matters more than any size
+  win. Depth-only and combined candidates not recommended at any size in
+  this sweep.
+
+Whether the fuller suite (Python regression, HellaSwag, per-candidate
+general-knowledge) is worth running later remains open -- explicitly not
+done now, per the above.
 
 ## Explicitly not doing (yet)
 
