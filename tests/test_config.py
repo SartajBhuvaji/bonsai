@@ -51,8 +51,8 @@ def test_explicit_name_and_compute(tmp_path: Path) -> None:
         calibration_shards = ["data-00000-of-00071.parquet"]
 
         [compute]
-        provider = "lambda"
-        instance_type = "gpu_1x_a100"
+        provider = "digitalocean"
+        instance_type = "gpu-h100x1-80gb"
         """,
     )
 
@@ -62,8 +62,8 @@ def test_explicit_name_and_compute(tmp_path: Path) -> None:
     assert config.model.revision == "abc123"
     assert config.data.calibration_samples == 512
     assert config.data.calibration_shards == ("data-00000-of-00071.parquet",)
-    assert config.compute.provider == "lambda"
-    assert config.compute.instance_type == "gpu_1x_a100"
+    assert config.compute.provider == "digitalocean"
+    assert config.compute.instance_type == "gpu-h100x1-80gb"
 
 
 def test_unknown_top_level_keys_kept_in_extra(tmp_path: Path) -> None:

@@ -93,4 +93,4 @@ retraining_shards = [
 ]
 
 [compute]
-provider = "lambda"
+provider = "digitalocean"
