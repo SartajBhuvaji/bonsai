@@ -1,9 +1,62 @@
 # bonsai
 
-Pruning and distilling a Mixture-of-Experts model into a smaller,
-TypeScript-specialized one, following NVIDIA's Minitron recipe (structured
-pruning + knowledge distillation). The papers this is built from are in
-[docs/papers](docs/papers).
+Pruning and distilling Qwen3-30B-A3B, a 30B-parameter Mixture-of-Experts
+model, into a smaller model specialized for one customer's actual workload,
+following NVIDIA's Minitron recipe (structured pruning + knowledge
+distillation). TypeScript code generation stands in here for "a customer
+whose traffic concentrates on one pattern." The reference papers this is
+built from are in [docs/papers](docs/papers).
+
+## Result
+
+The best candidate is **47% smaller** (16.03B vs. 30.50B parameters), holds
+**80.7% of baseline accuracy** on the full 159-problem HumanEval-TS
+benchmark, and **beats the unpruned model's own measured serving throughput
+by 17-21%** on real vLLM and SGLang benchmarks, not a parameter-count
+estimate.
+
+| Candidate | ~params | Zero-shot loss | KD val (step) | Full pass@1 | 95% CI |
+| --- | --- | --- | --- | --- | --- |
+| baseline (unpruned) | 30.50B | 0.9670 | N/A | 0.717 (114/159) | ±6.9pp |
+| depth0/experts112 | 5.15B | 2.567 | 0.569 @ 499 | 0.082 (13/159) | ±4.3pp |
+| depth0/experts64 | 16.03B | 0.970 | 0.145 @ 39 | 0.579 (92/159) | ±7.6pp |
+| depth0/experts32 | 23.28B | 0.889 | 0.070 @ 29 | 0.604 (96/159) | ±7.5pp |
+| depth0/experts16 | 26.91B | 0.874 | 0.047 @ 29 | 0.648 (103/159) | ±7.3pp |
+| **depth0/experts8** | 28.72B | 0.869 | 0.042 @ 29 | **0.704 (112/159)** | ±7.0pp |
+| depth16/experts0 | 20.56B | 1.157 | 0.207 @ 49 | 0.283 (45/159) | ±6.9pp |
+| depth24/experts0 | 15.58B | 2.109 | 0.335 @ 499 | 0.107 (17/159) | ±4.8pp |
+
+Seven single-axis candidates, fixed-loss short KD, full 159-problem
+HumanEval-TS against the unpruned baseline. Experts-only pruning (depth0
+rows) holds up far better than depth-only pruning (experts0 rows) at
+comparable or even larger parameter counts: depth16/experts0 (20.56B)
+scores worse than depth0/experts64 (16.03B), despite 4.5B more parameters.
+
+This table isolates the two pruning axes; thirteen candidates in total
+(including combined depth+experts cuts) were pruned, distilled, and
+evaluated on the full 159-problem suite, not a 40-problem sample -- this
+project found that sampling systematically overstates accuracy, by 22% to
+226% depending on the candidate. Experts-only pruning dominates depth-only
+and combined depth+experts pruning at every matched parameter budget.
+
+**The core contribution:** Minitron's recipe prunes dense transformers along
+three axes (depth, width, attention heads). A Mixture-of-Experts model has
+no width axis to prune -- every MLP parameter lives inside an expert. This
+project adapts Minitron's activation-based importance-scoring philosophy to
+expert pruning directly: a gate-weighted expert-output-norm criterion that
+two other groups (REAP, NVIDIA's own Minitron-MoE extension) independently
+converged on around the same time, validated here against the model's
+previously-reported "Super Experts."
+
+The paper's appendix is a real debugging record, not just a results
+summary: two knowledge-distillation loss bugs that caused repetition
+collapse, a baseline-denominator mismatch that inflated an early result,
+and a fabricated benchmark rerun caught by diffing raw per-request output
+files against the previous commit before trusting the number.
+
+**Paper:** ["Mixture-of-Experts Pruning for Optimizing Customer-Specific
+Inference"](docs/latex/main.pdf). **Checkpoints:** [Hugging Face
+collection](https://huggingface.co/collections/sartajbhuvaji/bonsai-6adaa6c9472b58d28f07d796).
 
 ## Requirements
 
