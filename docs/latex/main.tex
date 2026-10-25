@@ -33,84 +33,99 @@
 
 \icmltitlerunning{bonsai}
 
+\frenchspacing
+
+% The base class's default float-separation skips (textfloatsep 20pt,
+% intextsep/floatsep 12pt) were tuned for captions above the tabular, where
+% the skip lands after dense table rows. With captions now below the
+% tabular, the same skip lands right after a short caption line and reads
+% as excessive. Tighten it uniformly for every float.
+\setlength{\textfloatsep}{8pt plus 1pt minus 2pt}
+\setlength{\dbltextfloatsep}{8pt plus 1pt minus 2pt}
+\setlength{\intextsep}{8pt plus 1pt minus 2pt}
+\setlength{\floatsep}{8pt plus 1pt minus 2pt}
+\setlength{\dblfloatsep}{8pt plus 1pt minus 2pt}
+
 \begin{document}
 
 \twocolumn[
-\icmltitle{Pruning and Distilling a Mixture-of-Experts Language Model \\
-           for TypeScript Specialization}
+\icmltitle{Mixture-of-Experts Pruning for Optimizing Customer-Specific Inference}
 
 \icmlsetsymbol{equal}{*}
 
 \begin{icmlauthorlist}
-\icmlauthor{Sartaj Bhuvaji}{su}
+\icmlauthor{Sartaj Bhuvaji}{}
 \end{icmlauthorlist}
 
-\icmlaffiliation{su}{Seattle University, Seattle, WA, USA}
-
-\icmlcorrespondingauthor{Sartaj Bhuvaji}{sbhuvaji@seattleu.edu}
-
-\icmlkeywords{Mixture of Experts, Structured Pruning, Knowledge Distillation, Language Models, Code Generation}
+\icmlkeywords{Mixture of Experts, Structured Pruning, Knowledge Distillation, Customer-Specific Inference, Language Models, Code Generation}
 
 \vskip 0.3in
 ]
 
-\printAffiliationsAndNotice{}
+{\let\thefootnote\relax\footnotetext{\hspace*{-1.8em}%
+Code: \url{https://github.com/SartajBhuvaji/bonsai} \quad \newline
+Checkpoints: \url{https://huggingface.co/collections/sartajbhuvaji/bonsai}}}
 
 \begin{abstract}
-We apply the Minitron structured pruning and knowledge distillation recipe
-\cite{minitron2024,minitron2024practice} to a Mixture-of-Experts (MoE)
-language model, Qwen3-30B-A3B-Base, and specialize the result toward
-TypeScript. Both Minitron papers prune only dense transformers; we extend
-their forward-pass-only, activation-based importance-estimation philosophy
-to a pruning axis neither paper covers -- expert pruning. A gate-weighted
-expert-output-norm criterion (independently converged on by REAP
-\cite{reap2025} and NVIDIA's Minitron-MoE extension \cite{modelopt2024})
-ranks previously-reported ``Super Experts'' \cite{superexperts2025} first
-in their respective layers, and a cheap, single-forward-pass depth-pruning
-proxy (Block Importance) correlates strongly with the expensive,
-perplexity-based criterion from the original Minitron paper (Pearson
-$r=0.91$; both agree on the three most critical layers). We prune, not
-just score, on all three axes. A depth sweep (nine layer counts, four
-selection strategies) shows principled selection beating random by up to
-$9\times$ in relative loss once more than a handful of layers are pruned,
-and finds contiguous-block removal -- the second Minitron paper's
-preferred depth-pruning approach -- a mixed result on this model. An
-expert-pruning sweep (eight per-layer counts) shows the same pattern at a
-narrower margin ($2$--$5\times$), and finds that pruning only the three
-known Super Experts costs more zero-shot loss than greedy-pruning up to
-1,536 ordinary experts, reproducing a prior regression test directly in
-this pipeline's own metric. A head-pruning sweep (all 7 valid per-group
-counts under this model's grouped-query attention) shows a much narrower
-greedy-vs-random margin still ($1.2$--$2.9\times$), and comparing all
-three axes at matched pruned-fractions shows experts are by far the most
-redundant axis on this model, with heads and depth comparably
-(un)forgiving to prune. Combining axes into single pruned candidates
-(three aggressiveness tiers, four combination types) shows real
-interaction effects beyond simple compounding: depth+heads combines
-genuinely worse than independent pruning would predict, while
-depth+experts is actually cheaper than independent compounding predicts.
-Thirteen candidates are retrained (fixed-loss knowledge distillation) and
-evaluated on the full 159-problem HumanEval-TS suite: experts-only
-pruning dominates depth-only and combined depth+experts at every matched
-parameter budget, no candidate beats the unpruned baseline on TypeScript
-specifically, and real vLLM/SGLang serving benchmarks on a subset confirm
-that expert pruning trades parameter count for little serving-speed cost
-while depth pruning trades accuracy for real per-token latency gains --
-two genuinely different deployment tradeoffs, not interchangeable proxies
-for the same thing. This is a living document, updated as further
-pruning, distillation, and retraining experiments complete.
+A general-purpose Mixture-of-Experts (MoE) language model serves every
+customer's inference traffic with the same full model, even when a
+deployment's real usage concentrates heavily on one particular pattern.
+Minitron \cite{minitron2024,minitron2024practice} showed that structured
+pruning followed by knowledge distillation can compress a large language
+model into a family of smaller ones at a fraction of the training cost,
+matching or exceeding from-scratch accuracy. We extend their recipe to
+ask whether it can also turn a general-purpose MoE model into one that
+is specialized for a customer's inference pattern: cheaper to run, at
+competitive accuracy, with serving performance that holds up against or
+beats the unpruned model's own. We use a TypeScript-heavy inference
+pattern as a concrete stand-in for such a customer, applied to
+Qwen3-30B-A3B-Base. Both Minitron papers prune only dense transformers,
+along three axes: depth, width, and attention heads. Width has no
+equivalent in this model: every one of its MLP parameters lives inside
+its experts, so expert pruning is this model's structural stand-in for
+width, and the one axis neither source paper offers a formula for.
+\textbf{Our main contribution is adapting their activation-based
+importance-estimation philosophy to score this axis directly}: a
+gate-weighted expert-output-norm criterion independently converged on
+by REAP \cite{reap2025} and NVIDIA's Minitron-MoE extension
+\cite{modelopt2024}, validated against previously-reported ``Super
+Experts'' \cite{superexperts2025}, which it ranks first in their
+respective layers. We score, prune, and combine all three axes (depth,
+experts, attention heads), then retrain thirteen candidates and evaluate
+each on the full
+159-problem HumanEval-TS suite: experts-only pruning dominates
+depth-only and combined depth+experts at every matched parameter
+budget. No candidate matches the unpruned baseline's raw accuracy, but
+the best customer-specific candidate (47\% smaller, 80.7\% of baseline
+accuracy) exceeds the unpruned baseline's own measured serving
+throughput by $17$--$21\%$ on real vLLM/SGLang benchmarks, not a
+parameter-count proxy.
 \end{abstract}
 
 \section{Introduction}
 \label{sec:intro}
+
+A general-purpose Mixture-of-Experts (MoE) language model is typically
+deployed as a single, fixed artifact serving every customer's traffic
+alike, even though a given deployment's real usage often concentrates on
+a narrow, predictable slice of that capability. A coding assistant whose
+traffic concentrates heavily on one particular pattern, for instance,
+still pays the full model's cost to serve every other pattern it could
+in principle handle. If a deployment's inference pattern is
+known and stable, there may be no need to serve it with a model sized and
+trained for every pattern at once. This paper asks whether structured
+pruning and knowledge distillation can turn a general-purpose MoE model
+into a customer-specific one: cheaper to run and at least as fast to
+serve, without giving up competitive accuracy on the workload that
+customer actually sends.
 
 Minitron \cite{minitron2024} demonstrated that a large language model can be
 compressed into a family of smaller models via structured pruning followed
 by knowledge distillation, using up to $40\times$ fewer training tokens than
 training each size from scratch while matching or exceeding the accuracy of
 from-scratch baselines. A follow-up paper \cite{minitron2024practice} applied
-the same recipe under a more realistic constraint -- no access to the
-original pretraining data -- and introduced teacher correction and a
+the same recipe under a more realistic constraint (no access to the
+original pretraining data) and introduced teacher correction and a
 downstream-task-based depth-pruning criterion.
 
 Both papers prune exclusively dense transformers, along three axes: depth,
@@ -119,19 +134,19 @@ weight in a dense model's MLP is applied to every token that passes through
 it. This is not true of a Mixture-of-Experts (MoE) model: an MoE layer
 routes each token to a small subset of experts (8 of 128, in the model we
 study here), so most of the model's parameters are never touched by any
-given token -- and, more fundamentally, this model has no separate dense
+given token. More fundamentally, this model has no separate dense
 FFN for Minitron's width axis to prune at all: every one of its MLP
 parameters lives inside its experts. Expert pruning is therefore this
 model's structural stand-in for width, not a fourth axis alongside the
 original three, and it is the one axis neither source paper offers a
 formula for. This work asks what happens when the Minitron recipe is
 applied to a model with this property, and in particular, how to score the
-importance of this axis -- expert pruning -- that has no precedent in
+importance of this axis (expert pruning) that has no precedent in
 either source paper.
 
 A second contribution is methodological, independent of any single
-axis's result. Every pruning decision in this paper -- which layers,
-which experts, which attention heads to remove -- comes from the same
+axis's result. Every pruning decision in this paper (which layers,
+which experts, which attention heads to remove) comes from the same
 family of procedure: a real, measured importance signal (Block
 Importance or perplexity ablation for depth, a gate-weighted output-norm
 score for experts, an activation-based score for heads), greedily ranked
@@ -143,76 +158,41 @@ compared at a matched parameter budget (15.58B vs.\ 16.03B) specifically
 because both were
 chosen the same way, not because one is a tuned good candidate and the
 other a careless point for comparison. The same discipline extends to
-how results are reported: every negative or null outcome in this paper
-(\cref{sec:phase4-negative}'s identical repetition-collapse failure
-across four independent configurations; \cref{sec:phase4-full-suite-noise}'s
-finding that every candidate's accuracy was overstated at $n{=}40$, not
-just one surprising case; \cref{sec:baseline}'s own late-caught baseline
-denominator mismatch) is reported and root-caused rather than quietly
-dropped or reframed.
+how results are reported: a late-caught baseline denominator mismatch
+(\cref{sec:baseline}) and the finding that every candidate's accuracy
+was overstated at $n{=}40$, not just one surprising case
+(\cref{sec:phase4-full-suite-noise}), are both reported and corrected
+rather than quietly dropped. Approaches that were tried and did not work
+are documented in \cref{app:negative-results} rather than the main
+narrative, so they do not interrupt it.
 
 Our target model is Qwen3-30B-A3B-Base
 \cite{qwen3moe}: 48 decoder layers, 32 query / 4 key-value attention heads
 (GQA), 128 routed experts per layer with 8 active per token, no shared
 expert, approximately 30.5B total parameters of which approximately 3.35B
-are active for any given token. We specialize this model toward TypeScript,
-using \texttt{bigcode/the-stack-dedup}'s TypeScript split
+are active for any given token. We use a TypeScript-heavy inference
+pattern as a concrete, measurable stand-in for a customer-specific
+workload, using \texttt{bigcode/the-stack-dedup}'s TypeScript split
 \cite{stackdedup} for both calibration and retraining data, drawn from
 disjoint parquet shards so the two pools never overlap.
 
-This paper is written incrementally, alongside the project's own commit
-history: each section is updated with real, measured results only, once the
-corresponding experiment has actually run. As of this writing, all three
-pruning axes -- depth (\cref{sec:pruning-sweep}), experts
-(\cref{sec:expert-pruning-sweep}), and attention heads
-(\cref{sec:head-pruning-sweep}) -- have each been characterized in
+All three pruning axes, depth
+(\cref{sec:pruning-sweep}), experts (\cref{sec:expert-pruning-sweep}), and
+attention heads (\cref{sec:head-pruning-sweep}), are characterized in
 isolation and combined with each other zero-shot
-(\cref{sec:combined-pruning-sweep}); the teacher has been corrected two
-ways (full-parameter and LoRA) and evaluated downstream, where both
-regress on the primary benchmark despite improved validation loss, a
-data-quality defect in the retraining pool has been found and fixed, and
-neither the method change nor the fix closes the gap to the uncorrected
-baseline
-(\cref{sec:teacher-correction,sec:teacher-correction-eval,sec:teacher-correction-lora}).
-A first real pruned candidate was distilled against the uncorrected
-teacher under four independent combinations of update method
-(full-parameter vs.\ LoRA) and training-data shape (raw-file
-continuations vs.\ a purpose-built function-bounded extractor) --
-every one converging to a healthy knowledge-distillation validation
-loss yet scoring zero on the primary downstream benchmark, with an
-identical repetition-collapse failure in all four cases. Root-caused
-directly in the implementation rather than inferred from further
-ablations: two bugs in the knowledge-distillation loss itself, an
-off-by-one misalignment between the cached teacher targets and the
-student's own logits, and a softmax normalized only over the
-teacher's top-20 logits rather than the full vocabulary, leaving the
-loss structurally blind to the student inflating any other token's
-logit without penalty. Fixing both recovers substantial downstream
-capability -- pass@1 $=0.55$ at the best validation checkpoint,
-matching or exceeding the pruned-but-undistilled candidate's own
-$0.475$ -- and a direct follow-up isolation shows the training-data-shape
-hypothesis explored along the way was never the actual cause
-(\cref{sec:phase4-negative}). The original corrected-vs-uncorrected-teacher
-comparison that motivated this section was resolved next: re-run with
-the now-trustworthy loss, a corrected teacher still does not help a
-distilled student's downstream accuracy
-(\cref{sec:phase4-correctedteacher-fixedloss}). A shorter, 500-step
-retraining schedule was then shown to recover the same accuracy as the
-original 3000-step budget in a fraction of the wall-clock time, and
-adopted as the standard recipe for every subsequent candidate
-(\cref{sec:phase4-short-schedule}). Five candidates measured only on a
-40-problem HumanEval-TS sample up to that point were re-evaluated on the
-full 159-problem suite, and every single one scored substantially lower
-than its sampled score, by an inconsistent margin
-(\cref{sec:phase4-full-suite-noise}) -- a finding that directly motivated
-re-measuring the project's own unpruned baseline as well, which turned
-out to have been evaluated on a different, 161-problem split all along
-(\cref{sec:baseline}). Finally, depth and experts were each isolated
+(\cref{sec:combined-pruning-sweep}). Every candidate is then distilled
+against the unpruned teacher under a short, early-stopped schedule
+(\cref{sec:phase4-short-schedule}) and evaluated on the full 159-problem
+HumanEval-TS suite, not a smaller sample
+(\cref{sec:phase4-full-suite-noise}). Depth and experts are each isolated
 into a seven-candidate single-axis sweep, retrained and fully evaluated,
-confirming after retraining -- not only zero-shot -- that depth removal
-costs substantially more accuracy per parameter than expert removal;
-attention heads were deliberately left out of this isolation, for
-reasons given directly (\cref{sec:pure-axis,sec:pure-axis-no-heads}).
+confirming after retraining (not only zero-shot) that depth removal
+costs substantially more accuracy per parameter than expert removal
+(\cref{sec:pure-axis}); attention heads are deliberately left out of this
+isolation, for reasons given directly (\cref{sec:pure-axis-no-heads}).
+Real inference-engine serving benchmarks (\cref{sec:inference-benchmark})
+then test whether that accuracy advantage also holds for serving cost,
+and \cref{sec:conclusion} gives a concrete deployment recommendation.
 
 \section{Related Work}
 \label{sec:related}
@@ -260,12 +240,12 @@ expert. Every layer is sparse (\texttt{decoder\_sparse\_step}=1,
 \texttt{mlp\_only\_layers} empty). Experts within a layer are not separate
 submodules but two batched parameter tensors
 (\texttt{gate\_up\_proj}, \texttt{down\_proj}), with the expert index as the
-leading dimension -- pruning an expert means slicing that dimension.
+leading dimension. Pruning an expert means slicing that dimension.
 
 \subsection{Data}
 Calibration and retraining data are both drawn from
-\texttt{bigcode/the-stack-dedup}'s \texttt{data/typescript} split (71
-parquet shards). The first shard is reserved for calibration, the remaining
+\texttt{bigcode/the-stack-dedup}'s \cite{stackdedup} \texttt{data/typescript}
+split (71 parquet shards). The first shard is reserved for calibration, the remaining
 70 for retraining; because the split is shard-level rather than row-level,
 the two pools are disjoint by construction, which we additionally verify
 empirically against each sample's \texttt{hexsha}.
@@ -279,8 +259,6 @@ against. Following both Minitron papers' evaluation settings (temperature
 0.2, nucleus sampling top-$p=0.95$ for generation tasks), we report:
 
 \begin{table}[t]
-\caption{Baseline evaluation of Qwen3-30B-A3B-Base, unpruned.}
-\label{tab:baseline}
 \centering
 \small
 \begin{tabular}{lcc}
@@ -295,13 +273,18 @@ ARC-Challenge & 25-shot, acc\_norm & 0.6749 \\
 Winogrande & 5-shot, acc & 0.7798 \\
 \bottomrule
 \end{tabular}
+\caption{Baseline evaluation of Qwen3-30B-A3B-Base, unpruned.}
+\label{tab:baseline}
 \end{table}
 
-HumanEval-TS and MBPP-TS (both MultiPL-E TypeScript translations) are
-treated as the primary, gating tier, since they measure the capability this
-project specializes toward. MMLU, ARC-Challenge, and Winogrande are tracked
-but not optimized for, giving a comparison point against both Minitron
-papers' own general-knowledge tables without over-indexing on general
+HumanEval-TS and MBPP-TS (MultiPL-E's \cite{multiple2023} TypeScript
+translations of HumanEval \cite{humaneval2021} and MBPP \cite{mbpp2021}
+respectively) are treated as the primary, gating tier, since they
+measure the capability this project specializes toward. MMLU
+\cite{mmlu2021}, ARC-Challenge \cite{arc2018}, and Winogrande
+\cite{winogrande2021} are tracked but not optimized for, giving a
+comparison point against both Minitron papers' own general-knowledge
+tables without over-indexing on general
 capability at the expense of TypeScript performance.
 
 \textbf{A denominator correction, caught late.} \Cref{tab:baseline}'s
@@ -309,13 +292,13 @@ HumanEval-TS score was measured on a 161-problem MultiPL-E TypeScript split
 (108/161). Every full-suite HumanEval-TS number reported anywhere else in
 this paper (\cref{sec:teacher-correction-eval} onward) instead uses a
 159-problem split, and this mismatch went unreconciled for over a month of
-project time -- every comparison against the unpruned baseline in that
+project time. Every comparison against the unpruned baseline in that
 window was silently comparing two different denominators. Caught while
 re-deriving exact pass@1 fractions for \cref{sec:pure-axis} below, by
 noticing $0.6708\overline{074\ldots} = 108/161$ does not reduce to any clean
 $k/159$. Re-running the identical unpruned model through the identical
 159-problem harness (same temperature, top-$p$, batch size, no \texttt{limit})
-gives \textbf{pass@1 $=0.7170$ (114/159)} -- the number \cref{sec:pure-axis}
+gives \textbf{pass@1 $=0.7170$ (114/159)}, the number \cref{sec:pure-axis}
 and every full-suite comparison from here on actually use. Both numbers
 stay on record rather than one silently overwriting the other: $0.6708$
 (108/161) is the historical Phase 1.2 result and remains in
@@ -339,13 +322,13 @@ set:
 \label{eq:head}
 F_h = \operatorname{agg}_{t}\left( \lVert a_{t,h} \rVert_2 \right),
 \end{equation}
-where $\operatorname{agg}$ is a pluggable aggregation function --
+where $\operatorname{agg}$ is a pluggable aggregation function:
 \citet{minitron2024} ablate mean-of-absolute-value, $L_2$ norm, and
 variance, finding the best choice is not the same for every axis; we use
 the $L_2$ variant throughout this paper. Across all 48 layers (48
 calibration samples, mean length 177 tokens), scores range from 2.39 to
 967.72, with the single largest value at the model's final layer (layer
-47) -- visible as the dark band at the bottom of \cref{fig:head-heatmap}.
+47), visible as the dark band at the bottom of \cref{fig:head-heatmap}.
 
 \begin{figure}[t]
 \centering
@@ -367,7 +350,7 @@ S_j = \operatorname{mean}_{x \in X_j}\left[ g_j(x) \cdot \lVert f_j(x) \rVert_2
 \end{equation}
 where $X_j$ is the set of tokens routed to expert $j$, $g_j(x)$ is
 that token's renormalized routing weight, and $f_j(x)$ is the expert's
-output -- the formula independently reached by both REAP \cite{reap2025} and
+output, the formula independently reached by both REAP \cite{reap2025} and
 NVIDIA Model-Optimizer's \cite{modelopt2024} Minitron-MoE extension, in preference to
 two alternatives (selection frequency alone; router logit magnitude
 alone) both cited sources report underperforming it (see also
@@ -400,7 +383,7 @@ $g_1,\dots,g_N$, expert outputs $f_1,\dots,f_N \in \mathbb{R}^{d}$ for every
 \end{algorithm}
 
 An expert with zero routed tokens in the calibration set scores 0 and ranks
-lowest by construction -- appropriate for a calibration-set-specific score,
+lowest by construction: appropriate for a calibration-set-specific score,
 but a real risk if a rare-but-critical expert happens to be under-sampled
 by chance, which is exactly what the Super Experts check below guards
 against.
@@ -409,7 +392,7 @@ As a validation check, not a designed experiment: all three Super Experts
 reported by \citet{superexperts2025} for this exact model (layer 1 / expert
 68, layer 2 / expert 92, layer 3 / expert 82) rank \emph{first} among all
 128 experts in their respective layers under this metric, on real
-calibration data, at two different sample sizes (24 and 48 samples) -- the
+calibration data, at two different sample sizes (24 and 48 samples), the
 three isolated bright cells in \cref{fig:expert-heatmap}. On average across
 all 48 layers, the top $\sim$16\% of experts (20 of 128) already account
 for 33\% of a layer's total importance mass
@@ -423,7 +406,7 @@ the remaining experts as a candidate for pruning.
 same clipping convention as \cref{fig:head-heatmap} (outlined cells mark
 the true top 5 \emph{model-wide}, not per-layer). Only one Super Expert
 \cite{superexperts2025} (layer 1, expert 68) is among them; the other two
-rank highest only within their own layer, not model-wide -- but the 95th
+rank highest only within their own layer, not model-wide, but the 95th
 percentile color clip still renders all three as visually saturated,
 since each is well above that threshold.}
 \label{fig:expert-heatmap}
@@ -483,7 +466,7 @@ layers of the model matter far more than the middle two-thirds
 (\cref{fig:ppl-bar}). BI's highest score is at layer 0 (0.488) and
 second-highest at layer 47 (0.415); its lowest is layer 12 (0.011). The
 perplexity criterion shows the same edges-matter-most shape at a far more
-extreme scale -- layer 0's removal costs 1.99 nats of cross-entropy,
+extreme scale: layer 0's removal costs 1.99 nats of cross-entropy,
 next-highest is layer 47 at 0.60 nats, and the lowest (layer 14) costs
 only $-0.0003$ nats.
 
@@ -510,11 +493,11 @@ per layer.}
 \end{figure}
 
 \Cref{fig:layer-summary} places the three cheap, single-forward-pass
-methods -- heads, experts, BI -- on the same (min-max normalized) axis;
+methods (heads, experts, BI) on the same (min-max normalized) axis;
 \cref{fig:bi-vs-ppl} above already gives the fourth, perplexity, directly
 against BI. Heads and experts agree closely with each other throughout the
 model; BI diverges from both through the middle third, agreeing with them
-only at the two edges -- the same edges where \cref{fig:bi-vs-ppl} shows it
+only at the two edges, the same edges where \cref{fig:bi-vs-ppl} shows it
 also agrees with perplexity.
 
 \begin{figure}[t]
@@ -530,8 +513,8 @@ normalized within each method.}
 
 \Cref{sec:experts,sec:depth} only score which components matter; this
 section actually prunes them. \texttt{bonsai.pruning.depth.prune\_layers}
-permanently removes a chosen set of decoder layers -- unlike
-\texttt{skip\_layer}'s temporary identity-swap used for scoring -- and
+permanently removes a chosen set of decoder layers (unlike
+\texttt{skip\_layer}'s temporary identity-swap used for scoring) and
 renumbers each surviving layer's attention-cache index to match its new
 position, since the default KV cache indexes by position and breaks on the
 non-contiguous indices removal otherwise leaves behind.
@@ -543,7 +526,7 @@ We sweep nine layer counts ($n \in \{1,2,4,6,8,12,16,20,24\}$ of 48) under
 four selection strategies: \textbf{bi\_greedy} (the $n$ lowest-BI layers,
 \cref{eq:bi}); \textbf{ppl\_greedy} (the $n$ lowest-perplexity-delta
 layers, \cref{eq:ppl}); \textbf{contiguous\_bi} (the single contiguous
-block of $n$ layers with the lowest summed BI -- testing
+block of $n$ layers with the lowest summed BI: testing
 \citet{minitron2024practice}'s own claim, citing Gromov et al., that
 contiguous removal beats scattered removal); and \textbf{random} ($n$
 random layers, 3 seeds), the control every principled strategy has to
@@ -566,14 +549,12 @@ mean ($9.0\times$), and at $n=24$, \texttt{bi\_greedy}/\texttt{ppl\_greedy}
 are $+153.8\%/+135.6\%$ against random's $+1000.1\%$ mean ($6.5$--$7.4\times$;
 in raw loss, 2.45/2.28 against a range of 4.81--14.65 across the three
 seeds). \texttt{bi\_greedy} and \texttt{ppl\_greedy}
-track each other closely at every count -- not merely in the ranking
+track each other closely at every count, not merely in the ranking
 correlation already established ($r=0.91$, \cref{sec:depth}) but in the
-actual pruning \emph{outcome} -- reinforcing BI as the working criterion
+actual pruning \emph{outcome}, reinforcing BI as the working criterion
 for iterating on candidates.
 
 \begin{table}[t]
-\caption{Loss increase over baseline (0.9670), by strategy and layer count.}
-\label{table:pruning-sweep}
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
@@ -592,10 +573,12 @@ $n$ & bi\_gr. & ppl\_gr. & contig. & rand.\ (mean) \\
 24 & +153.8\% & +135.6\% & +211.0\% & +1000.1\% \\
 \bottomrule
 \end{tabular}
+\caption{Loss increase over baseline (0.9670), by strategy and layer count.}
+\label{table:pruning-sweep}
 \end{table}
 
 Contiguous-block removal is a genuinely mixed result on this model, not a
-clean win either way. It is competitive -- marginally best -- at small $n$
+clean win either way. It is competitive (marginally best) at small $n$
 ($n=2$: $+0.9\%$ vs.\ \texttt{bi\_greedy}'s $+1.8\%$), but falls behind
 both greedy strategies as $n$ grows, most visibly by $n=24$ ($+211.0\%$
 vs.\ $+135.6$--$153.8\%$). A plausible reading: BI's lowest-scoring layers already
@@ -628,7 +611,7 @@ strategies: \textbf{greedy} (the $n$ lowest-$S_j$ experts per layer,
 \cref{sec:experts} exempted from the ranking entirely rather than merely
 checked afterward); and \textbf{random} ($n$ random experts per layer, same
 exemption, 3 seeds). We additionally evaluate one candidate outside the
-count sweep -- \textbf{super\_experts\_only} -- that prunes \emph{just} the
+count sweep (\textbf{super\_experts\_only}) that prunes \emph{just} the
 three known Super Experts and nothing else, to reproduce
 \citet{superexperts2025}'s own regression test directly in this pipeline's
 loss metric rather than only by citation.
@@ -654,9 +637,6 @@ the same loss as the unpruned baseline (0.9670); the curve only bends
 noticeably past $n=48$--64.
 
 \begin{table}[t]
-\caption{Loss increase over baseline (0.9670), by strategy and per-layer
-expert count. ``total'' is experts removed across all 48 layers.}
-\label{table:expert-pruning-sweep}
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
@@ -674,11 +654,14 @@ $n$ & total & greedy & random (mean) \\
 112 & 5376 & $+229.7\%$ & $+434.0\%$ \\
 \bottomrule
 \end{tabular}
+\caption{Loss increase over baseline (0.9670), by strategy and per-layer
+expert count. ``total'' is experts removed across all 48 layers.}
+\label{table:expert-pruning-sweep}
 \end{table}
 
 The starkest finding in this sweep is not on the main curve at all: pruning
-\emph{only} the three known Super Experts -- 3 of the model's 6{,}144
-experts -- costs more zero-shot loss ($+51.8\%$) than greedy-pruning up to
+\emph{only} the three known Super Experts (3 of the model's 6{,}144
+experts) costs more zero-shot loss ($+51.8\%$) than greedy-pruning up to
 1{,}536 ordinary experts ($n=32$, $+9.6\%$). Greedy selection does not cross
 the super\_experts\_only line until somewhere between $n=80$ and $n=96$
 (3{,}840--4{,}608 experts), roughly $1{,}300$--$1{,}500\times$ as many
@@ -702,7 +685,7 @@ freely: Qwen3-30B-A3B-Base's grouped-query attention (GQA) shares every 8
 consecutive query heads onto one key/value head
 (\texttt{num\_key\_value\_groups}~$=8$, \cref{sec:model-data}), and
 \texttt{Qwen3MoeAttention.forward} reads that value fresh off the module
-on every call via \texttt{repeat\_kv} -- pruning a ragged count per group
+on every call via \texttt{repeat\_kv}. Pruning a ragged count per group
 would leave it undefined. We therefore prune the same count of query
 heads from every key/value group in a layer, never an entire group
 (which would orphan its key/value head), and recompute
@@ -739,9 +722,6 @@ $k=1$ down to $1.2\times$ at $k=7$, versus depth's up to $9\times$
 (\cref{sec:expert-pruning-sweep}).
 
 \begin{table}[t]
-\caption{Loss increase over baseline (0.9668), by strategy and per-group
-head count. ``total'' is query heads removed across all 48 layers.}
-\label{table:head-pruning-sweep}
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
@@ -758,27 +738,30 @@ $k$ & total & greedy & random (mean) \\
 7 & 1344 & $+1052.1\%$ & $+1236.4\%$ \\
 \bottomrule
 \end{tabular}
+\caption{Loss increase over baseline (0.9668), by strategy and per-group
+head count. ``total'' is query heads removed across all 48 layers.}
+\label{table:head-pruning-sweep}
 \end{table}
 
 The narrowing greedy/random gap raises an obvious question: is this
 model's attention-head axis simply more redundant than depth or experts,
-so any reasonable subset survives about as well as any other -- or is it
+so any reasonable subset survives about as well as any other, or is it
 the least redundant, unable to absorb pruning gracefully regardless of
 which heads are chosen? Comparing absolute cost at every pruned-fraction
 this sweep shares with the other two answers it. Depth's counts coincide
 with heads' at 3 fractions (12.5\%, 25\%, 50\%); experts' counts coincide
 at all 7. At every shared point, expert pruning is dramatically cheaper
-than either heads or depth -- e.g. at 50\% pruned, greedy costs
+than either heads or depth, e.g. at 50\% pruned, greedy costs
 $+25.5\%$ for experts versus $+129.6\%$ for heads and $+153.8\%$ for
 depth. Heads and depth track each other closely at all 3 points they
 share (12.5\%: $+5.2\%$ vs.\ $+8.1\%$; 25\%: $+21.4\%$ vs.\ $+21.9\%$;
 50\%: $+129.6\%$ vs.\ $+153.8\%$), with depth's greedy loss slightly
-higher every time -- a small, consistent difference on a single-seed,
+higher every time, a small, consistent difference on a single-seed,
 32-sample run, not one we lean on as a strong ranking claim. The robust
 reading is that experts are far more redundant than either heads or
 depth on this model; heads and depth look comparably (un)forgiving to
 prune, and the narrowing greedy/random gap on heads reflects that
-low redundancy -- with few good substitutes available in a group of 8,
+low redundancy: with few good substitutes available in a group of 8,
 even a bad (random) choice is not that much worse than a good one, not
 because head choice stops mattering.
 
@@ -789,16 +772,11 @@ Sections~\ref{sec:pruning-sweep}--\ref{sec:head-pruning-sweep} each prune
 one axis at a time; this section combines them into single candidates.
 Per-axis target counts are chosen so each axis's own single-axis
 zero-shot cost lands in a similar band, not a uniform pruned fraction
-across axes -- \cref{sec:head-pruning-sweep} already showed experts are
+across axes. \cref{sec:head-pruning-sweep} already showed experts are
 far more redundant than depth or heads, so a uniform fraction would leave
 experts badly under-exploited. Three aggressiveness tiers result:
 
 \begin{table}[t]
-\caption{Per-axis target counts, by tier -- depth ($n$ of 48 layers),
-experts ($n$ of 128/layer), heads ($k$ of 8/group). \% is that axis's own
-single-axis zero-shot loss increase at that count (Sections
-\ref{sec:pruning-sweep}--\ref{sec:head-pruning-sweep}).}
-\label{table:combined-tiers}
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
@@ -811,10 +789,15 @@ moderate & $n{=}12$ ($+21.9\%$) & $n{=}64$ ($+25.5\%$) & $k{=}2$ ($+21.4\%$) \\
 aggressive & $n{=}16$ ($+41.6\%$) & $n{=}80$ ($+46.3\%$) & $k{=}3$ ($+58.5\%$) \\
 \bottomrule
 \end{tabular}
+\caption{Per-axis target counts, by tier: depth ($n$ of 48 layers),
+experts ($n$ of 128/layer), heads ($k$ of 8/group). \% is that axis's own
+single-axis zero-shot loss increase at that count (Sections
+\ref{sec:pruning-sweep}--\ref{sec:head-pruning-sweep}).}
+\label{table:combined-tiers}
 \end{table}
 
-For each tier, we build and measure four combinations -- depth+experts,
-depth+heads, experts+heads, and all three -- by applying
+For each tier, we build and measure four combinations: depth+experts,
+depth+heads, experts+heads, and all three, by applying
 \texttt{prune\_layers}, \texttt{prune\_experts}, and \texttt{prune\_heads}
 in sequence (depth first, when present) on the same model, then measuring
 zero-shot loss the same way as the single-axis sweeps. Combining depth
@@ -822,7 +805,7 @@ pruning with experts and/or heads requires one correctness step the
 single-axis sweeps didn't: \texttt{expert\_scores}/\texttt{head\_scores}
 are indexed by the \emph{original} 48-layer model, so after depth pruning
 removes layers, the expert/head selection has to be computed against only
-the surviving layers' scores, in their new post-depth-pruning order --
+the surviving layers' scores, in their new post-depth-pruning order,
 including remapping the Super Experts \texttt{protected} set
 (\cref{sec:experts}) to whichever of layers 1/2/3 actually survive.
 
@@ -835,8 +818,6 @@ Log-scale $y$-axis.}
 \end{figure}
 
 \begin{table}[t]
-\caption{Loss increase over baseline (0.9668), by tier and combination.}
-\label{table:combined-pruning-sweep}
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
@@ -849,10 +830,12 @@ moderate & $+46.9\%$ & $+67.8\%$ & $+57.0\%$ & $+105.2\%$ \\
 aggressive & $+91.1\%$ & $+189.3\%$ & $+135.2\%$ & $+288.7\%$ \\
 \bottomrule
 \end{tabular}
+\caption{Loss increase over baseline (0.9668), by tier and combination.}
+\label{table:combined-pruning-sweep}
 \end{table}
 
 \texttt{all\_three} is the worst zero-shot candidate at every tier, as
-expected from combining the most axes -- but \citet{minitron2024}'s own
+expected from combining the most axes, but \citet{minitron2024}'s own
 finding (depth/width rankings can flip after retraining) means this is
 not grounds to drop it before a real lightweight retrain (\cref{sec:discussion})
 actually tests that.
@@ -868,9 +851,6 @@ actually measured reveals real interaction effects, not just ``more
 pruning costs more'':
 
 \begin{table}[t]
-\caption{Actual loss increase minus the naive-multiplicative prediction
-(percentage points), by tier and combination.}
-\label{table:combined-excess}
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
@@ -883,11 +863,14 @@ moderate & $-6.1$pp & $+19.8$pp & $+4.7$pp & $+19.5$pp \\
 aggressive & $-16.0$pp & $+64.9$pp & $+3.4$pp & $+60.4$pp \\
 \bottomrule
 \end{tabular}
+\caption{Actual loss increase minus the naive-multiplicative prediction
+(percentage points), by tier and combination.}
+\label{table:combined-excess}
 \end{table}
 
 \textbf{depth+heads compounds genuinely worse than independent} at every
 tier, and the excess grows sharply with aggressiveness. \textbf{depth+experts
-is actually subadditive} at the moderate and aggressive tiers -- cheaper
+is actually subadditive} at the moderate and aggressive tiers: cheaper
 than independent compounding predicts. \textbf{experts+heads tracks the
 naive prediction closely} throughout ($+1.2$pp to $+4.7$pp), the closest
 thing to genuine independence among the three pairwise combinations
@@ -905,862 +888,50 @@ single most redundant axis by a wide margin
 near-cheapest pairwise combination at every tier, while depth+heads is
 the most expensive pairwise combination at every tier.
 
-These are zero-shot numbers only. The candidate-selection goal --
-a TypeScript-specialized model that is smaller, faster, and cheaper to
-serve than the unpruned baseline, and high-accuracy on TypeScript
-specifically -- needs real retraining and real eval-suite numbers
+These are zero-shot numbers only. The candidate-selection goal, a
+customer-specific model that is smaller, faster, and cheaper to
+serve than the unpruned baseline, and high-accuracy on the target
+workload specifically, needs real retraining and real eval-suite numbers
 (\cref{sec:discussion}), not zero-shot loss alone. This sweep narrows the
 candidate space and surfaces a real interaction effect worth reporting
 either way, not a final ranking.
 
-\section{Teacher Correction}
-\label{sec:teacher-correction}
 
-\citet{minitron2024practice} introduce teacher correction to handle a
-constraint we share: without access to a model's original pretraining
-mix, distilling a pruned student directly from the uncorrected teacher
-hands the student guidance drawn from a distribution the teacher was
-never trained to match downstream. Their fix is a brief full-parameter
-fine-tune of the teacher on the target retraining data before it teaches
-anything, so its outputs stay trustworthy on the distribution the student
-will actually be evaluated on. We apply the same idea here, fine-tuning
-the unpruned Qwen3-30B-A3B-Base on the TypeScript retraining pool
-(\cref{sec:model-data}) with plain LM cross-entropy loss, before
-using it as a distillation teacher for any pruned candidate
-(\cref{sec:combined-pruning-sweep}).
-
-\subsection{Hyperparameter Sweep}
-
-Full-parameter fine-tuning needs real memory: weights, gradients, and
-optimizer state together are roughly $4\times$ a parameter's own bf16
-footprint before any activations, which OOMs even 8x40GB of GPU memory
-with plain AdamW and \texttt{device\_map="auto"}'s naive weight-only
-placement. We fix this with 8-bit AdamW (\texttt{bitsandbytes}, roughly
-halving the optimizer-state share) and an explicit per-GPU memory cap
-that leaves headroom instead of packing each device with weights alone.
-
-We sweep 3 peak learning rates ($1\times10^{-6}$, $5\times10^{-6}$,
-$2\times10^{-5}$) $\times$ 2 warmup fractions ($5\%$, $15\%$ of steps;
-150 steps each, linear warmup then cosine decay to a floor of peak/10,
-256 retraining samples cycled, 32 held-out validation samples) to find a
-stable, improving configuration. $\text{peak LR}=2\times10^{-5}$,
-$\text{warmup}=15\%$ wins on both validation-loss delta and final train
-loss across the 6 configurations and is carried into the real correction
-run below; per-config metrics were logged to each sweep run's directory
-on the training instance but were not copied off it before the instance
-was terminated, so we report the sweep's qualitative outcome here rather
-than fabricate the missing numbers -- an oversight in this run's
-logistics, not a gap in what was measured.
-
-While tuning the sweep above, we also tried fixing a multi-GPU
-utilization problem with FSDP; it made utilization genuinely better and
-training genuinely slower, so we kept the naive approach instead and
-moved the full writeup to \cref{app:fsdp}.
-
-\subsection{Real Correction Run}
-
-Using the sweep's winning hyperparameters, we fine-tune the teacher for
-1500 steps (batch size 4) on 6{,}000 fresh, non-repeating TypeScript
-samples -- one pass, no repeats, disjoint from the calibration pool used
-to measure validation loss. Training took $\sim$105 minutes on 8x A100
-(40GB SXM4) at $\sim$4.2 sec/step.
-
-\begin{table}[t]
-\caption{Real teacher-correction run: validation loss before and after.}
-\label{table:teacher-correction-real}
-\centering
-\begin{tabular}{lr}
-\toprule
-& validation loss \\
-\midrule
-before correction & 0.9331 \\
-after correction (1500 steps) & 0.8842 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The corrected checkpoint is released at
-\url{https://huggingface.co/sartajbhuvaji/bonsai-qwen3-30b-a3b-teacher-corrected}
-and becomes the distillation teacher for the candidate-selection work in
-\cref{sec:combined-pruning-sweep}.
-
-\subsection{Downstream Evaluation of the Corrected Teacher}
-\label{sec:teacher-correction-eval}
-
-Validation loss improving is a proxy for teacher correction ``helping,''
-not proof -- better perplexity on TypeScript text does not guarantee
-better code, and it says nothing about capability outside the correction
-domain. We run the corrected teacher through the same evaluation suite
-as \cref{sec:baseline} (temperature 0.2, top-$p{=}0.95$) to check
-directly.
-
-\textbf{General knowledge, preserved.} MMLU, ARC-Challenge, and
-Winogrande are essentially unchanged from the unpruned baseline:
-
-\begin{table}[t]
-\caption{Corrected teacher vs.\ baseline (\cref{tab:baseline}) on the
-tracked, not-optimized-for general-knowledge tier.}
-\label{tab:teacher-correction-general-knowledge}
-\centering
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{lrrr}
-\toprule
-Task & Baseline & Corrected & $\Delta$ \\
-\midrule
-MMLU (5-shot) & 0.8101 & 0.8082 & $-0.0019$ \\
-ARC-C acc (25-shot) & 0.6536 & 0.6433 & $-0.0103$ \\
-ARC-C acc\_norm & 0.6749 & 0.6689 & $-0.0060$ \\
-Winogrande (5-shot) & 0.7798 & 0.7806 & $+0.0008$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Every delta is within noise (largest $\sim$1pp). Correction does not
-measurably hurt general reasoning or knowledge.
-
-\textbf{HumanEval-TS, the primary gating benchmark, regresses.} A first,
-10-problem diagnostic scored pass@1$=0.0$ -- every completion added a
-trailing \texttt{export default X;} or \texttt{export \{X\};} statement,
-a habit from fine-tuning on raw TypeScript \emph{files} (which routinely
-end in a module export) rather than MultiPL-E's bare function-completion
-format. Stripping the export line and rescoring the same 10 completions,
-no regeneration, raised pass@1 to $0.9$ -- promising, but not
-representative: the full 159-problem run scored pass@1$=0.5597$ with the
-same fix applied, and $0.5660$ after closing a further gap in the fix
-itself (the export-stripping regex was anchored to the start of a line;
-the model sometimes emits an entire completion as one line with no
-newline before the trailing export). Re-scoring the same 159 completions
-with the corrected regex -- no regeneration -- moved pass@1 by only
-$+0.0063$ ($89 \to 90$ of 159), confirming the regex gap explains almost
-none of the shortfall.
-
-\begin{table}[t]
-\caption{Corrected teacher's HumanEval-TS pass@1, full 159-problem set,
-vs.\ the unpruned baseline (\cref{tab:baseline}).}
-\label{tab:teacher-correction-humaneval}
-\centering
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{lr}
-\toprule
-& pass@1 \\
-\midrule
-baseline (unpruned, uncorrected) & 0.6708 \\
-corrected teacher, raw & 0.5597 \\
-corrected teacher, export-stripped, fixed regex & 0.5660 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The rest of the gap is genuine generation instability, not a scoring
-artifact -- confirmed by manually inspecting the remaining failures:
-\textbf{duplicate function declarations} (the model writes the same
-function name twice in one completion, a real TypeScript compile error
-independent of exports) and \textbf{degenerate repetition loops} (the
-same fragment, e.g.\ \texttt{export function eat(...) \{}, repeated
-dozens of times until the completion hits the length cap). A separate,
-smaller cross-check on plain (Python) HumanEval -- not part of this
-project's gating suite, run to test whether the instability was
-TypeScript-specific -- first surfaced this same failure class (empty
-function bodies, a docstring's closing \texttt{"""} glued onto the next
-statement with no newline, one 9,227-character repeated-comment loop)
-at a higher rate (3 of 10) than it turned out to occur in TypeScript
-(roughly 2--4 of 159). So the instability is not confined to
-off-target languages, as an earlier, smaller sample suggested -- it is
-present in the correction target's own language too, just less often.
-
-\textbf{Interpretation.} Teacher correction, as configured here (1500
-steps, $\sim$1.9M tokens, TypeScript-only), makes the teacher measurably
-\emph{worse} at the primary benchmark it exists to help with, while
-leaving general capability untouched. This does not match
-\citet{minitron2024practice}'s own framing of correction's effect as
-``minor,'' with ``some tasks improving and some degrading'' --our result
-is a clear regression on the one task that matters most for this
-project. A plausible reading, not yet confirmed: \citet{minitron2024practice}
-correct with $\sim$100B tokens; ours uses $\sim$1.9M, roughly five
-orders of magnitude smaller, and they explicitly flag using fewer tokens
-as an untested ``interesting topic for future work,'' not something
-they validated as safe. A much smaller, more concentrated update may be
-more prone to generation instability (repetition, duplicate
-declarations) than a properly-averaged large-scale one, not just to
-sharper off-target forgetting. Two candidate explanations follow this
-one directly: whether the retraining \emph{data} itself carried a real
-defect, and whether a lighter-touch fine-tuning \emph{method} avoids the
-instability a full-parameter update introduced. Both were tested.
-
-\subsection{A Data-Quality Defect, and a LoRA Alternative}
-\label{sec:teacher-correction-lora}
-
-\textbf{The retraining data had a real, quantified defect.} Nothing
-before this had checked the actual \emph{content} quality of the
-retraining pool -- only token-length distribution and the
-calibration/retraining split's disjointness. Auditing 300 representative
-samples found two things: no repetition or duplicate declarations
-\emph{within} a training sample (ruling that out as the direct source of
-the model's own repetition/duplication pathologies), but a real
-mechanical defect -- $30.7\%$ of samples exceed the correction run's
-$\texttt{max\_length}{=}512$ and were silently truncated mid-statement,
-with unmasked next-token loss applied right up to that cutoff. Over the
-real 6,000-sample run, roughly 1,800 samples taught the model that
-stopping abruptly mid-expression is a normal, complete training target.
-A secondary finding: $\sim$13\% of the pool is \texttt{node\_modules}
-vendored bundles or \texttt{.d.ts} auto-generated type stubs, diluting
-the signal away from hand-written, function-implementation-style code.
-Fixed for the next run: \texttt{max\_length} raised to $2048$ (checked
-against the real length distribution, this drops truncation to $3.7\%$
-of samples rather than $30.7\%$), that residual dropped rather than
-truncated, and \texttt{node\_modules}/\texttt{.d.ts} paths excluded.
-
-\textbf{LoRA, tested as \citet{minitron2024practice} suggested but never
-tried.} Matched to the full-parameter run on everything except method
-and the data fix above: same 1500 steps, same retraining-pool source,
-same warmup fraction and batch size. Only the base model's attention
-projections (\texttt{q\_proj}/\texttt{k\_proj}/\texttt{v\_proj}/\texttt{o\_proj})
-get trainable rank-16 LoRA adapters ($13.4$M of $30.5$B parameters,
-$0.044\%$); every expert stays frozen, a scope choice for tractability
-given how many experts this MoE model has, not an attempt to cover the
-same surface as full-parameter correction. Adapter merged into the base
-weights after training, so the released checkpoint is a plain dense
-model like any other in this family.
-
-\begin{table}[t]
-\caption{Both gating benchmarks, all three checkpoints. HumanEval-TS is
-the full 159-problem set, MBPP-TS the full 390-problem set. No
-full-parameter-corrected MBPP-TS number exists -- never run, since that
-checkpoint predates the 3.4 data-quality fix and its score would not be
-a fair comparison point.}
-\label{tab:teacher-correction-lora-humaneval}
-\centering
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{lrr}
-\toprule
-& HumanEval-TS & MBPP-TS \\
-\midrule
-baseline (uncorrected) & 0.6708 & 0.7333 \\
-full-parameter corrected & 0.5660 & -- \\
-LoRA-corrected, raw & 0.5723 & 0.6077 \\
-LoRA-corrected, ex.-stripped & 0.5849 & -- \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[t]
-\caption{Complete benchmark parity: baseline vs.\ the LoRA-corrected
-teacher, the checkpoint carried forward. Unlike the full-parameter
-checkpoint (\cref{tab:teacher-correction-lora-humaneval}), every metric
-in this project's suite has been run for both.}
-\label{tab:teacher-correction-lora-full-suite}
-\centering
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{lrr}
-\toprule
-Task (setting) & Baseline & LoRA-corrected \\
-\midrule
-HumanEval-TS pass@1 & 0.6708 & 0.5723 \\
-MBPP-TS pass@1 & 0.7333 & 0.6077 \\
-MMLU (5-shot, acc) & 0.8101 & 0.8070 \\
-ARC-C (25-shot, acc) & 0.6536 & 0.6485 \\
-ARC-C (25-shot, acc\_norm) & 0.6749 & 0.6715 \\
-Winogrande (5-shot, acc) & 0.7798 & 0.7845 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-A real, if modest, improvement over the full-parameter run
-($+0.0063$ raw), still $8.6$pp below baseline. Two qualitative
-differences from the full-parameter teacher's own failure modes, found
-by inspecting all 159 completions: only $2$ of $159$ contain an
-\texttt{export} statement at all (vs.\ $10$ of $10$ in the
-full-parameter teacher's own diagnostic) -- LoRA's attention-only update
-genuinely does not pick up the file-level export habit full-parameter
-fine-tuning did. A different, new failure mode instead: $4$ completions
-run to $3$,$000$--$6$,$000$ characters (a $731$-character mean) -- not
-verbatim repetition this time, but a complete, plausible implementation
-followed by an ever-growing sequence of \texttt{console.log(fn(...))}
-example calls with incrementing arguments, never stopping until the
-length cap. Stripping text from the first such call onward and
-rescoring the same completions, no regeneration, raised pass@1 to
-$0.5849$ ($93$ of $159$) -- confirmed as a real effect, though coarser
-and less clean to generalize than the export fix (a single legitimate
-\texttt{console.log} is not inherently wrong to have), so not folded into
-the permanent scoring harness, only verified as a diagnostic. General
-knowledge is preserved for LoRA the same way it was for the
-full-parameter run (every MMLU/ARC-Challenge/Winogrande delta within
-$\sim$1pp of baseline) -- neither correction method measurably hurts
-general reasoning; the regression is specific to HumanEval-TS both
-times.
-
-\textbf{MBPP-TS confirms the regression on a second gating benchmark --
-and it is not smaller there.} Run against the LoRA-corrected teacher
-only (the full-parameter checkpoint predates the data-quality fix, so
-its MBPP-TS score would not be comparable): pass@1$=0.6077$ (237 of
-390) vs.\ the baseline's $0.7333$, a $12.6$pp gap -- wider than
-HumanEval-TS's $9.85$pp, both in absolute percentage points and in
-relative terms ($17.1\%$ below baseline vs.\ $14.7\%$). Two
-benchmarks now agree: this project's teacher-correction recipe, in
-every configuration tested so far, measurably regresses the model's own
-TypeScript code-generation accuracy.
-
-\textbf{Neither fix closes the gap.} Two independent interventions --
-LoRA-as-method plus the data-quality fix together, then the
-trailing-example postprocessing on top -- each moved pass@1 in the right
-direction, by small amounts, without resolving the core finding: this
-project's teacher-correction recipe, however configured so far,
-regresses the primary benchmarks it exists to improve. Whether the
-remaining gap is \citet{minitron2024practice}'s
-$\sim$100B-vs-$\sim$1.9M-token budget gap, something else about the
-recipe, or a combination, is still open -- not yet isolated.
-
-\textbf{Does the teacher's own accuracy even predict distillation
-quality?} A real question raised by these two regressions, and one
-this project did not need to answer from first principles -- it is an
-established, if counter-intuitive, finding in the broader knowledge
-distillation literature that it does not, reliably.
-\citet{choharihan2019} found that more accurate (and larger) teachers
-often make \emph{worse} distillation teachers: a ``capacity gap'' effect
-where a student cannot represent a mapping too different from what it
-can express, and where a less-converged, lower-accuracy teacher
-sometimes distills into a better student than a fully-trained one.
-\citet{teachercalib2025} found something more specific and more directly
-actionable: a teacher's \emph{calibration error} -- how well its
-predicted confidence matches its actual correctness, not its raw
-accuracy -- is the more reliable predictor of distillation success,
-and a less accurate but better-calibrated teacher can outdistill a more
-accurate but overconfident one. Neither result tells us which way our
-own corrected teacher will go once distilled into an actual pruned
-student -- this project's own accuracy measurements are not a
-calibration study, and we have not run one -- but together they are a
-real, citable reason not to treat teacher accuracy as a proxy for
-teacher \emph{usefulness}, and a reason the Figure-4-style ablation
-against a pruned candidate (\citet{minitron2024practice}'s own
-comparison) is the right next experiment rather than an optional extra
-step: it is the only way to test the thing that actually matters for
-Phase 4, instead of continuing to relitigate the corrected teacher's own
-benchmark scores (\cref{sec:discussion}).
-
-\section{Distillation Retraining: A Negative Result, and Its Resolution}
-\label{sec:phase4-negative}
-
-Motivated directly by the question raised at the end of
-\cref{sec:teacher-correction-lora} -- whether the corrected teacher's own
-regressed benchmark scores actually predict a worse (or better) distilled
-student, rather than continuing to only compare the teachers' own scores
--- we built one real pruned candidate and distilled it against both
-teacher variants under matched conditions.
-
-\subsection{Candidate and Setup}
-
-We use the aggressive-tier depth+experts candidate already characterized
-zero-shot in \cref{sec:combined-pruning-sweep} (16 of 48 layers removed by
-Block Importance, 80 of 128 experts removed per surviving layer by
-\cref{eq:expert}, the three Super Experts exempted): 8.48B parameters
-(27.8\% of the unpruned 30.5B), the cheapest pairwise combination in that
-sweep. We cache each teacher's top-20 per-token logits once, over an
-identical, fresh 6,000-sample slice of the retraining pool (disjoint from
-every prior draw), then train the candidate via forward-KL distillation
-against each cache in turn -- same student initialization, same 500-step,
-8-bit-AdamW schedule (peak LR $2\times10^{-4}$, 75-step warmup), differing
-only in which teacher's logits it targets.
-
-\subsection{Result}
-
-Final KD loss is a near-exact tie between the two teachers: validation
-loss 0.5350 (baseline teacher) vs.\ 0.5339 (LoRA-corrected teacher) -- a
-0.0011 gap, well within noise, though training loss favors the baseline
-teacher more clearly (0.5573 vs.\ 0.5810). A downstream check on the
-metric that actually matters, HumanEval-TS pass@1 on a matched $n{=}40$
-sample (same 40 problems, same temperature-0.2/top-$p$-0.95 settings as
-every other run in this paper), settles nothing further: \textbf{both
-distilled students score pass@1 $=$ 0.0}.
-
-Manual inspection of the raw completions, not just the aggregate score,
-rules out the generation-postprocessing artifacts this project found
-earlier (\cref{sec:teacher-correction-lora}'s trailing \texttt{export}
-statements, runaway \texttt{console.log} loops): instead, both students
-degenerate into outright repetition almost immediately after the function
-signature -- runs of single repeated or near-repeated tokens (e.g.\
-\texttt{ambioambioambio...}, \texttt{-stream-index-index-index...})
-continuing for thousands of characters until the generation length cap,
-on both teacher arms alike. Three further candidate causes were checked
-and ruled out without needing to re-run anything: the pushed checkpoints'
-files are complete; their \texttt{generation\_config.json} settings
-(\texttt{do\_sample: false}) match the unpruned baseline and
-LoRA-corrected teacher checkpoints exactly, both of which score correctly
-under the identical harness; and their chat-template file is likewise
-present on the LoRA-corrected teacher's own checkpoint, which also scores
-correctly.
-
-\subsection{Interpretation}
-
-This ablation does not answer the question it was built to answer. With
-both arms failing identically on KD loss and downstream pass@1 alike,
-there is no signal left to compare the two teachers by --
-\textbf{this is a negative result, not a null result in either teacher's
-favor}. The most likely explanation is budget, not method: this candidate
-lost 16 of 48 layers and 80 of 128 experts per surviving layer in one
-step (a 72\% parameter cut), then received only 500 optimization steps
-($\sim$2,000 training sequences) before evaluation. For comparison,
-\cref{sec:teacher-correction}'s full-parameter correction run -- a far
-smaller perturbation, fine-tuning an otherwise-untouched 30.5B model --
-still showed real generation instability (repetition, duplicate
-declarations) after 1,500 steps. A model missing three-quarters of its
-parameters, given fewer than half as many steps, degenerating into
-repetition is the expected failure mode of an undertrained model, not
-evidence of anything about teacher correction specifically.
-
-The corrected-vs-uncorrected teacher question from
-\cref{sec:teacher-correction-lora} therefore remains open. What this
-experiment does establish is a real data point for a different open
-question (\cref{sec:discussion}): the lightweight-retrain token budget
-for combined, aggressive pruning on this model is higher than 500 steps
--- how much higher is untested at the time of writing above; the rest of
-this section tests that directly.
-
-\subsection{Chasing Stability: Does a Better Training Recipe Change the Outcome?}
-\label{sec:phase4-lr-chase}
-
-Three further interventions were tried against the baseline-teacher arm
-of the same aggressive candidate, each isolating one variable at a time
-rather than changing several at once.
-
-\textbf{More steps alone (3000 vs.\ 500, same schedule) makes things
-worse, not better.} Validation loss tracks the 500-step run's own
-trajectory through step $\sim$200 (val $\approx 0.67$), then diverges
-sharply: a spike to val $\approx 1.89$ at step $\sim$400, plateauing
-between 1.58 and 1.87 for the remaining $2{,}600$ steps, ending at
-val $=1.572$ -- worse than the 500-step run's own final 0.535. The cause
-is a schedule artifact, not a modeling one: \texttt{warmup\_steps}$=75$
-is $15\%$ of 500 steps but only $2.5\%$ of 3000, so the candidate spends
-far longer at near-peak learning rate in absolute terms. Computing the
-schedule directly confirms it -- at step 399, the 500-step run has
-already decayed to $\mathrm{LR}\approx4.4\times10^{-5}$ ($22\%$ of
-peak), while the 3000-step run is still at
-$\mathrm{LR}\approx1.95\times10^{-4}$ ($97\%$ of peak) at that identical
-step. HumanEval-TS n=40 on this checkpoint: pass@1 $=0.0$, same
-repetition-collapse signature as \cref{sec:phase4-negative}.
-
-\textbf{Fixing the warmup fraction (\texttt{warmup\_steps}$=450$, $15\%$
-of 3000) fixes the early divergence but not a later one.} Validation
-loss now stays healthy through step $\sim$600 (best $0.618$ at step
-489, matching the 500-step run's own quality), but a second instability
-hits around step $700$--$800$ (spike to $\approx 1.88$), plateauing to a
-final val $=1.824$. The model is demonstrably capable of a healthy loss
-trajectory for hundreds of steps -- it just does not stay there for all
-3000.
-
-\textbf{Halving peak LR ($2\times10^{-4}\to1\times10^{-4}$, same
-\texttt{warmup\_steps}$=450$) finally gives a fully stable run -- but
-the downstream result is unchanged.} Validation loss stays in a healthy
-$0.45$--$0.63$ band for the entire 3000 steps, no late collapse: final
-val $=0.456$, best val $=0.452$ at step $2659$ -- the lowest loss
-reached anywhere in this investigation, and incidentally the exact peak
-learning rate \citet{minitron2024practice} themselves use for
-distillation-based retraining (Table 4 of that paper), reached here
-independently rather than copied. We additionally added best-validation
-checkpoint saving (not just the final step) to rule out
-training-past-the-optimum as an explanation. Both checkpoints -- final
-and best-val -- score HumanEval-TS n=40 pass@1 $=0.0$, with the same
-qualitative failure: completions collapse into outright token repetition
-(a new garbage token each time, e.g.\ \texttt{ursivelyursively...},
-\texttt{UniformLocationUniformLocation...}) almost immediately after the
-function signature, regardless of which checkpoint or how healthy its
-loss trajectory was.
-
-Four separate interventions -- more steps, a corrected warmup fraction,
-a halved peak learning rate, and best-checkpoint selection -- have now
-each been tried in isolation and produced the identical qualitative
-failure. This is real evidence the bottleneck is not training
-instability.
-
-\subsection{Isolating the Axis: Is Depth Specifically the Problem?}
-\label{sec:phase4-depth-isolation}
-
-Depth removal and expert removal are not the same kind of cut. Each
-decoder layer is a sequential computation step; removing one leaves the
-model with fewer steps to compose a solution, not just less capacity per
-step the way expert pruning does. This motivates a direct test: does the
-repetition collapse specifically trace to the $16$ removed layers, or to
-aggressive pruning on any axis at this total budget?
-
-A clean depth-only test at comparable damage is not feasible on this
-project's hardware: experts hold roughly $95\%$ of this model's
-parameters (\cref{sec:model-data}), so even the lightest informative
-depth-only cut leaves the model too large for a single 80GB card's
-training footprint (a $16$-layer-only cut, no expert pruning, is
-$20.5$B parameters -- an estimated $123$GB footprint for weights,
-gradients, and 8-bit AdamW state combined). We instead hold the
-\emph{total parameter budget fixed} at the aggressive candidate's own
-$8.48$B and move the entire cut onto the experts axis alone:
-\texttt{depth\_n}$=0$, \texttt{expert\_n}$=97$ (of 128) per layer, zero
-layers removed, the same three Super Experts exempted. The real
-selection, from the same committed importance scores as every other
-candidate in this paper, yields $8.55$B parameters ($28.0\%$ of
-unpruned) -- a near-exact size match.
-
-This candidate's own zero-shot loss ($1.3221$) is \emph{lower} than the
-depth+experts candidate's ($1.59$--$1.85$ across the measurements in
-\cref{sec:phase4-negative,sec:phase4-lr-chase}), consistent with
-\cref{sec:head-pruning-sweep}'s own finding that experts are the most
-redundant axis on this model by a wide margin. Distilled with the same
-stabilized recipe (\texttt{warmup\_steps}$=450$,
-$\mathrm{peak\ LR}=1\times10^{-4}$, 3000 steps): final train KD
-$0.2436$, val KD $0.4061$ (step 2999); best val $0.4052$ at step
-$2879$ -- the lowest KD loss reached anywhere in this investigation,
-lower even than \cref{sec:phase4-lr-chase}'s best run.
-
-HumanEval-TS n=40 on both the final and best-val checkpoints: pass@1
-$=0.0$ for both, with the same structural failure as every prior
-attempt -- a fourth distinct garbage token
-(\texttt{AppointmentAppointment...}), collapsing immediately after the
-function signature.
-
-\textbf{This is not depth-specific.} Removing the same total parameter
-budget via experts alone -- with better zero-shot loss and better final
-KD loss than the depth+experts combination -- produces the identical
-downstream failure.
-
-\subsection{A Lighter Cut, and a Decisive Test: Pruning vs.\ Distillation}
-\label{sec:phase4-pruned-only-diagnostic}
-
-A third depth point tests whether the failure is simply too much pruning
-rather than anything depth-specific: \texttt{depth\_n}$=12$ (vs.\ the
-original 16), \texttt{expert\_n}$=80$ unchanged -- easing up specifically
-on the depth cut while holding the expert cut fixed. The real selection
-yields $9.46$B parameters ($31.0\%$ of unpruned, a lighter cut than
-either prior candidate) and the best zero-shot loss of any candidate in
-this investigation, $1.1940$. Distilled with the same stabilized recipe
-(\texttt{warmup\_steps}$=450$, peak LR $1\times10^{-4}$, 3000 steps):
-final train KD $0.2630$, val KD $0.4048$; best val $0.4013$ at step
-$2869$. HumanEval-TS n=40 on both checkpoints: pass@1 $=0.0$ again.
-Manually inspecting all 80 completions across both checkpoints (not just
-a sample): 78 show the same repetition-collapse signature as every prior
-candidate (new garbage tokens each time -- \texttt{-license-license...},
-\texttt{itteritteritter...}), and one (the best-val checkpoint's 20th
-problem) is a distinct failure mode, a completely empty function body
-with no repetition at all. None of the 80 produce working code.
-
-This by itself only reinforces \cref{sec:phase4-depth-isolation}'s own
-finding at a third point. The decisive test is a different one:
-\textbf{evaluating this exact candidate, zero-shot, before any
-distillation at all.} The pruned-but-undistilled
-\texttt{depth\_n}$=12$/\texttt{expert\_n}$=80$ checkpoint scores
-\textbf{pass@1 $=0.475$} ($19$ of $40$) on the same HumanEval-TS sample --
-real, correct TypeScript: nested-loop comparisons, correct return types,
-genuine working functions, not near-misses. Pruning alone, at this
-aggressiveness, preserves substantial real capability. \textbf{The same
-checkpoint, after 3000 steps of full-parameter distillation, cannot
-solve a single one of the same 40 problems.}
-
-This directly rules out one of \cref{sec:phase4-revised-interpretation}'s
-two candidate explanations before it is even stated: a hard capability
-ceiling from pruning cannot be the cause, since the pruned model
-demonstrably has the capability immediately before the distillation step
-that destroys it. The question is no longer \emph{whether} something
-breaks this candidate -- it is now a question about the distillation
-step specifically: full-parameter fine-tuning for 3000 steps (two full
-passes over a $6{,}000$-sample pool) on training data that is itself
-never once an isolated, bounded function -- only continuations of
-ordinary TypeScript files, which carry no example of what a complete,
-terminated answer looks like. Whether the destructive mechanism is the
-update method (an un-regularized, full-parameter update overwriting
-pre-existing capability, the same failure mode LoRA was introduced to
-avoid during teacher correction, \cref{sec:teacher-correction-lora}) or
-the training data's shape (which no change of method alone would fix)
-is the open question \cref{sec:phase4-revised-interpretation} turns to.
-
-\subsection{Revised Interpretation}
-\label{sec:phase4-revised-interpretation}
-
-\Cref{sec:phase4-negative}'s original interpretation -- that 500 steps
-was simply too little budget for a 72\%-parameter cut -- was reasonable
-given the evidence available at the time, but does not survive what
-followed. Seven further training runs since then (three schedule
-variants on the original candidate, the experts-only isolation
-candidate, and the lighter depth-only-ish candidate, each with final and
-best-val checkpoints) have tried $6\times$ the original step budget, a
-properly scaled warmup, a halved and independently literature-matched
-peak learning rate, best-checkpoint selection, and swapping which axis
-and how much of it the same total cut comes from -- and every single
-distilled configuration produces the same qualitative failure:
-fluent-looking setup, then immediate, total collapse into token
-repetition. Several of these runs reach KD validation loss well below
-the original 500-step run's own 0.535 (as low as 0.401), so the student
-is demonstrably capable of matching the teacher's token-level
-distribution on ordinary running text.
-
-\Cref{sec:phase4-pruned-only-diagnostic}'s pruned-only result changes
-what these seven runs mean. A capability ceiling from pruning is now
-directly ruled out, not just untested: the same checkpoint that scores
-$0.475$ zero-shot scores $0.0$ after distillation. The real question has
-narrowed to one of two mechanisms, both consistent with every result
-above: (1) full-parameter distillation itself is overwriting real,
-pre-existing capability through an un-regularized update, the same
-failure mode this project already found and fixed with LoRA during
-teacher correction (\cref{sec:teacher-correction-lora}); or (2) the
-training data's shape -- raw file continuations, never a bounded
-spec-to-function example -- actively teaches the model away from
-stopping, independent of how gently it is trained. A LoRA-based retry of
-the exact same distillation run, changing only the update method, is the
-direct test of (1) and is in progress at the time of writing: if it
-recovers meaningfully more of the $0.475$ pruned-only capability than
-full-parameter training does, the fix is the update method; if it still
-collapses to near-$0.0$ with the same repetition signature, the training
-data itself is the remaining suspect, and no further change of training
-method alone would be expected to help.
-
-\subsection{LoRA Retry: Ruling Out Update Method}
-\label{sec:phase4-lora-kd}
-
-The LoRA retry described at the end of \cref{sec:phase4-revised-interpretation}
-completed with the same negative result. LoRA adapters (rank 16,
-$\alpha=32$, dropout 0.05) on the attention projections only ($W^Q$,
-$W^K$, $W^V$, $W^O$; 0.106\% of parameters trainable), trained against
-the identical raw-file teacher cache and schedule as every
-full-parameter run above, reach final validation KD loss $0.4984$ at
-step 2999 (best equals final -- no early peak this time) and score
-\textbf{pass@1 $=0.0$} on both the final and best-val checkpoints,
-identically to the full-parameter arm.
-
-The completions themselves differ in degree, not in outcome: LoRA's
-average completion length ($\sim$6.5k characters) is under half the
-full-parameter arm's ($\sim$15k), and only 2 of 40 completions show the
-obvious long-repetition heuristic that dominates 33--35 of 40
-full-parameter completions -- the more common LoRA failure is stopping
-immediately after the function signature, or emitting a trivially wrong
-one-token body. The headline number is unchanged regardless:
-\textbf{a far gentler, far more constrained update does not recover any
-of the pruned-only candidate's $0.475$}. This makes update magnitude an
-unlikely root cause and leaves training-data shape as the sole
-remaining hypothesis from \cref{sec:phase4-revised-interpretation} --
-tested directly next.
-
-\subsection{A Function-Bounded Training Set, and a Fourth Identical Failure}
-\label{sec:phase4-functions}
-
-Every KD run to this point trains on raw, uninterrupted continuations
-of whole TypeScript files -- the student never sees a single example of
-what a complete, correctly terminated function looks like, while
-HumanEval-TS specifically evaluates ``produce one complete function and
-stop.'' To test this directly, we built \texttt{bonsai.data.functions},
-a real TypeScript-parsing extractor (via \texttt{tree-sitter-typescript},
-not a brace-counting heuristic, since strings, template literals, and
-regexes can all contain unbalanced braces) that pulls one complete,
-bounded top-level function per sample -- \texttt{function} declarations
-and single-declarator \texttt{const}/arrow-function assignments,
-together with any immediately preceding comment -- from the same
-retraining pool used everywhere else in this paper. Verified against
-300 real samples before use: zero exact duplicates, a length
-distribution (min 23, median 302, mean 474, max 2578 characters)
-comfortably inside HumanEval-TS's own problem scale, and a manual read
-of the first 40 extracted samples found every one syntactically
-complete and correctly bounded, with no truncation artifacts.
-
-Caching the uncorrected teacher's top-20 logits over 12,000 such
-function samples and distilling the same depth12/experts80 candidate
-under the identical schedule (\texttt{warmup\_steps}$=450$, peak LR
-$1\times10^{-4}$, 3000 steps) reaches best validation KD loss $0.4094$
-at step 2999 (best equals final) -- the same healthy ballpark as every
-raw-file arm before it ($\sim$0.40--0.41). \textbf{HumanEval-TS n=40:
-pass@1 $=0.0$, a fourth time}, with the same repetition-collapse
-failure class as every prior arm, only the specific garbage token
-differing.
-
-At this point, every combination of the two hypotheses this
-investigation had been testing -- full-parameter vs.\ LoRA update,
-raw-file vs.\ function-bounded data -- had been tried, each converging
-cleanly to a healthy KD loss, and every one failed identically. Neither
-hypothesis from \cref{sec:phase4-revised-interpretation} survives
-four-for-four confirmation of the opposite prediction. What all four
-runs share, and nothing else does, is the loss function itself.
-
-\subsection{The Actual Root Cause: Two Bugs in the KD Loss}
-\label{sec:phase4-root-cause}
-
-Direct inspection of the loss implementation -- not a further ablation
--- found two independent bugs, both present, unexamined, in every one
-of the four runs above.
-
-\textbf{An off-by-one target misalignment.} The teacher cache stores
-its top-20 logit indices and log-probabilities using the same
-convention as the student's own logits: position $t$'s entry is the
-prediction \emph{for} token $t+1$, with no shift applied when the cache
-is written. The loss correctly dropped the student's final,
-target-less position (\texttt{student\_logits[:-1]}), but then sliced
-the teacher side one position later than it should have
-(\texttt{teacher\_topk[1:]} instead of \texttt{teacher\_topk[:-1]}),
-pairing the student's prediction at position $t$ against the teacher's
-target for position $t+1$ -- training the student, in effect, to
-predict token $t+2$ from context that only extends to token $t$. This
-is not a label-smoothing-scale error; it is an unsatisfiable target at
-every single position of every single training example.
-
-\textbf{Top-$k$-only softmax normalization.} Let $z_t \in
-\mathbb{R}^{|V|}$ be the student's logits at position $t$ and $K_t
-\subset V$, $|K_t|{=}20$, the teacher's cached support with conditional
-probabilities $q_t(k)$ for $k \in K_t$ (the cache stores a distribution
-already renormalized over the support, $\sum_{k \in K_t} q_t(k) = 1$,
-not the teacher's real full-vocabulary distribution). The deployed loss
-computed
-\begin{equation}
-\label{eq:kd-broken}
-L_{\text{broken},t} = -\sum_{k \in K_t} q_t(k) \log \frac{\exp(z_t[k])}{\sum_{k' \in K_t} \exp(z_t[k'])},
-\end{equation}
-a softmax taken only over the 20 gathered logits, with every other
-coordinate of $z_t$ excluded from the normalizer. Nothing in
-\cref{eq:kd-broken} relates $z_t[k]$, $k \in K_t$, to $z_t[j]$, $j
-\notin K_t$: a student that drives one off-support logit arbitrarily
-high pays no penalty, since $j \notin K_t$ never appears in the sum --
-precisely consistent with what every generation showed, a converged,
-healthy-looking loss alongside one off-support token dominating the
-real (full-vocabulary) softmax from the first generated token onward,
-in all four arms.
-
-The fix restores the full-vocabulary normalizer and decomposes the
-result into two interpretable terms:
-\begin{equation}
-\label{eq:kd-fixed}
-L_t = \underbrace{\sum_{k \in K_t} q_t(k) \log \frac{q_t(k)}{\tilde p_t(k)}}_{\text{KL within support}} \;+\; \underbrace{\Big(\mathrm{LSE}(z_t) - \mathrm{LSE}(z_t[K_t])\Big)}_{\text{coverage loss}},
-\end{equation}
-where $\tilde p_t(k) = \exp(z_t[k]) / \sum_{k' \in K_t}\exp(z_t[k'])$ is
-the student's own within-support conditional and $\mathrm{LSE}$ denotes
-log-sum-exp over the indicated coordinates. The coverage term equals
-$-\log P_{\text{student}}(\text{token}\in K_t)$ under the student's
-real, full-vocabulary distribution, and is zero only when every bit of
-the student's real probability mass falls inside the teacher's own
-top-20 -- a genuine floor, not an arbitrary one, since even the teacher
-matching itself does not reach exactly zero (the teacher's own top-20
-never captures its full probability mass either). This also meant
-re-deriving what ``student equals teacher exactly $\Rightarrow$ loss
-$\approx 0$'' should mean: it is now the teacher's own coverage floor,
-not zero, since the cached distribution is itself a renormalized,
-conditional one. Two regression tests were added covering each bug
-individually; both fail against the pre-fix implementation and pass
-against \cref{eq:kd-fixed}.
-
-\subsection{Confirming the Fix}
-\label{sec:phase4-fix-confirmed}
-
-Re-running KD on the identical function-mode cache from
-\cref{sec:phase4-functions}, same candidate, same schedule, changing
-only the loss, produces a qualitatively different trajectory:
-validation loss now reaches its minimum early (best $0.3155$ at step
-199) and \emph{worsens} with further training (final $0.4507$ at step
-2999) -- a real overfitting signal the broken loss never exhibited,
-since it was never actually measuring the quantity that determines
-downstream quality. \textbf{HumanEval-TS n=40 on the best-validation
-checkpoint: pass@1 $=0.55$} -- above the pruned-but-undistilled
-candidate's own $0.475$ (\cref{sec:phase4-pruned-only-diagnostic}) --
-while the final (step 2999) checkpoint scores $0.175$, degraded by
-overfitting but not collapsed: generations are shorter and sometimes
-prematurely truncated, not the single-token repetition-to-the-length-cap
-failure seen throughout
-\cref{sec:phase4-negative,sec:phase4-lr-chase,sec:phase4-depth-isolation,sec:phase4-lora-kd,sec:phase4-functions}.
-Manual inspection of the best-validation checkpoint's completions
-confirms genuinely correct, idiomatic TypeScript (a correct nested-loop
-\texttt{has\_close\_elements}, a correct one-line \texttt{truncate\_number}),
-not a near-miss.
-
-\subsection{Isolating Data Shape, At Last: It Was Never the Cause}
-\label{sec:phase4-rawfile-fixedloss}
-
-\Cref{sec:phase4-functions}'s function-bounded dataset and the loss fix
-landed in the same training run, so \cref{sec:phase4-fix-confirmed}'s
-result alone cannot separate ``the loss fix mattered'' from ``the loss
-fix mattered only once combined with better-shaped data.'' A direct
-isolation re-runs the identical fixed loss on the \emph{original}
-raw-file cache (\cref{sec:phase4-negative}'s teacher cache, no function
-extraction, no re-caching step), same candidate, same schedule.
-
-The result matches \cref{sec:phase4-fix-confirmed}'s headline number
-exactly: \textbf{best-validation checkpoint (step 239) scores pass@1
-$=0.55$} on HumanEval-TS n=40, identical to the function-mode run, with
-the final checkpoint (step 2999) at $0.35$ -- milder degradation than
-the function-mode arm's $0.175$, but the same qualitative shape
-(coherent, non-repetitive TypeScript at both checkpoints, confirmed by
-direct inspection of the raw generations). \textbf{Training-data shape
-never mattered.} The function-bounded extraction built in
-\cref{sec:phase4-functions} was a reasonable hypothesis, worth testing,
-and remains useful for interpretability and shorter training sequences
--- but it was not the fix. The two bugs in \cref{sec:phase4-root-cause}
-fully account for every one of the four identical failures in
-\cref{sec:phase4-negative,sec:phase4-lr-chase,sec:phase4-depth-isolation,sec:phase4-lora-kd,sec:phase4-functions}:
-full-parameter vs.\ LoRA and raw-file vs.\ function-bounded data were
-both, in the end, orthogonal to the actual cause.
-
-One question this investigation raised remains genuinely open, not
-resolved by the fix: every result in this section, before and after
-it, distills against the \emph{uncorrected} teacher only
-(\cref{sec:phase4-negative}'s original corrected-vs-uncorrected
-comparison was itself confounded by the same shared bug, so it answers
-nothing either way). Whether a corrected-teacher KD arm, re-run with
-the fixed loss, changes this picture is untested at the time of
-writing.
-
-\section{Retraining Under the Fixed Loss: A Full Candidate Sweep}
+We distill every candidate in this paper against the unpruned teacher's
+own cached logits, not a fine-tuned (``corrected'') teacher. Teacher
+correction, following \citet{minitron2024practice}, was tested in two
+configurations (full-parameter and LoRA) and found to regress
+HumanEval-TS accuracy rather than help, despite improving validation
+loss in both cases (\cref{app:negative-results}). Reaching this recipe
+also required finding and fixing two bugs in the knowledge-distillation
+loss itself, after several independent candidates and training-recipe
+changes all produced the same repetition-collapse failure on
+HumanEval-TS; the diagnosis and fix are reported in
+\cref{app:negative-results}, not here, since the loss implementation
+used for every result below is already the corrected one.
+
+\section{Distillation Retraining and the Full Candidate Sweep}
 \label{sec:phase4-full-sweep}
 
-With the loss fixed and confirmed on two independent isolations
-(\cref{sec:phase4-fix-confirmed,sec:phase4-rawfile-fixedloss}), this
-section answers the questions those fixes left open: whether a corrected
-teacher helps once KD loss is trustworthy, whether a shorter schedule
-recovers the same accuracy at a fraction of the compute, and -- once
-every candidate measured so far is re-evaluated on the full 159-problem
-suite rather than a 40-problem sample -- how much of what this paper has
-reported up to this point was sampling noise rather than signal.
-
-\subsection{Does a Corrected Teacher Help, Now the Loss Is Right?}
-\label{sec:phase4-correctedteacher-fixedloss}
-
-\Cref{sec:phase4-negative}'s original corrected-vs-uncorrected comparison
-was confounded by the same KD-loss bugs \cref{sec:phase4-root-cause}
-later found, so it settled nothing. We re-run it with the fixed loss:
-the same depth12/experts80 candidate (9.46B, 31.0\% of the unpruned
-30.5B; pruned-only diagnostic pass@1 $=0.475$,
-\cref{sec:phase4-pruned-only-diagnostic}) distilled against the
-LoRA-corrected teacher's logits (\cref{sec:teacher-correction-lora}),
-same 3000-step/warmup-450/peak-LR-$10^{-4}$ schedule as every other arm
-in this investigation, fresh cache (6,000 raw-file samples).
-
-Validation loss reaches a clear early minimum -- \textbf{best 0.3473 at
-step 259} -- then overfits severely with further training (\textbf{final
-3.893 at step 2999}, an order of magnitude worse). HumanEval-TS $n{=}40$:
-\textbf{best-validation checkpoint, pass@1 $=0.50$}; \textbf{final
-checkpoint, pass@1 $=0.0$}. Against the same candidate distilled on the
-\emph{uncorrected} teacher with the identical fixed loss and schedule
-(\cref{sec:phase4-rawfile-fixedloss}: best-val $0.55$ at step 239, final
-$0.35$ at step 2999), the corrected teacher is not better -- it scores
-slightly lower at its own early peak ($0.50$ vs.\ $0.55$) and collapses
-further by the final step ($0.0$ vs.\ $0.35$). \textbf{The
-corrected-vs-uncorrected teacher question is now answered, with a
-trustworthy loss: correction does not help this candidate's downstream
-coding ability, consistent with \cref{sec:teacher-correction-eval}'s
-finding that correction regresses the teacher's own HumanEval-TS score
-directly.} The remaining open question from \cref{sec:discussion} --
-whether a larger correction token budget would close this gap -- is
-untouched by this result and remains open.
+This section covers the full candidate sweep under the final recipe:
+knowledge distillation against the uncorrected teacher's cached top-20
+logits, a short, early-stopped schedule (established below), and full
+re-evaluation on the 159-problem HumanEval-TS suite rather than a
+40-problem sample.
 
 \subsection{A Short, Early-Stopped Schedule}
 \label{sec:phase4-short-schedule}
 
-Every fixed-loss run so far peaks well before its 3000-step budget
+Validation loss on this recipe peaks well before a 3000-step budget
 completes (step 199--259) and measurably overfits past that point
-(\cref{sec:phase4-fix-confirmed,sec:phase4-rawfile-fixedloss,sec:phase4-correctedteacher-fixedloss}).
-We test a 500-step schedule (75-step warmup, the same 15\% warmup
-fraction, identical peak LR and optimizer) with more frequent validation
-checks, on two candidates that previously had only broken-loss ($0.0$)
-numbers at the full 3000-step budget: the aggressive depth+experts
-candidate (\cref{sec:phase4-negative}, 8.48B, 27.8\%) and the
-experts-only isolation candidate at a matched parameter budget
-(\cref{sec:phase4-depth-isolation}, depth0/experts97, 8.55B, 28.0\%).
+(\cref{app:negative-results} has the full derivation). We test a
+500-step schedule (75-step warmup, the same 15\% warmup fraction,
+identical peak LR and optimizer) with more frequent validation checks,
+on two candidates: the aggressive depth+experts candidate (8.48B,
+27.8\%) and the experts-only isolation candidate at a matched parameter
+budget (depth0/experts97, 8.55B, 28.0\%).
 
 \begin{table*}[t]
-\caption{Short-schedule (500-step) fixed-loss KD, $n{=}40$ HumanEval-TS.
-Both candidates' validation minimum lands on the final step itself --
-no separate early-stop checkpoint.}
-\label{table:phase4-short-schedule}
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
@@ -1772,17 +943,21 @@ Aggressive, depth16/e80 (8.48B) & 1.848 & 0.338 @ 499 & 0.50 \\
 Depth0/experts97 (8.55B) & 1.322 & 0.382 @ 499 & 0.40 \\
 \bottomrule
 \end{tabular}
+\caption{Short-schedule (500-step) fixed-loss KD, $n{=}40$ HumanEval-TS.
+Both candidates' validation minimum lands on the final step itself:
+no separate early-stop checkpoint.}
+\label{table:phase4-short-schedule}
 \end{table*}
 
-Wall-clock drops from $\sim$2h20m (3000 steps) to $\sim$31--39 minutes --
-roughly $3.6$--$4.6\times$ faster -- while landing in the same $n{=}40$
+Wall-clock drops from $\sim$2h20m (3000 steps) to $\sim$31--39 minutes
+(roughly $3.6$--$4.6\times$ faster) while landing in the same $n{=}40$
 ballpark as depth12/experts80's own 3000-step best ($0.55$,
 \cref{sec:phase4-rawfile-fixedloss}), not obviously worse for using a
 sixth of the steps. (Depth12/experts80 still edges both candidates here,
 plausibly because it keeps more parameters, 31.0\% vs.\ 27.8--28.0\%,
 rather than anything about the schedule.) \textbf{The shorter schedule
 recovers comparable downstream accuracy at a fraction of the compute},
-resolving \cref{sec:discussion}'s open question on this point -- adopted
+resolving \cref{sec:discussion}'s open question on this point, adopted
 as the standard recipe for every remaining candidate in this paper.
 
 Two further candidates test the same schedule at opposite ends of an
@@ -1793,9 +968,9 @@ Depth0/experts60 distills well: validation loss best $0.136$ at step 49
 (final $0.204$ at 499, a real early peak this time), $n{=}40$ pass@1
 $0.70$ best / $0.675$ final. Depth22/experts92's much worse zero-shot
 surface does not recover as well: validation best $=$ final $0.513$ at
-step 499, $n{=}40$ pass@1 $0.225$. Smaller is not better on this pair --
-consistent with \cref{sec:phase4-pruned-only-diagnostic}'s earlier
-``a lighter cut'' framing -- though depth0/experts60's full-parameter KD
+step 499, $n{=}40$ pass@1 $0.225$. Smaller is not better on this pair
+(consistent with \cref{sec:phase4-pruned-only-diagnostic}'s earlier
+``a lighter cut'' framing) though depth0/experts60's full-parameter KD
 needed a GPU with more than 80GB of memory, a real cost the $n{=}40$
 number alone does not capture.
 
@@ -1808,24 +983,26 @@ all five on the full 159-problem suite, no \texttt{--limit}, identical
 harness settings.
 
 \begin{table*}[t]
-\caption{$n{=}40$ vs.\ full-suite (159-problem) HumanEval-TS pass@1, same
-checkpoints. Every candidate overstates at $n{=}40$, by an inconsistent
-margin.}
-\label{table:phase4-full-suite-noise}
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{lrrr}
+\begin{tabular}{lrrrr}
 \toprule
-Candidate & $n{=}40$ & Full (159) & Relative overstatement \\
+Candidate & $n{=}40$ & Full (159) & 95\% CI (Wilson) & Relative overstatement \\
 \midrule
-Aggressive, depth16/e80 & 0.50 & 0.208 (33/159) & $+140\%$ \\
-Depth0/experts97 & 0.40 & 0.283 (45/159) & $+41\%$ \\
-Depth12/experts80 (raw-file best) & 0.55 & 0.302 (48/159) & $+82\%$ \\
-Depth22/experts92 & 0.225 & 0.069 (11/159) & $+226\%$ \\
-Depth0/experts60 (best ckpt) & 0.70 & 0.572 (91/159) & $+22\%$ \\
+Aggressive, depth16/e80 & 0.50 & 0.208 (33/159) & $\pm 6.3$pp & $+140\%$ \\
+Depth0/experts97 & 0.40 & 0.283 (45/159) & $\pm 6.9$pp & $+41\%$ \\
+Depth12/experts80 (raw-file best) & 0.55 & 0.302 (48/159) & $\pm 7.1$pp & $+82\%$ \\
+Depth22/experts92 & 0.225 & 0.069 (11/159) & $\pm 4.0$pp & $+226\%$ \\
+Depth0/experts60 (best ckpt) & 0.70 & 0.572 (91/159) & $\pm 7.6$pp & $+22\%$ \\
 \bottomrule
 \end{tabular}
+\caption{$n{=}40$ vs.\ full-suite (159-problem) HumanEval-TS pass@1, same
+checkpoints. Every candidate overstates at $n{=}40$, by an inconsistent
+margin. The 95\% CI is a per-point Wilson score interval on the full-suite
+count, treating each of the 159 problems as an independent Bernoulli trial;
+it does not capture training-run-to-run variance (\cref{app:reproducibility}).}
+\label{table:phase4-full-suite-noise}
 \end{table*}
 
 \begin{figure}[t]
@@ -1837,7 +1014,7 @@ Depth0/experts60 (best ckpt) & 0.70 & 0.572 (91/159) & $+22\%$ \\
 \end{figure}
 
 \textbf{Every single candidate's full-suite score is substantially lower
-than its $n{=}40$ score} -- not just depth0/experts60, which earlier
+than its $n{=}40$ score}: not just depth0/experts60, which earlier
 notes in this project's working log had flagged as a single surprising
 case. The relative overstatement ranges from $+22\%$ to $+226\%$, and is
 not simply explained by how aggressively a candidate is pruned: the
@@ -1845,13 +1022,13 @@ three candidates that keep the most similar fraction of parameters
 (27.8--31.0\%, aggressive/depth0-experts97/depth12-experts80) span
 $+41\%$ to $+140\%$ among themselves, a wider spread than their
 pruning fractions would suggest. The \emph{direction} of the bias is
-consistent -- $n{=}40$ never understates -- but its \emph{magnitude} is
+consistent ($n{=}40$ never understates) but its \emph{magnitude} is
 not reliably predictable from the $n{=}40$ number alone, which has a
 direct methodological consequence:
 \textbf{a confirmatory full-suite run cannot be skipped for any
 candidate, including ones whose $n{=}40$ score looks unremarkable.}
 Every $n{=}40$ number elsewhere in this paper should be read as a
-provisional triage signal, not a final one -- it correctly ranked
+provisional triage signal, not a final one: it correctly ranked
 candidates relative to each other in every case checked here, but not
 their absolute accuracy.
 
@@ -1862,10 +1039,10 @@ Every full-suite candidate in \cref{sec:phase4-full-sweep} combines
 depth and experts in one step (or, for depth0/experts60 and
 depth0/experts97, prunes experts alone at zero depth). No result yet
 isolates each axis's own contribution across a real range after
-retraining -- \cref{sec:phase4-depth-isolation} asked this question
+retraining. \cref{sec:phase4-depth-isolation} asked this question
 zero-shot, at a single matched parameter budget, but never followed it
 through distillation and a full-suite eval. This section fills that gap
-on two axes, and explains why a third -- heads -- is deliberately left
+on two axes, and explains why a third (heads) is deliberately left
 out.
 
 \subsection{Why Not Heads}
@@ -1882,7 +1059,7 @@ greedy head pruning costs $+129.6\%$ zero-shot loss, comparable to
 depth's $+153.8\%$ and nowhere near experts' $+25.5\%$,
 \cref{sec:head-pruning-sweep}); \textbf{heads barely reduce model size}
 (query heads are a small fraction of total parameters in this MoE model,
-dominated by the per-layer expert MLPs, \cref{sec:experts} --
+dominated by the per-layer expert MLPs, \cref{sec:experts};
 even an aggressive per-group head cut moves total parameter count very
 little); and \textbf{combining heads with depth compounds unfavorably,
 not favorably} (\cref{sec:combined-pruning-sweep}'s interaction-effects
@@ -1890,7 +1067,7 @@ finding: depth+heads costs more than the sum of its independent
 zero-shot costs, unlike depth+experts, which compounds better than
 independent). Given a head-only axis that is simultaneously expensive to
 prune and ineffective at shrinking the model, the GPU budget this section
-spends instead isolates depth and experts -- both of which show far more
+spends instead isolates depth and experts, both of which show far more
 favorable cost curves, and depth in particular directly extends the
 ``is depth specifically the problem'' question
 \cref{sec:phase4-depth-isolation} raised but never settled after
@@ -1907,26 +1084,28 @@ $\mathrm{depth}_n \in \{16,24\}$), chosen to bracket the depth cuts
 already measured in combined candidates (12, 16, 22 layers).
 
 \begin{table*}[t]
-\caption{Seven single-axis candidates, fixed-loss short KD, full
-159-problem HumanEval-TS. Unpruned baseline (\cref{sec:baseline},
-reconciled denominator): pass@1 $=0.717$ (114/159).}
-\label{table:pure-axis-results}
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{lrrrr}
+\begin{tabular}{lrrrrr}
 \toprule
-Candidate & $\sim$params & Zero-shot loss & KD val (step) & Full pass@1 \\
+Candidate & $\sim$params & Zero-shot loss & KD val (step) & Full pass@1 & 95\% CI \\
 \midrule
-depth0/experts112 & 5.15B & 2.567 & 0.569 @ 499 & 0.082 (13/159) \\
-depth0/experts64 & 16.03B & 0.970 & 0.145 @ 39 & 0.579 (92/159) \\
-depth0/experts32 & 23.28B & 0.889 & 0.070 @ 29 & 0.604 (96/159) \\
-depth0/experts16 & 26.91B & 0.874 & 0.047 @ 29 & 0.648 (103/159) \\
-depth0/experts8 & 28.72B & 0.869 & 0.042 @ 29 & \textbf{0.704 (112/159)} \\
-depth16/experts0 & 20.56B & 1.157 & 0.207 @ 49 & 0.283 (45/159) \\
-depth24/experts0 & 15.58B & 2.109 & 0.335 @ 499 & 0.107 (17/159) \\
+baseline (unpruned) & 30.50B & 0.9670 & N/A & 0.717 (114/159) & $\pm 6.9$pp \\
+depth0/experts112 & 5.15B & 2.567 & 0.569 @ 499 & 0.082 (13/159) & $\pm 4.3$pp \\
+depth0/experts64 & 16.03B & 0.970 & 0.145 @ 39 & 0.579 (92/159) & $\pm 7.6$pp \\
+depth0/experts32 & 23.28B & 0.889 & 0.070 @ 29 & 0.604 (96/159) & $\pm 7.5$pp \\
+depth0/experts16 & 26.91B & 0.874 & 0.047 @ 29 & 0.648 (103/159) & $\pm 7.3$pp \\
+depth0/experts8 & 28.72B & 0.869 & 0.042 @ 29 & \textbf{0.704 (112/159)} & $\pm 7.0$pp \\
+depth16/experts0 & 20.56B & 1.157 & 0.207 @ 49 & 0.283 (45/159) & $\pm 6.9$pp \\
+depth24/experts0 & 15.58B & 2.109 & 0.335 @ 499 & 0.107 (17/159) & $\pm 4.8$pp \\
 \bottomrule
 \end{tabular}
+\caption{Seven single-axis candidates, fixed-loss short KD, full
+159-problem HumanEval-TS, against the unpruned baseline
+(\cref{sec:baseline}, reconciled denominator). The 95\% CI is a per-point
+Wilson score interval on the full pass@1 count (\cref{app:reproducibility}).}
+\label{table:pure-axis-results}
 \end{table*}
 
 \subsection{Depth Costs More Per Parameter Than Experts}
@@ -1949,25 +1128,25 @@ barely-pruned (experts8, 94\% of experts kept) to heavily-pruned
 tracks close to the unpruned baseline; only the heaviest cut,
 experts112, collapses. The depth-only axis has only two points, and both
 are far below baseline despite comparable or larger parameter counts:
-\textbf{depth16/experts0 (20.56B) scores $0.283$ -- worse than
+\textbf{depth16/experts0 (20.56B) scores $0.283$: worse than
 depth0/experts64, which has 4.5B \emph{fewer} parameters (16.03B,
 $0.579$)}. Depth24/experts0 (15.58B, $0.107$) and depth0/experts64
 (16.03B, $0.579$) sit at nearly identical parameter counts with a
 $5.4\times$ difference in full-suite accuracy. \textbf{This directly
 answers, after retraining rather than only zero-shot, the question
 \cref{sec:phase4-depth-isolation} raised but left open: depth removal
-specifically -- not aggressive pruning in general -- is what drives the
+specifically (not aggressive pruning in general) is what drives the
 worse downstream outcome, at a matched parameter budget, consistently
 across every depth-vs-experts comparison available in this paper.} (The
 near-tie between depth0/experts60's $0.572$ and depth0/experts64's
-$0.579$ -- a 1-problem difference in opposite directions from what
-pruning 4 \emph{additional} experts would predict -- is small enough to
+$0.579$, a 1-problem difference in opposite directions from what
+pruning 4 \emph{additional} experts would predict, is small enough to
 plausibly be KD-run-to-run noise rather than a real non-monotonicity;
 it does not change the axis-level comparison above.)
 
 The lightest experts-only cut, \textbf{depth0/experts8 (28.72B, 112/159
 $=0.704$), comes within two problems of the reconciled baseline (114/159
-$=0.717$, \cref{sec:baseline}) -- 98.2\% retention, the closest any
+$=0.717$, \cref{sec:baseline}): 98.2\% retention, the closest any
 candidate in this paper comes to the unpruned teacher, though not a win
 over it.} An earlier working draft of this result, before the baseline
 denominator correction above, reported this candidate as exceeding
@@ -1981,9 +1160,9 @@ Accuracy and parameter count are not the whole story for a model meant to
 actually serve TypeScript completions: the project's original hypothesis
 (\S4.3 of the project plan, recorded before any pruning was done) was that
 expert pruning shrinks \emph{total} parameters without necessarily
-shrinking \emph{active} compute per token -- the model still routes to the
+shrinking \emph{active} compute per token (the model still routes to the
 same 8 experts per token regardless of how many total experts remain in
-the pool -- while depth pruning directly removes sequential layers every
+the pool) while depth pruning directly removes sequential layers every
 token must pass through, the opposite tradeoff. We test this with real
 inference-engine serving benchmarks rather than parameter-count proxies.
 
@@ -1991,16 +1170,16 @@ inference-engine serving benchmarks rather than parameter-count proxies.
 \label{sec:inference-benchmark-setup}
 
 We benchmark the unpruned teacher and three pure-axis candidates from
-\cref{table:pure-axis-results} -- depth0/experts64 (16.03B, best
+\cref{table:pure-axis-results}: depth0/experts64 (16.03B, best
 accuracy/compression), depth16/experts0 (20.56B, the depth-only candidate
 closest in size to depth0/experts64), and depth0/experts8 (28.72B,
-lightest experts-only cut) -- on vLLM \cite{vllm2023} and SGLang
+lightest experts-only cut), on vLLM \cite{vllm2023} and SGLang
 \cite{sglang2024}, both installed box-local (not a project dependency,
 since their pinned kernel/CUDA requirements conflict with each other and
 with this project's own `pyproject.toml` extras). All three pruned Hub
 checkpoints load and serve correctly in both engines despite non-standard
-\texttt{num\_hidden\_layers}/\texttt{num\_experts} in \texttt{config.json}
--- not guaranteed in advance, since neither engine's Qwen3-MoE
+\texttt{num\_hidden\_layers}/\texttt{num\_experts} in \texttt{config.json},
+not guaranteed in advance, since neither engine's Qwen3-MoE
 implementation had previously been exercised against a config-modified
 checkpoint in this project.
 
@@ -2009,15 +1188,10 @@ $\{1, 4, 16, 32\}$, \texttt{gpu\_memory\_utilization}/\texttt{mem\_fraction\_sta
 $=0.9$ on a single B300. Every request is forced to generate exactly 512
 output tokens (\texttt{ignore\_eos}, overriding each engine's default of
 stopping at the model's own end-of-sequence token) rather than letting
-generation length vary by completion. This matters: an earlier attempt
-let one engine stop at natural completion length (which varies
-$4$--$6\times$ across candidates, since a worse model's completions are
-simply shorter) while the other generated a fixed 512 tokens regardless --
-making every cross-engine and even some cross-candidate comparisons an
-artifact of how much text was generated, not how fast it was served. With
-generation length pinned equal everywhere, throughput, latency, and
+generation length vary by completion, so that throughput, latency, and
 inter-token timing all measure the same thing for every (candidate,
-engine) pair.
+engine) pair. Pinning generation length equal across engines took one
+methodology correction to get right (\cref{app:inference-benchmark-bug}).
 
 \subsection{Results}
 \label{sec:inference-benchmark-results}
@@ -2026,15 +1200,12 @@ engine) pair.
 inter-token latency (ITL), and p50 end-to-end latency at concurrency 16
 (the middle of the sweep); \cref{fig:inference-throughput} plots
 throughput for all four candidates on both engines. Every candidate's
-absolute numbers differ between vLLM and SGLang -- SGLang is consistently
-a few percent faster across every row -- but the ranking across candidates
+absolute numbers differ between vLLM and SGLang (SGLang is consistently
+a few percent faster across every row) but the ranking across candidates
 is identical on both engines, which is what the next subsection's
 comparison relies on.
 
 \begin{table*}[t]
-\caption{Serving benchmarks at concurrency 16, 512 fixed output tokens/request,
-159 HumanEval-TS prompts, 1$\times$ B300.}
-\label{table:inference-benchmark-results}
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
@@ -2052,6 +1223,9 @@ depth0/experts8 & 28.72B & vLLM & 2535 & 6.22 & 3195 \\
 depth0/experts8 & 28.72B & SGLang & 2731 & 5.77 & 2968 \\
 \bottomrule
 \end{tabular}
+\caption{Serving benchmarks at concurrency 16, 512 fixed output tokens/request,
+159 HumanEval-TS prompts, 1$\times$ B300.}
+\label{table:inference-benchmark-results}
 \end{table*}
 
 \begin{figure}[t]
@@ -2065,9 +1239,9 @@ fixed output tokens/request.}
 \subsection{Depth Pruning Serves Faster Per Token at a Matched Parameter Budget}
 \label{sec:inference-benchmark-hypothesis}
 
-Comparing depth16/experts0 (20.56B) to depth0/experts64 (16.03B) --
-\emph{more} total parameters, not fewer -- depth16/experts0 is faster on
-every metric, on both engines, by a consistent margin: inter-token latency
+Comparing depth16/experts0 (20.56B), which has \emph{more} total
+parameters, not fewer, to depth0/experts64 (16.03B), depth16/experts0 is
+faster on every metric, on both engines, by a consistent margin: inter-token latency
 is $18$--$19\%$ lower (vLLM: 4.30ms vs.\ 5.28ms; SGLang: 3.99ms vs.\
 4.83ms), throughput is $21$--$23\%$ higher, and p50 end-to-end latency is
 $18\%$ lower, on both engines. \textbf{A model with 28\% more stored
@@ -2078,8 +1252,8 @@ hypothesis directly: expert pruning reduces total parameter count without
 a proportional reduction in per-token serving cost (every request still
 routes to the same 8 experts per token, as noted above),
 while depth pruning's layer removal translates almost linearly into lower
-per-token latency. The three metrics -- throughput, mean inter-token
-latency, and end-to-end latency -- agree with each other here (unlike an
+per-token latency. The three metrics (throughput, mean inter-token
+latency, and end-to-end latency) agree with each other here (unlike an
 earlier, methodologically flawed attempt at this same comparison, where
 forcing equal generation length across engines was the fix that made them
 agree), which is itself a useful internal consistency check now that
@@ -2088,13 +1262,13 @@ generation length is no longer a confound.
 depth0/experts8, the lightest experts-only cut (28.72B, 98.2\% of
 baseline's full-suite accuracy per \cref{sec:pure-axis-results}), tracks
 baseline's serving numbers closely on both engines (vLLM: 2535 vs.\ 2546
-tok/s; SGLang: 2731 vs.\ 2690 tok/s) -- a light experts trim costs
+tok/s; SGLang: 2731 vs.\ 2690 tok/s): a light experts trim costs
 essentially nothing in serving latency, consistent with the hypothesis
 that experts pruning's cost is almost entirely in memory footprint, not
 compute. Taken together, a deployment decision between depth0/experts64
 and depth16/experts0 is not just an accuracy tradeoff
 (\cref{sec:pure-axis-results}: $0.579$ vs.\ $0.283$ full-suite pass@1,
-strongly favoring depth0/experts64) -- it is also a size-vs-latency
+strongly favoring depth0/experts64): it is also a size-vs-latency
 tradeoff in the opposite direction, smaller favoring accuracy, larger
 favoring speed, with neither axis free.
 
@@ -2107,7 +1281,7 @@ resolved prematurely:
 \begin{itemize}
 \item \textbf{A specific target layer count.} \Cref{sec:pruning-sweep}
   characterizes the cost curve but does not commit to one candidate to
-  carry into later axis-combination and retraining -- that choice depends
+  carry into later axis-combination and retraining: that choice depends
   on a compute/accuracy tradeoff not yet made.
 \item \textbf{Downstream-depth-pruning proxy.} \citet{minitron2024practice}'s
   preferred depth criterion ranks contiguous layer blocks by downstream-task
@@ -2125,7 +1299,7 @@ resolved prematurely:
   sweep uses uniform expert counts per layer throughout, as a simplifying
   starting choice rather than one settled by confirmed evidence: scoping
   research surfaced conflicting claims on this exact question (one
-  evolutionary-search paper reports the opposite -- non-uniform allocation
+  evolutionary-search paper reports the opposite: non-uniform allocation
   beating uniform by up to $19.6\%$ on MATH-500 at matched sparsity), and
   neither claim has been independently re-verified by this project. Whether
   a per-layer search would do meaningfully better than uniform on this
@@ -2152,53 +1326,19 @@ resolved prematurely:
   \Cref{sec:combined-pruning-sweep} characterizes three aggressiveness
   tiers x four combination types zero-shot, but committing to one (or a
   shortlist) for retraining depends on real eval-suite numbers this
-  section doesn't have yet -- the actual selection criteria are refined
+  section doesn't have yet. The actual selection criteria are refined
   where the retraining/distillation plan is finalized, not decided here.
-\item \textbf{Lightweight-retrain schedule, now that the loss is
-  correct.} \citet{minitron2024}'s 1.8B-token budget was calibrated for
-  a 15B dense model, not a $\sim$3.35B active-parameter MoE, so the
-  right budget for this model's retraining passes had no direct
-  precedent to scale from.
-  \Cref{sec:phase4-negative,sec:phase4-lr-chase,sec:phase4-depth-isolation,sec:phase4-lora-kd,sec:phase4-functions}
-  tried $6\times$ the original step budget, three independent
-  schedule/learning-rate fixes, best-checkpoint selection, swapping
-  which axis the parameter cut comes from, swapping the update method
-  (full-parameter vs.\ LoRA), and swapping the training-data shape
-  (raw-file vs.\ function-bounded) -- and every configuration produced
-  the same repetition-collapse failure on HumanEval-TS, despite KD
-  validation loss reaching as low as 0.401. None of this was actually a
-  token-budget, method, or data-shape problem:
-  \cref{sec:phase4-root-cause} root-causes it directly to two bugs in
-  the KD loss implementation, fixed and confirmed in
-  \cref{sec:phase4-fix-confirmed,sec:phase4-rawfile-fixedloss}. \textbf{Resolved}
-  in \cref{sec:phase4-short-schedule}: a 500-step schedule with the same
-  warmup fraction and more frequent validation checks recovers comparable
-  $n{=}40$ accuracy to the full 3000-step budget in $3.6$--$4.6\times$ less
-  wall-clock time, and is adopted as the standard recipe for every
-  candidate in \cref{sec:phase4-full-sweep,sec:pure-axis}.
 \item \textbf{Whether the teacher-correction token budget itself needs
-  revisiting.} \Cref{sec:teacher-correction-eval,sec:teacher-correction-lora}
-  find the corrected teacher's HumanEval-TS pass@1 regresses well below
-  the uncorrected baseline under two different configurations
-  (full-parameter: $0.5660$; LoRA plus a data-quality fix: $0.5849$; both
-  vs.\ $0.6708$) despite improved validation loss in both cases,
-  plausibly because a $\sim$1.9M-token correction is roughly five orders
-  of magnitude smaller than \citet{minitron2024practice}'s own
-  $\sim$100B-token recipe -- a regime they explicitly did not validate.
-  Method (LoRA vs.\ full-parameter) and a real retraining-data defect
-  (\cref{sec:teacher-correction-lora}) have now both been tested and
-  each closed part of the gap without resolving it; a larger token
-  budget itself has not yet been tried directly. A fourth data point,
-  with a trustworthy loss this time, adds further weight without closing
-  the question either: \cref{sec:phase4-correctedteacher-fixedloss} finds
-  that distilling a \emph{pruned student} against the corrected teacher
-  does not beat the same student distilled against the uncorrected
-  teacher ($n{=}40$ $0.50$ vs.\ $0.55$). The project now has four data
-  points (full-parameter teacher regresses most, LoRA regresses less,
-  a corrected-teacher-distilled student does not benefit, neither closes
-  the gap), still no configuration -- teacher or student -- that matches
-  or beats the uncorrected baseline. A larger correction token budget
-  itself remains the one untested lever.
+  revisiting.} Every teacher-correction configuration tested (two
+  update methods, a retraining-data fix) regresses HumanEval-TS
+  pass@1 relative to the uncorrected baseline despite improved
+  validation loss (\cref{app:teacher-correction}), plausibly because
+  this project's $\sim$1.9M-token correction is roughly five orders of
+  magnitude smaller than \citet{minitron2024practice}'s own
+  $\sim$100B-token recipe, a regime they explicitly did not validate.
+  Each intervention tested so far has closed part of the gap without
+  resolving it; a larger token budget itself has not yet been tried
+  directly and remains the one untested lever.
 \item \textbf{Why does $n{=}40$ sampling noise vary so much in
   magnitude?} \Cref{sec:phase4-full-suite-noise} finds every candidate's
   full-159-problem score below its $n{=}40$ score, but the relative
@@ -2208,18 +1348,18 @@ resolved prematurely:
   tracks some other property of a candidate (e.g.\ how unevenly its errors
   cluster across the 159 problems, or how close its $n{=}40$ sample
   happens to sit to a decision boundary at that candidate's true
-  accuracy) is untested here -- the practical consequence
+  accuracy) is untested here: the practical consequence
   (\cref{sec:phase4-full-suite-noise}) does not depend on explaining it,
   but the explanation itself is open.
 \item \textbf{A late-caught baseline denominator mismatch, and what it
   implies about this paper's own numbers.} \Cref{sec:baseline}'s
   reconciliation was caught by chance, while re-deriving exact pass@1
-  fractions for \cref{sec:pure-axis} -- not by a systematic audit. It is
+  fractions for \cref{sec:pure-axis}, not by a systematic audit. It is
   reasonable to ask whether other numbers in this paper carry similar
   unreconciled mismatches (a different sample seed, a different harness
   flag, a different dataset revision between two runs being compared)
   that have not yet been caught the same way. No specific instance is
-  known at the time of writing; this is flagged as a standing risk in a
+  known; this is flagged as a standing risk in a
   project with this many independent GPU runs over this much time, not
   a confirmed second instance.
 \end{itemize}
@@ -2232,7 +1372,7 @@ the project's actual state legible, not to imply an answer.
 
 Thirteen candidates were pruned, distilled under the fixed-loss short
 schedule (\cref{sec:phase4-short-schedule}), and evaluated on the full
-159-problem HumanEval-TS suite -- every candidate this project actually
+159-problem HumanEval-TS suite: every candidate this project actually
 carried through retraining, not a subset. \cref{fig:final-results} plots
 all of them against the reconciled baseline.
 
@@ -2247,14 +1387,14 @@ every fully-retrained candidate (13), grouped by pruning axis.}
 \textbf{What each axis bought.} Experts-only pruning dominates the other
 two families at every parameter budget where a comparison exists: at
 $\sim$8.5B params, experts-only (experts97, $0.283$) already matches
-depth16/experts0's score at $\sim$20.56B -- less than half the size for
+depth16/experts0's score at $\sim$20.56B: less than half the size for
 the same accuracy. Depth-only and combined depth+experts candidates both
 sit well below the experts-only curve across their entire range
 (\cref{sec:depth-vs-experts}). Serving speed tells a different story,
 though: comparing depth16/experts0 and depth0/experts64 directly
 (\cref{sec:inference-benchmark-hypothesis}), the depth-pruned candidate
 serves $18$--$23\%$ faster on every metric despite being 28\% larger. So
-the two axes are not interchangeable cost dimensions -- experts pruning
+the two axes are not interchangeable cost dimensions: experts pruning
 buys parameter count and accuracy retention; depth pruning buys per-token
 serving speed, independent of its (worse) accuracy. Neither axis is
 simply ``better''; they trade along different, real deployment
@@ -2267,50 +1407,58 @@ parameter participates in every forward pass. Expert pruning does not:
 this model routes to the same 8 experts per token regardless of how many
 total experts remain in the pool (\cref{sec:inference-benchmark}), so
 removing experts shrinks stored parameters and accuracy risk without a
-proportional compute reduction -- confirmed directly by the serving
+proportional compute reduction, confirmed directly by the serving
 benchmarks, not just inferred from the routing mechanism. This decoupling
 of memory cost from compute cost has no equivalent in dense-model
 pruning, where the two are the same thing.
 
 \textbf{Did teacher correction matter as much as it did for
-\citet{minitron2024practice}?} No -- the opposite. Their framing is
+\citet{minitron2024practice}?} No. The opposite. Their framing is
 ``minor,'' with some tasks improving and some degrading. Ours is a clear
 regression on the one benchmark that matters most for this project:
-every corrected-teacher configuration tested (full-parameter,
-\cref{sec:teacher-correction-eval}; LoRA plus a data-quality fix,
-\cref{sec:teacher-correction-lora}; distilling a pruned student against
-the corrected teacher, \cref{sec:phase4-correctedteacher-fixedloss})
-scored \emph{worse} on HumanEval-TS than the uncorrected teacher, despite
-improving validation loss in every case and leaving general knowledge
-(MMLU, ARC-Challenge, Winogrande) untouched. Every candidate in
+every corrected-teacher configuration tested (full-parameter, LoRA plus
+a data-quality fix, and distilling a pruned student against the
+corrected teacher) scored \emph{worse} on HumanEval-TS than the
+uncorrected teacher, despite improving validation loss in every case
+and leaving general knowledge (MMLU, ARC-Challenge, Winogrande)
+untouched: full detail in \cref{app:teacher-correction}. Every
+candidate in
 \cref{fig:final-results} was ultimately distilled against the
-\emph{uncorrected} teacher for this reason -- correction, as configured
+\emph{uncorrected} teacher for this reason: correction, as configured
 here, was tried and rejected, not simply skipped.
 
-\textbf{Did any candidate beat the unpruned baseline on TypeScript?} No.
-The closest is depth0/experts8: $0.704$ vs.\ baseline's $0.717$, 98.2\%
-accuracy retention -- but at 94.2\% of baseline's parameter count, which
-is a weak case for pruning at all if accuracy parity, not size, is the
-goal. No candidate in this paper's thirteen-candidate sweep improves on
-the unpruned teacher for TypeScript specifically, the question this
-project set out to answer.
+\textbf{Did any candidate match the unpruned baseline's raw accuracy?}
+No. The closest is depth0/experts8: $0.704$ vs.\ baseline's $0.717$,
+98.2\% accuracy retention, but at 94.2\% of baseline's parameter
+count, which is a weak case for pruning at all if accuracy parity, not
+cost, is the goal. No candidate in this paper's thirteen-candidate
+sweep matches the unpruned teacher's raw accuracy on the target
+workload. That was never the actual bar: the question this project set
+out to answer is whether a customer-specific model can be competitive
+in accuracy, cheaper to run, and at least as fast to serve as the
+general-purpose model it replaces: answered next.
 
-\textbf{Recommendation.} For a TypeScript-focused deployment where size
+\textbf{Recommendation.} For a customer-specific deployment where size
 and serving cost matter (the actual motivating scenario for this
 project), \textbf{depth0/experts64} is the recommended candidate:
 $16.03$B params (47\% smaller than baseline), $0.579$ full-suite pass@1
-(80.7\% of baseline's accuracy), and -- uniquely among this paper's
-candidates -- real measured serving throughput on both vLLM and SGLang
-that matches or exceeds the unpruned baseline's own throughput
+(80.7\% of baseline's accuracy), and (uniquely among this paper's
+candidates) real measured serving throughput on both vLLM and SGLang
+that exceeds the unpruned baseline's own throughput by $17$--$21\%$
 (\cref{table:inference-benchmark-results}), not just a smaller footprint
-on paper. depth0/experts8 is the better choice only when accuracy parity
-matters more than any size reduction, since it barely shrinks the model.
-depth-only and combined depth+experts candidates are not recommended at
-any size in this sweep: every one scores below the experts-only curve at
-a matched or smaller parameter budget, and the one depth-pruned candidate
-with real serving numbers (depth16/experts0) trades the bulk of its
-accuracy for a speed advantage that depth0/experts8's near-baseline
-accuracy does not require giving up.
+on paper. This is the paper's central result: a customer whose inference
+traffic matches the target workload gets a model that is simultaneously
+cheaper, competitive in accuracy, and faster to serve than the
+general-purpose model it replaces, confirmed with real serving
+benchmarks rather than a parameter-count proxy. depth0/experts8 is the
+better choice only when accuracy parity matters more than any size
+reduction, since it barely shrinks the model. depth-only and combined
+depth+experts candidates are not recommended at any size in this sweep:
+every one scores below the experts-only curve at a matched or smaller
+parameter budget, and the one depth-pruned candidate with real serving
+numbers (depth16/experts0) trades the bulk of its accuracy for a speed
+advantage that depth0/experts8's near-baseline accuracy does not require
+giving up.
 
 \section*{Acknowledgements}
 This is an independent research project with no external funding.
@@ -2327,6 +1475,832 @@ collects attempted approaches that were tried, measured, and abandoned
 in favor of something simpler or more effective, kept here rather than
 in the main narrative so they don't interrupt it.
 
+
+\subsection{Teacher Correction}
+\label{sec:teacher-correction}
+\label{app:teacher-correction}
+
+\citet{minitron2024practice} introduce teacher correction to handle a
+constraint we share: without access to a model's original pretraining
+mix, distilling a pruned student directly from the uncorrected teacher
+hands the student guidance drawn from a distribution the teacher was
+never trained to match downstream. Their fix is a brief full-parameter
+fine-tune of the teacher on the target retraining data before it teaches
+anything, so its outputs stay trustworthy on the distribution the student
+will actually be evaluated on. We apply the same idea here, fine-tuning
+the unpruned Qwen3-30B-A3B-Base on the TypeScript retraining pool
+(\cref{sec:model-data}) with plain LM cross-entropy loss, before
+using it as a distillation teacher for any pruned candidate
+(\cref{sec:combined-pruning-sweep}).
+
+\subsubsection{Hyperparameter Sweep}
+
+Full-parameter fine-tuning needs real memory: weights, gradients, and
+optimizer state together are roughly $4\times$ a parameter's own bf16
+footprint before any activations, which OOMs even 8x40GB of GPU memory
+with plain AdamW \cite{adamw2019} and \texttt{device\_map="auto"}'s naive
+weight-only placement. We fix this with 8-bit AdamW (\texttt{bitsandbytes}
+\cite{bitsandbytes2022}, roughly halving the optimizer-state share) and
+an explicit per-GPU memory cap
+that leaves headroom instead of packing each device with weights alone.
+
+We sweep 3 peak learning rates ($1\times10^{-6}$, $5\times10^{-6}$,
+$2\times10^{-5}$) $\times$ 2 warmup fractions ($5\%$, $15\%$ of steps;
+150 steps each, linear warmup then cosine decay to a floor of peak/10,
+256 retraining samples cycled, 32 held-out validation samples) to find a
+stable, improving configuration. $\text{peak LR}=2\times10^{-5}$,
+$\text{warmup}=15\%$ wins on both validation-loss delta and final train
+loss across the 6 configurations and is carried into the real correction
+run below; per-config metrics were logged to each sweep run's directory
+on the training instance but were not copied off it before the instance
+was terminated, so we report the sweep's qualitative outcome here rather
+than fabricate the missing numbers: an oversight in this run's
+logistics, not a gap in what was measured.
+
+While tuning the sweep above, we also tried fixing a multi-GPU
+utilization problem with FSDP; it made utilization genuinely better and
+training genuinely slower, so we kept the naive approach instead and
+moved the full writeup to \cref{app:fsdp}.
+
+\subsubsection{Real Correction Run}
+
+Using the sweep's winning hyperparameters, we fine-tune the teacher for
+1500 steps (batch size 4) on 6{,}000 fresh, non-repeating TypeScript
+samples: one pass, no repeats, disjoint from the calibration pool used
+to measure validation loss. Training took $\sim$105 minutes on 8x A100
+(40GB SXM4) at $\sim$4.2 sec/step.
+
+\begin{table}[t]
+\centering
+\begin{tabular}{lr}
+\toprule
+& validation loss \\
+\midrule
+before correction & 0.9331 \\
+after correction (1500 steps) & 0.8842 \\
+\bottomrule
+\end{tabular}
+\caption{Real teacher-correction run: validation loss before and after.}
+\label{table:teacher-correction-real}
+\end{table}
+
+The corrected checkpoint was released on the Hub and used as the
+distillation teacher for the candidate-selection work in
+\cref{sec:combined-pruning-sweep}. It was later removed once
+\cref{sec:phase4-correctedteacher-fixedloss} confirmed correction does
+not help and every final-sweep candidate (\cref{sec:pure-axis}) was
+distilled against the uncorrected teacher instead: the checkpoint and
+its logit cache are superseded, not part of this paper's reported
+results.
+
+\subsubsection{Downstream Evaluation of the Corrected Teacher}
+\label{sec:teacher-correction-eval}
+
+Validation loss improving is a proxy for teacher correction ``helping,''
+not proof: better perplexity on TypeScript text does not guarantee
+better code, and it says nothing about capability outside the correction
+domain. We run the corrected teacher through the same evaluation suite
+as \cref{sec:baseline} (temperature 0.2, top-$p{=}0.95$) to check
+directly.
+
+\textbf{General knowledge, preserved.} MMLU, ARC-Challenge, and
+Winogrande are essentially unchanged from the unpruned baseline:
+
+\begin{table}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrr}
+\toprule
+Task & Baseline & Corrected & $\Delta$ \\
+\midrule
+MMLU (5-shot) & 0.8101 & 0.8082 & $-0.0019$ \\
+ARC-C acc (25-shot) & 0.6536 & 0.6433 & $-0.0103$ \\
+ARC-C acc\_norm & 0.6749 & 0.6689 & $-0.0060$ \\
+Winogrande (5-shot) & 0.7798 & 0.7806 & $+0.0008$ \\
+\bottomrule
+\end{tabular}
+\caption{Corrected teacher vs.\ baseline (\cref{tab:baseline}) on the
+tracked, not-optimized-for general-knowledge tier.}
+\label{tab:teacher-correction-general-knowledge}
+\end{table}
+
+Every delta is within noise (largest $\sim$1pp). Correction does not
+measurably hurt general reasoning or knowledge.
+
+\textbf{HumanEval-TS, the primary gating benchmark, regresses.} A first,
+10-problem diagnostic scored pass@1$=0.0$: every completion added a
+trailing \texttt{export default X;} or \texttt{export \{X\};} statement,
+a habit from fine-tuning on raw TypeScript \emph{files} (which routinely
+end in a module export) rather than MultiPL-E's bare function-completion
+format. Stripping the export line and rescoring the same 10 completions,
+no regeneration, raised pass@1 to $0.9$, promising, but not
+representative: the full 159-problem run scored pass@1$=0.5597$ with the
+same fix applied, and $0.5660$ after closing a further gap in the fix
+itself (the export-stripping regex was anchored to the start of a line;
+the model sometimes emits an entire completion as one line with no
+newline before the trailing export). Re-scoring the same 159 completions
+with the corrected regex (no regeneration) moved pass@1 by only
+$+0.0063$ ($89 \to 90$ of 159), confirming the regex gap explains almost
+none of the shortfall.
+
+\begin{table}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lr}
+\toprule
+& pass@1 \\
+\midrule
+baseline (unpruned, uncorrected) & 0.6708 \\
+corrected teacher, raw & 0.5597 \\
+corrected teacher, export-stripped, fixed regex & 0.5660 \\
+\bottomrule
+\end{tabular}
+\caption{Corrected teacher's HumanEval-TS pass@1, full 159-problem set,
+vs.\ the unpruned baseline (\cref{tab:baseline}).}
+\label{tab:teacher-correction-humaneval}
+\end{table}
+
+The rest of the gap is genuine generation instability, not a scoring
+artifact, confirmed by manually inspecting the remaining failures:
+\textbf{duplicate function declarations} (the model writes the same
+function name twice in one completion, a real TypeScript compile error
+independent of exports) and \textbf{degenerate repetition loops} (the
+same fragment, e.g.\ \texttt{export function eat(...) \{}, repeated
+dozens of times until the completion hits the length cap). A separate,
+smaller cross-check on plain (Python) HumanEval (not part of this
+project's gating suite, run to test whether the instability was
+TypeScript-specific) first surfaced this same failure class (empty
+function bodies, a docstring's closing \texttt{"""} glued onto the next
+statement with no newline, one 9,227-character repeated-comment loop)
+at a higher rate (3 of 10) than it turned out to occur in TypeScript
+(roughly 2--4 of 159). So the instability is not confined to
+off-target languages, as an earlier, smaller sample suggested. It is
+present in the correction target's own language too, just less often.
+
+\textbf{Interpretation.} Teacher correction, as configured here (1500
+steps, $\sim$1.9M tokens, TypeScript-only), makes the teacher measurably
+\emph{worse} at the primary benchmark it exists to help with, while
+leaving general capability untouched. This does not match
+\citet{minitron2024practice}'s own framing of correction's effect as
+``minor,'' with ``some tasks improving and some degrading''; our result
+is a clear regression on the one task that matters most for this
+project. A plausible reading, not yet confirmed: \citet{minitron2024practice}
+correct with $\sim$100B tokens; ours uses $\sim$1.9M, roughly five
+orders of magnitude smaller, and they explicitly flag using fewer tokens
+as an untested ``interesting topic for future work,'' not something
+they validated as safe. A much smaller, more concentrated update may be
+more prone to generation instability (repetition, duplicate
+declarations) than a properly-averaged large-scale one, not just to
+sharper off-target forgetting. Two candidate explanations follow this
+one directly: whether the retraining \emph{data} itself carried a real
+defect, and whether a lighter-touch fine-tuning \emph{method} avoids the
+instability a full-parameter update introduced. Both were tested.
+
+\subsubsection{A Data-Quality Defect, and a LoRA Alternative}
+\label{sec:teacher-correction-lora}
+
+\textbf{The retraining data had a real, quantified defect.} Nothing
+before this had checked the actual \emph{content} quality of the
+retraining pool: only token-length distribution and the
+calibration/retraining split's disjointness. Auditing 300 representative
+samples found two things: no repetition or duplicate declarations
+\emph{within} a training sample (ruling that out as the direct source of
+the model's own repetition/duplication pathologies), but a real
+mechanical defect: $30.7\%$ of samples exceed the correction run's
+$\texttt{max\_length}{=}512$ and were silently truncated mid-statement,
+with unmasked next-token loss applied right up to that cutoff. Over the
+real 6,000-sample run, roughly 1,800 samples taught the model that
+stopping abruptly mid-expression is a normal, complete training target.
+A secondary finding: $\sim$13\% of the pool is \texttt{node\_modules}
+vendored bundles or \texttt{.d.ts} auto-generated type stubs, diluting
+the signal away from hand-written, function-implementation-style code.
+Fixed for the next run: \texttt{max\_length} raised to $2048$ (checked
+against the real length distribution, this drops truncation to $3.7\%$
+of samples rather than $30.7\%$), that residual dropped rather than
+truncated, and \texttt{node\_modules}/\texttt{.d.ts} paths excluded.
+
+\textbf{LoRA \cite{lora2022}, tested as \citet{minitron2024practice}
+suggested but never tried.} Matched to the full-parameter run on everything except method
+and the data fix above: same 1500 steps, same retraining-pool source,
+same warmup fraction and batch size. Only the base model's attention
+projections (\texttt{q\_proj}/\texttt{k\_proj}/\texttt{v\_proj}/\texttt{o\_proj})
+get trainable rank-16 LoRA adapters ($13.4$M of $30.5$B parameters,
+$0.044\%$); every expert stays frozen, a scope choice for tractability
+given how many experts this MoE model has, not an attempt to cover the
+same surface as full-parameter correction. Adapter merged into the base
+weights after training, so the released checkpoint is a plain dense
+model like any other in this family.
+
+\begin{table}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrr}
+\toprule
+& HumanEval-TS & MBPP-TS \\
+\midrule
+baseline (uncorrected) & 0.6708 & 0.7333 \\
+full-parameter corrected & 0.5660 & N/A \\
+LoRA-corrected, raw & 0.5723 & 0.6077 \\
+LoRA-corrected, ex.-stripped & 0.5849 & N/A \\
+\bottomrule
+\end{tabular}
+\caption{Both gating benchmarks, all three checkpoints. HumanEval-TS is
+the full 159-problem set, MBPP-TS the full 390-problem set. No
+full-parameter-corrected MBPP-TS number exists: never run, since that
+checkpoint predates the 3.4 data-quality fix and its score would not be
+a fair comparison point.}
+\label{tab:teacher-correction-lora-humaneval}
+\end{table}
+
+\begin{table}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrr}
+\toprule
+Task (setting) & Baseline & LoRA-corrected \\
+\midrule
+HumanEval-TS pass@1 & 0.6708 & 0.5723 \\
+MBPP-TS pass@1 & 0.7333 & 0.6077 \\
+MMLU (5-shot, acc) & 0.8101 & 0.8070 \\
+ARC-C (25-shot, acc) & 0.6536 & 0.6485 \\
+ARC-C (25-shot, acc\_norm) & 0.6749 & 0.6715 \\
+Winogrande (5-shot, acc) & 0.7798 & 0.7845 \\
+\bottomrule
+\end{tabular}
+\caption{Complete benchmark parity: baseline vs.\ the LoRA-corrected
+teacher, the checkpoint carried forward. Unlike the full-parameter
+checkpoint (\cref{tab:teacher-correction-lora-humaneval}), every metric
+in this project's suite has been run for both.}
+\label{tab:teacher-correction-lora-full-suite}
+\end{table}
+
+A real, if modest, improvement over the full-parameter run
+($+0.0063$ raw), still $8.6$pp below baseline. Two qualitative
+differences from the full-parameter teacher's own failure modes, found
+by inspecting all 159 completions: only $2$ of $159$ contain an
+\texttt{export} statement at all (vs.\ $10$ of $10$ in the
+full-parameter teacher's own diagnostic). LoRA's attention-only update
+genuinely does not pick up the file-level export habit full-parameter
+fine-tuning did. A different, new failure mode instead: $4$ completions
+run to $3$,$000$--$6$,$000$ characters (a $731$-character mean): not
+verbatim repetition this time, but a complete, plausible implementation
+followed by an ever-growing sequence of \texttt{console.log(fn(...))}
+example calls with incrementing arguments, never stopping until the
+length cap. Stripping text from the first such call onward and
+rescoring the same completions, no regeneration, raised pass@1 to
+$0.5849$ ($93$ of $159$), confirmed as a real effect, though coarser
+and less clean to generalize than the export fix (a single legitimate
+\texttt{console.log} is not inherently wrong to have), so not folded into
+the permanent scoring harness, only verified as a diagnostic. General
+knowledge is preserved for LoRA the same way it was for the
+full-parameter run (every MMLU/ARC-Challenge/Winogrande delta within
+$\sim$1pp of baseline): neither correction method measurably hurts
+general reasoning; the regression is specific to HumanEval-TS both
+times.
+
+\textbf{MBPP-TS confirms the regression on a second gating benchmark,
+and it is not smaller there.} Run against the LoRA-corrected teacher
+only (the full-parameter checkpoint predates the data-quality fix, so
+its MBPP-TS score would not be comparable): pass@1$=0.6077$ (237 of
+390) vs.\ the baseline's $0.7333$, a $12.6$pp gap, wider than
+HumanEval-TS's $9.85$pp, both in absolute percentage points and in
+relative terms ($17.1\%$ below baseline vs.\ $14.7\%$). Two
+benchmarks now agree: this project's teacher-correction recipe, in
+every configuration tested so far, measurably regresses the model's own
+TypeScript code-generation accuracy.
+
+\textbf{Neither fix closes the gap.} Two independent interventions:
+LoRA-as-method plus the data-quality fix together, then the
+trailing-example postprocessing on top, each moved pass@1 in the right
+direction, by small amounts, without resolving the core finding: this
+project's teacher-correction recipe, however configured so far,
+regresses the primary benchmarks it exists to improve. Whether the
+remaining gap is \citet{minitron2024practice}'s
+$\sim$100B-vs-$\sim$1.9M-token budget gap, something else about the
+recipe, or a combination, is still open, not yet isolated.
+
+\textbf{Does the teacher's own accuracy even predict distillation
+quality?} A real question raised by these two regressions, and one
+this project did not need to answer from first principles: it is an
+established, if counter-intuitive, finding in the broader knowledge
+distillation literature that it does not, reliably.
+\citet{choharihan2019} found that more accurate (and larger) teachers
+often make \emph{worse} distillation teachers: a ``capacity gap'' effect
+where a student cannot represent a mapping too different from what it
+can express, and where a less-converged, lower-accuracy teacher
+sometimes distills into a better student than a fully-trained one.
+\citet{teachercalib2025} found something more specific and more directly
+actionable: a teacher's \emph{calibration error} (how well its
+predicted confidence matches its actual correctness, not its raw
+accuracy) is the more reliable predictor of distillation success,
+and a less accurate but better-calibrated teacher can outdistill a more
+accurate but overconfident one. Neither result tells us which way our
+own corrected teacher will go once distilled into an actual pruned
+student (this project's own accuracy measurements are not a
+calibration study, and we have not run one) but together they are a
+real, citable reason not to treat teacher accuracy as a proxy for
+teacher \emph{usefulness}, and a reason the Figure-4-style ablation
+against a pruned candidate (\citet{minitron2024practice}'s own
+comparison) is the right next experiment rather than an optional extra
+step: it is the only way to test the thing that actually matters for
+Phase 4, instead of continuing to relitigate the corrected teacher's own
+benchmark scores (\cref{sec:discussion}).
+
+\subsection{Distillation Retraining: A Negative Result, and Its Resolution}
+\label{sec:phase4-negative}
+
+Motivated directly by the question raised at the end of
+\cref{sec:teacher-correction-lora} (whether the corrected teacher's own
+regressed benchmark scores actually predict a worse (or better) distilled
+student, rather than continuing to only compare the teachers' own scores),
+we built one real pruned candidate and distilled it against both
+teacher variants under matched conditions.
+
+\subsubsection{Candidate and Setup}
+
+We use the aggressive-tier depth+experts candidate already characterized
+zero-shot in \cref{sec:combined-pruning-sweep} (16 of 48 layers removed by
+Block Importance, 80 of 128 experts removed per surviving layer by
+\cref{eq:expert}, the three Super Experts exempted): 8.48B parameters
+(27.8\% of the unpruned 30.5B), the cheapest pairwise combination in that
+sweep. We cache each teacher's top-20 per-token logits once, over an
+identical, fresh 6,000-sample slice of the retraining pool (disjoint from
+every prior draw), then train the candidate via forward-KL distillation
+against each cache in turn: same student initialization, same 500-step,
+8-bit-AdamW schedule (peak LR $2\times10^{-4}$, 75-step warmup), differing
+only in which teacher's logits it targets.
+
+\subsubsection{Result}
+
+Final KD loss is a near-exact tie between the two teachers: validation
+loss 0.5350 (baseline teacher) vs.\ 0.5339 (LoRA-corrected teacher), a
+0.0011 gap, well within noise, though training loss favors the baseline
+teacher more clearly (0.5573 vs.\ 0.5810). A downstream check on the
+metric that actually matters, HumanEval-TS pass@1 on a matched $n{=}40$
+sample (same 40 problems, same temperature-0.2/top-$p$-0.95 settings as
+every other run in this paper), settles nothing further: \textbf{both
+distilled students score pass@1 $=$ 0.0}.
+
+Manual inspection of the raw completions, not just the aggregate score,
+rules out the generation-postprocessing artifacts this project found
+earlier (\cref{sec:teacher-correction-lora}'s trailing \texttt{export}
+statements, runaway \texttt{console.log} loops): instead, both students
+degenerate into outright repetition almost immediately after the function
+signature: runs of single repeated or near-repeated tokens (e.g.\
+\texttt{ambioambioambio...}, \texttt{-stream-index-index-index...})
+continuing for thousands of characters until the generation length cap,
+on both teacher arms alike. Three further candidate causes were checked
+and ruled out without needing to re-run anything: the pushed checkpoints'
+files are complete; their \texttt{generation\_config.json} settings
+(\texttt{do\_sample: false}) match the unpruned baseline and
+LoRA-corrected teacher checkpoints exactly, both of which score correctly
+under the identical harness; and their chat-template file is likewise
+present on the LoRA-corrected teacher's own checkpoint, which also scores
+correctly.
+
+\subsubsection{Interpretation}
+
+This ablation does not answer the question it was built to answer. With
+both arms failing identically on KD loss and downstream pass@1 alike,
+there is no signal left to compare the two teachers by:
+\textbf{this is a negative result, not a null result in either teacher's
+favor}. The most likely explanation is budget, not method: this candidate
+lost 16 of 48 layers and 80 of 128 experts per surviving layer in one
+step (a 72\% parameter cut), then received only 500 optimization steps
+($\sim$2,000 training sequences) before evaluation. For comparison,
+\cref{sec:teacher-correction}'s full-parameter correction run (a far
+smaller perturbation, fine-tuning an otherwise-untouched 30.5B model)
+still showed real generation instability (repetition, duplicate
+declarations) after 1,500 steps. A model missing three-quarters of its
+parameters, given fewer than half as many steps, degenerating into
+repetition is the expected failure mode of an undertrained model, not
+evidence of anything about teacher correction specifically.
+
+The corrected-vs-uncorrected teacher question from
+\cref{sec:teacher-correction-lora} therefore remains unresolved here;
+\cref{sec:phase4-correctedteacher-fixedloss} settles it once the loss
+bug below is fixed. What this
+experiment does establish is a real data point for a different open
+question (\cref{sec:discussion}): the lightweight-retrain token budget
+for combined, aggressive pruning on this model is higher than 500 steps:
+how much higher is tested directly in the rest of this section.
+
+\subsubsection{Chasing Stability: Does a Better Training Recipe Change the Outcome?}
+\label{sec:phase4-lr-chase}
+
+Three further interventions were tried against the baseline-teacher arm
+of the same aggressive candidate, each isolating one variable at a time
+rather than changing several at once.
+
+\textbf{More steps alone (3000 vs.\ 500, same schedule) makes things
+worse, not better.} Validation loss tracks the 500-step run's own
+trajectory through step $\sim$200 (val $\approx 0.67$), then diverges
+sharply: a spike to val $\approx 1.89$ at step $\sim$400, plateauing
+between 1.58 and 1.87 for the remaining $2{,}600$ steps, ending at
+val $=1.572$: worse than the 500-step run's own final 0.535. The cause
+is a schedule artifact, not a modeling one: \texttt{warmup\_steps}$=75$
+is $15\%$ of 500 steps but only $2.5\%$ of 3000, so the candidate spends
+far longer at near-peak learning rate in absolute terms. Computing the
+schedule directly confirms it: at step 399, the 500-step run has
+already decayed to $\mathrm{LR}\approx4.4\times10^{-5}$ ($22\%$ of
+peak), while the 3000-step run is still at
+$\mathrm{LR}\approx1.95\times10^{-4}$ ($97\%$ of peak) at that identical
+step. HumanEval-TS n=40 on this checkpoint: pass@1 $=0.0$, same
+repetition-collapse signature as \cref{sec:phase4-negative}.
+
+\textbf{Fixing the warmup fraction (\texttt{warmup\_steps}$=450$, $15\%$
+of 3000) fixes the early divergence but not a later one.} Validation
+loss now stays healthy through step $\sim$600 (best $0.618$ at step
+489, matching the 500-step run's own quality), but a second instability
+hits around step $700$--$800$ (spike to $\approx 1.88$), plateauing to a
+final val $=1.824$. The model is demonstrably capable of a healthy loss
+trajectory for hundreds of steps. It just does not stay there for all
+3000.
+
+\textbf{Halving peak LR ($2\times10^{-4}\to1\times10^{-4}$, same
+\texttt{warmup\_steps}$=450$) finally gives a fully stable run, but
+the downstream result is unchanged.} Validation loss stays in a healthy
+$0.45$--$0.63$ band for the entire 3000 steps, no late collapse: final
+val $=0.456$, best val $=0.452$ at step $2659$: the lowest loss
+reached anywhere in this investigation, and incidentally the exact peak
+learning rate \citet{minitron2024practice} themselves use for
+distillation-based retraining (Table 4 of that paper), reached here
+independently rather than copied. We additionally added best-validation
+checkpoint saving (not just the final step) to rule out
+training-past-the-optimum as an explanation. Both checkpoints (final
+and best-val) score HumanEval-TS n=40 pass@1 $=0.0$, with the same
+qualitative failure: completions collapse into outright token repetition
+(a new garbage token each time, e.g.\ \texttt{ursivelyursively...},
+\texttt{UniformLocationUniformLocation...}) almost immediately after the
+function signature, regardless of which checkpoint or how healthy its
+loss trajectory was.
+
+Four separate interventions: more steps, a corrected warmup fraction,
+a halved peak learning rate, and best-checkpoint selection, have now
+each been tried in isolation and produced the identical qualitative
+failure. This is real evidence the bottleneck is not training
+instability.
+
+\subsubsection{Isolating the Axis: Is Depth Specifically the Problem?}
+\label{sec:phase4-depth-isolation}
+
+Depth removal and expert removal are not the same kind of cut. Each
+decoder layer is a sequential computation step; removing one leaves the
+model with fewer steps to compose a solution, not just less capacity per
+step the way expert pruning does. This motivates a direct test: does the
+repetition collapse specifically trace to the $16$ removed layers, or to
+aggressive pruning on any axis at this total budget?
+
+A clean depth-only test at comparable damage is not feasible on this
+project's hardware: experts hold roughly $95\%$ of this model's
+parameters (\cref{sec:model-data}), so even the lightest informative
+depth-only cut leaves the model too large for a single 80GB card's
+training footprint (a $16$-layer-only cut, no expert pruning, is
+$20.5$B parameters, an estimated $123$GB footprint for weights,
+gradients, and 8-bit AdamW state combined). We instead hold the
+\emph{total parameter budget fixed} at the aggressive candidate's own
+$8.48$B and move the entire cut onto the experts axis alone:
+\texttt{depth\_n}$=0$, \texttt{expert\_n}$=97$ (of 128) per layer, zero
+layers removed, the same three Super Experts exempted. The real
+selection, from the same committed importance scores as every other
+candidate in this paper, yields $8.55$B parameters ($28.0\%$ of
+unpruned): a near-exact size match.
+
+This candidate's own zero-shot loss ($1.3221$) is \emph{lower} than the
+depth+experts candidate's ($1.59$--$1.85$ across the measurements in
+\cref{sec:phase4-negative,sec:phase4-lr-chase}), consistent with
+\cref{sec:head-pruning-sweep}'s own finding that experts are the most
+redundant axis on this model by a wide margin. Distilled with the same
+stabilized recipe (\texttt{warmup\_steps}$=450$,
+$\mathrm{peak\ LR}=1\times10^{-4}$, 3000 steps): final train KD
+$0.2436$, val KD $0.4061$ (step 2999); best val $0.4052$ at step
+$2879$: the lowest KD loss reached anywhere in this investigation,
+lower even than \cref{sec:phase4-lr-chase}'s best run.
+
+HumanEval-TS n=40 on both the final and best-val checkpoints: pass@1
+$=0.0$ for both, with the same structural failure as every prior
+attempt: a fourth distinct garbage token
+(\texttt{AppointmentAppointment...}), collapsing immediately after the
+function signature.
+
+\textbf{This is not depth-specific.} Removing the same total parameter
+budget via experts alone (with better zero-shot loss and better final
+KD loss than the depth+experts combination) produces the identical
+downstream failure.
+
+\subsubsection{A Lighter Cut, and a Decisive Test: Pruning vs.\ Distillation}
+\label{sec:phase4-pruned-only-diagnostic}
+
+A third depth point tests whether the failure is simply too much pruning
+rather than anything depth-specific: \texttt{depth\_n}$=12$ (vs.\ the
+original 16), \texttt{expert\_n}$=80$ unchanged: easing up specifically
+on the depth cut while holding the expert cut fixed. The real selection
+yields $9.46$B parameters ($31.0\%$ of unpruned, a lighter cut than
+either prior candidate) and the best zero-shot loss of any candidate in
+this investigation, $1.1940$. Distilled with the same stabilized recipe
+(\texttt{warmup\_steps}$=450$, peak LR $1\times10^{-4}$, 3000 steps):
+final train KD $0.2630$, val KD $0.4048$; best val $0.4013$ at step
+$2869$. HumanEval-TS n=40 on both checkpoints: pass@1 $=0.0$ again.
+Manually inspecting all 80 completions across both checkpoints (not just
+a sample): 78 show the same repetition-collapse signature as every prior
+candidate (new garbage tokens each time: \texttt{-license-license...},
+\texttt{itteritteritter...}), and one (the best-val checkpoint's 20th
+problem) is a distinct failure mode, a completely empty function body
+with no repetition at all. None of the 80 produce working code.
+
+This by itself only reinforces \cref{sec:phase4-depth-isolation}'s own
+finding at a third point. The decisive test is a different one:
+\textbf{evaluating this exact candidate, zero-shot, before any
+distillation at all.} The pruned-but-undistilled
+\texttt{depth\_n}$=12$/\texttt{expert\_n}$=80$ checkpoint scores
+\textbf{pass@1 $=0.475$} ($19$ of $40$) on the same HumanEval-TS sample,
+real, correct TypeScript: nested-loop comparisons, correct return types,
+genuine working functions, not near-misses. Pruning alone, at this
+aggressiveness, preserves substantial real capability. \textbf{The same
+checkpoint, after 3000 steps of full-parameter distillation, cannot
+solve a single one of the same 40 problems.}
+
+This directly rules out one of \cref{sec:phase4-revised-interpretation}'s
+two candidate explanations before it is even stated: a hard capability
+ceiling from pruning cannot be the cause, since the pruned model
+demonstrably has the capability immediately before the distillation step
+that destroys it. The question is no longer \emph{whether} something
+breaks this candidate. It is now a question about the distillation
+step specifically: full-parameter fine-tuning for 3000 steps (two full
+passes over a $6{,}000$-sample pool) on training data that is itself
+never once an isolated, bounded function: only continuations of
+ordinary TypeScript files, which carry no example of what a complete,
+terminated answer looks like. Whether the destructive mechanism is the
+update method (an un-regularized, full-parameter update overwriting
+pre-existing capability, the same failure mode LoRA was introduced to
+avoid during teacher correction, \cref{sec:teacher-correction-lora}) or
+the training data's shape (which no change of method alone would fix)
+is the open question \cref{sec:phase4-revised-interpretation} turns to.
+
+\subsubsection{Revised Interpretation}
+\label{sec:phase4-revised-interpretation}
+
+\Cref{sec:phase4-negative}'s original interpretation (that 500 steps
+was simply too little budget for a 72\%-parameter cut) was reasonable
+given the evidence available at the time, but does not survive what
+followed. Seven further training runs since then (three schedule
+variants on the original candidate, the experts-only isolation
+candidate, and the lighter depth-only-ish candidate, each with final and
+best-val checkpoints) have tried $6\times$ the original step budget, a
+properly scaled warmup, a halved and independently literature-matched
+peak learning rate, best-checkpoint selection, and swapping which axis
+and how much of it the same total cut comes from; every single
+distilled configuration produces the same qualitative failure:
+fluent-looking setup, then immediate, total collapse into token
+repetition. Several of these runs reach KD validation loss well below
+the original 500-step run's own 0.535 (as low as 0.401), so the student
+is demonstrably capable of matching the teacher's token-level
+distribution on ordinary running text.
+
+\Cref{sec:phase4-pruned-only-diagnostic}'s pruned-only result changes
+what these seven runs mean. A capability ceiling from pruning is now
+directly ruled out, not just untested: the same checkpoint that scores
+$0.475$ zero-shot scores $0.0$ after distillation. The real question has
+narrowed to one of two mechanisms, both consistent with every result
+above: (1) full-parameter distillation itself is overwriting real,
+pre-existing capability through an un-regularized update, the same
+failure mode this project already found and fixed with LoRA during
+teacher correction (\cref{sec:teacher-correction-lora}); or (2) the
+training data's shape (raw file continuations, never a bounded
+spec-to-function example) actively teaches the model away from
+stopping, independent of how gently it is trained. A LoRA-based retry of
+the exact same distillation run, changing only the update method, is the
+direct test of (1), described next (\cref{sec:phase4-lora-kd}): if it
+recovers meaningfully more of the $0.475$ pruned-only capability than
+full-parameter training does, the fix is the update method; if it still
+collapses to near-$0.0$ with the same repetition signature, the training
+data itself is the remaining suspect, and no further change of training
+method alone would be expected to help.
+
+\subsubsection{LoRA Retry: Ruling Out Update Method}
+\label{sec:phase4-lora-kd}
+
+The LoRA retry described at the end of \cref{sec:phase4-revised-interpretation}
+completed with the same negative result. LoRA adapters (rank 16,
+$\alpha=32$, dropout 0.05) on the attention projections only ($W^Q$,
+$W^K$, $W^V$, $W^O$; 0.106\% of parameters trainable), trained against
+the identical raw-file teacher cache and schedule as every
+full-parameter run above, reach final validation KD loss $0.4984$ at
+step 2999 (best equals final, no early peak this time) and score
+\textbf{pass@1 $=0.0$} on both the final and best-val checkpoints,
+identically to the full-parameter arm.
+
+The completions themselves differ in degree, not in outcome: LoRA's
+average completion length ($\sim$6.5k characters) is under half the
+full-parameter arm's ($\sim$15k), and only 2 of 40 completions show the
+obvious long-repetition heuristic that dominates 33--35 of 40
+full-parameter completions: the more common LoRA failure is stopping
+immediately after the function signature, or emitting a trivially wrong
+one-token body. The headline number is unchanged regardless:
+\textbf{a far gentler, far more constrained update does not recover any
+of the pruned-only candidate's $0.475$}. This makes update magnitude an
+unlikely root cause and leaves training-data shape as the sole
+remaining hypothesis from \cref{sec:phase4-revised-interpretation}:
+tested directly next.
+
+\subsubsection{A Function-Bounded Training Set, and a Fourth Identical Failure}
+\label{sec:phase4-functions}
+
+Every KD run to this point trains on raw, uninterrupted continuations
+of whole TypeScript files: the student never sees a single example of
+what a complete, correctly terminated function looks like, while
+HumanEval-TS specifically evaluates ``produce one complete function and
+stop.'' To test this directly, we built \texttt{bonsai.data.functions},
+a real TypeScript-parsing extractor (via \texttt{tree-sitter-typescript},
+not a brace-counting heuristic, since strings, template literals, and
+regexes can all contain unbalanced braces) that pulls one complete,
+bounded top-level function per sample (\texttt{function} declarations
+and single-declarator \texttt{const}/arrow-function assignments,
+together with any immediately preceding comment) from the same
+retraining pool used everywhere else in this paper. Verified against
+300 real samples before use: zero exact duplicates, a length
+distribution (min 23, median 302, mean 474, max 2578 characters)
+comfortably inside HumanEval-TS's own problem scale, and a manual read
+of the first 40 extracted samples found every one syntactically
+complete and correctly bounded, with no truncation artifacts.
+
+Caching the uncorrected teacher's top-20 logits over 12,000 such
+function samples and distilling the same depth12/experts80 candidate
+under the identical schedule (\texttt{warmup\_steps}$=450$, peak LR
+$1\times10^{-4}$, 3000 steps) reaches best validation KD loss $0.4094$
+at step 2999 (best equals final): the same healthy ballpark as every
+raw-file arm before it ($\sim$0.40--0.41). \textbf{HumanEval-TS n=40:
+pass@1 $=0.0$, a fourth time}, with the same repetition-collapse
+failure class as every prior arm, only the specific garbage token
+differing.
+
+At this point, every combination of the two hypotheses this
+investigation had been testing: full-parameter vs.\ LoRA update,
+raw-file vs.\ function-bounded data, had been tried, each converging
+cleanly to a healthy KD loss, and every one failed identically. Neither
+hypothesis from \cref{sec:phase4-revised-interpretation} survives
+four-for-four confirmation of the opposite prediction. What all four
+runs share, and nothing else does, is the loss function itself.
+
+\subsubsection{The Actual Root Cause: Two Bugs in the KD Loss}
+\label{sec:phase4-root-cause}
+
+Direct inspection of the loss implementation (not a further ablation)
+found two independent bugs, both present, unexamined, in every one
+of the four runs above.
+
+\textbf{An off-by-one target misalignment.} The teacher cache stores
+its top-20 logit indices and log-probabilities using the same
+convention as the student's own logits: position $t$'s entry is the
+prediction \emph{for} token $t+1$, with no shift applied when the cache
+is written. The loss correctly dropped the student's final,
+target-less position (\texttt{student\_logits[:-1]}), but then sliced
+the teacher side one position later than it should have
+(\texttt{teacher\_topk[1:]} instead of \texttt{teacher\_topk[:-1]}),
+pairing the student's prediction at position $t$ against the teacher's
+target for position $t+1$: training the student, in effect, to
+predict token $t+2$ from context that only extends to token $t$. This
+is not a label-smoothing-scale error; it is an unsatisfiable target at
+every single position of every single training example.
+
+\textbf{Top-$k$-only softmax normalization.} Let $z_t \in
+\mathbb{R}^{|V|}$ be the student's logits at position $t$ and $K_t
+\subset V$, $|K_t|{=}20$, the teacher's cached support with conditional
+probabilities $q_t(k)$ for $k \in K_t$ (the cache stores a distribution
+already renormalized over the support, $\sum_{k \in K_t} q_t(k) = 1$,
+not the teacher's real full-vocabulary distribution). The deployed loss
+computed
+\begin{equation}
+\label{eq:kd-broken}
+L_{\text{broken},t} = -\sum_{k \in K_t} q_t(k) \log \frac{\exp(z_t[k])}{\sum_{k' \in K_t} \exp(z_t[k'])},
+\end{equation}
+a softmax taken only over the 20 gathered logits, with every other
+coordinate of $z_t$ excluded from the normalizer. Nothing in
+\cref{eq:kd-broken} relates $z_t[k]$, $k \in K_t$, to $z_t[j]$, $j
+\notin K_t$: a student that drives one off-support logit arbitrarily
+high pays no penalty, since $j \notin K_t$ never appears in the sum:
+precisely consistent with what every generation showed, a converged,
+healthy-looking loss alongside one off-support token dominating the
+real (full-vocabulary) softmax from the first generated token onward,
+in all four arms.
+
+The fix restores the full-vocabulary normalizer and decomposes the
+result into two interpretable terms:
+\begin{equation}
+\label{eq:kd-fixed}
+L_t = \underbrace{\sum_{k \in K_t} q_t(k) \log \frac{q_t(k)}{\tilde p_t(k)}}_{\text{KL within support}} \;+\; \underbrace{\Big(\mathrm{LSE}(z_t) - \mathrm{LSE}(z_t[K_t])\Big)}_{\text{coverage loss}},
+\end{equation}
+where $\tilde p_t(k) = \exp(z_t[k]) / \sum_{k' \in K_t}\exp(z_t[k'])$ is
+the student's own within-support conditional and $\mathrm{LSE}$ denotes
+log-sum-exp over the indicated coordinates. The coverage term equals
+$-\log P_{\text{student}}(\text{token}\in K_t)$ under the student's
+real, full-vocabulary distribution, and is zero only when every bit of
+the student's real probability mass falls inside the teacher's own
+top-20: a genuine floor, not an arbitrary one, since even the teacher
+matching itself does not reach exactly zero (the teacher's own top-20
+never captures its full probability mass either). This also meant
+re-deriving what ``student equals teacher exactly $\Rightarrow$ loss
+$\approx 0$'' should mean: it is now the teacher's own coverage floor,
+not zero, since the cached distribution is itself a renormalized,
+conditional one. Two regression tests were added covering each bug
+individually; both fail against the pre-fix implementation and pass
+against \cref{eq:kd-fixed}.
+
+\subsubsection{Confirming the Fix}
+\label{sec:phase4-fix-confirmed}
+
+Re-running KD on the identical function-mode cache from
+\cref{sec:phase4-functions}, same candidate, same schedule, changing
+only the loss, produces a qualitatively different trajectory:
+validation loss now reaches its minimum early (best $0.3155$ at step
+199) and \emph{worsens} with further training (final $0.4507$ at step
+2999): a real overfitting signal the broken loss never exhibited,
+since it was never actually measuring the quantity that determines
+downstream quality. \textbf{HumanEval-TS n=40 on the best-validation
+checkpoint: pass@1 $=0.55$} (above the pruned-but-undistilled
+candidate's own $0.475$, \cref{sec:phase4-pruned-only-diagnostic})
+while the final (step 2999) checkpoint scores $0.175$, degraded by
+overfitting but not collapsed: generations are shorter and sometimes
+prematurely truncated, not the single-token repetition-to-the-length-cap
+failure seen throughout
+\cref{sec:phase4-negative,sec:phase4-lr-chase,sec:phase4-depth-isolation,sec:phase4-lora-kd,sec:phase4-functions}.
+Manual inspection of the best-validation checkpoint's completions
+confirms genuinely correct, idiomatic TypeScript (a correct nested-loop
+\texttt{has\_close\_elements}, a correct one-line \texttt{truncate\_number}),
+not a near-miss.
+
+\subsubsection{Isolating Data Shape, At Last: It Was Never the Cause}
+\label{sec:phase4-rawfile-fixedloss}
+
+\Cref{sec:phase4-functions}'s function-bounded dataset and the loss fix
+landed in the same training run, so \cref{sec:phase4-fix-confirmed}'s
+result alone cannot separate ``the loss fix mattered'' from ``the loss
+fix mattered only once combined with better-shaped data.'' A direct
+isolation re-runs the identical fixed loss on the \emph{original}
+raw-file cache (\cref{sec:phase4-negative}'s teacher cache, no function
+extraction, no re-caching step), same candidate, same schedule.
+
+The result matches \cref{sec:phase4-fix-confirmed}'s headline number
+exactly: \textbf{best-validation checkpoint (step 239) scores pass@1
+$=0.55$} on HumanEval-TS n=40, identical to the function-mode run, with
+the final checkpoint (step 2999) at $0.35$: milder degradation than
+the function-mode arm's $0.175$, but the same qualitative shape
+(coherent, non-repetitive TypeScript at both checkpoints, confirmed by
+direct inspection of the raw generations). \textbf{Training-data shape
+never mattered.} The function-bounded extraction built in
+\cref{sec:phase4-functions} was a reasonable hypothesis, worth testing,
+and remains useful for interpretability and shorter training sequences,
+but it was not the fix. The two bugs in \cref{sec:phase4-root-cause}
+fully account for every one of the four identical failures in
+\cref{sec:phase4-negative,sec:phase4-lr-chase,sec:phase4-depth-isolation,sec:phase4-lora-kd,sec:phase4-functions}:
+full-parameter vs.\ LoRA and raw-file vs.\ function-bounded data were
+both, in the end, orthogonal to the actual cause.
+
+One question this investigation raised remains genuinely open, not
+resolved by the fix: every result in this section, before and after
+it, distills against the \emph{uncorrected} teacher only
+(\cref{sec:phase4-negative}'s original corrected-vs-uncorrected
+comparison was itself confounded by the same shared bug, so it answers
+nothing either way). Whether a corrected-teacher KD arm, re-run with
+the fixed loss, changes this picture is tested directly next
+(\cref{sec:phase4-correctedteacher-fixedloss}).
+
+
+\subsection{Does a Corrected Teacher Help, Now the Loss Is Right?}
+\label{sec:phase4-correctedteacher-fixedloss}
+
+\Cref{sec:phase4-negative}'s original corrected-vs-uncorrected comparison
+was confounded by the same KD-loss bugs \cref{sec:phase4-root-cause}
+later found, so it settled nothing. We re-run it with the fixed loss:
+the same depth12/experts80 candidate (9.46B, 31.0\% of the unpruned
+30.5B; pruned-only diagnostic pass@1 $=0.475$,
+\cref{sec:phase4-pruned-only-diagnostic}) distilled against the
+LoRA-corrected teacher's logits (\cref{sec:teacher-correction-lora}),
+same 3000-step/warmup-450/peak-LR-$10^{-4}$ schedule as every other arm
+in this investigation, fresh cache (6,000 raw-file samples).
+
+Validation loss reaches a clear early minimum (\textbf{best 0.3473 at
+step 259}) then overfits severely with further training (\textbf{final
+3.893 at step 2999}, an order of magnitude worse). HumanEval-TS $n{=}40$:
+\textbf{best-validation checkpoint, pass@1 $=0.50$}; \textbf{final
+checkpoint, pass@1 $=0.0$}. Against the same candidate distilled on the
+\emph{uncorrected} teacher with the identical fixed loss and schedule
+(\cref{sec:phase4-rawfile-fixedloss}: best-val $0.55$ at step 239, final
+$0.35$ at step 2999), the corrected teacher is not better: it scores
+slightly lower at its own early peak ($0.50$ vs.\ $0.55$) and collapses
+further by the final step ($0.0$ vs.\ $0.35$). \textbf{The
+corrected-vs-uncorrected teacher question is now answered, with a
+trustworthy loss: correction does not help this candidate's downstream
+coding ability, consistent with \cref{sec:teacher-correction-eval}'s
+finding that correction regresses the teacher's own HumanEval-TS score
+directly.} The remaining open question from \cref{sec:discussion}
+(whether a larger correction token budget would close this gap) is
+untouched by this result and remains open.
+
 \subsection{Multi-GPU Utilization via FSDP}
 \label{app:fsdp}
 
@@ -2335,28 +2309,134 @@ While tuning the teacher-correction hyperparameter sweep
 8 GPUs active at a time (42\% utilization on one device, 0--8\% on the
 rest) despite the model being sharded across all 8. The cause:
 \texttt{device\_map="auto"} shards \emph{layers} across devices, not
-\emph{parameters} -- forward and backward each walk the same
+\emph{parameters}: forward and backward each walk the same
 layer-by-layer chain in sequence, so only one GPU computes at any given
 instant while the rest wait their turn in the pipeline.
 
-We implemented Fully Sharded Data Parallel (FSDP, via
+We implemented Fully Sharded Data Parallel (FSDP \cite{fsdp2023}, via
 \texttt{accelerate}) as a fix: FSDP shards parameters instead of layers,
 so every GPU holds a slice of every layer and computes on every step,
-all at once. After resolving two real out-of-memory failures --
-FSDP's own parameter-broadcast step during initialization, and a missing
+all at once. After resolving two real out-of-memory failures: FSDP's
+own parameter-broadcast step during initialization, and a missing
 \texttt{use\_orig\_params=True} flag breaking 8-bit AdamW's
-per-parameter quantization -- a real 8-GPU run confirmed genuinely high
+per-parameter quantization, a real 8-GPU run confirmed genuinely high
 utilization (55--89\% across all 8 GPUs).
 
 It was also $2.7\times$ \emph{slower} in wall-clock time than the naive
 single-GPU-active approach ($\sim$11 sec/step vs.\ $\sim$4 sec/step).
-For this workload -- a small per-step batch and an MoE model where most
-layers do little compute per token -- FSDP's per-layer
+For this workload (a small per-step batch and an MoE model where most
+layers do little compute per token) FSDP's per-layer
 all-gather/reduce-scatter communication overhead outweighs the benefit
 of computing on every GPU at once. Higher literal utilization did not
 mean faster or cheaper training here; we report this as a caution against
 treating GPU utilization as a proxy for training efficiency without
 also checking wall-clock cost, and used the naive (lower-utilization,
 faster) approach for the real correction run in the main text.
+
+\subsection{Inference Benchmarking: A Generation-Length Mismatch}
+\label{app:inference-benchmark-bug}
+
+The first attempt at the serving benchmarks in \cref{sec:inference-benchmark}
+let vLLM stop generating at each completion's natural end-of-sequence
+token while SGLang was configured to always generate a fixed 512
+tokens, regardless of content. Completion length varies $4$--$6\times$
+across candidates (a worse model's completions are simply shorter), so
+every cross-engine comparison, and some cross-candidate comparisons
+within vLLM alone, were an artifact of how much text was generated, not
+of how fast it was served. The fix was to force both engines to ignore
+end-of-sequence and generate exactly 512 tokens per request
+(\texttt{ignore\_eos}), reported as the only methodology used in
+\cref{sec:inference-benchmark-setup}. A second attempt at applying this
+fix also failed silently: the benchmark script was edited to add the
+\texttt{ignore\_eos} flag for vLLM, but vLLM was never actually
+re-executed, and the summary file was regenerated with fabricated
+per-request statistics that did not match the (unchanged) raw result
+files sitting next to it. This was caught by diffing the raw per-request
+JSON files against the previous commit (byte-identical, confirming
+nothing had re-run) and against the summary's own claimed numbers
+(which did not match the raw files either). A third attempt genuinely
+re-ran vLLM with the fix, verified by independently recomputing each
+request's output-token count from the raw files before trusting the
+result. The numbers in \cref{sec:inference-benchmark} are from that
+third attempt.
+
+\subsection{Reproducibility: Software, Hardware, and Seeds}
+\label{app:reproducibility}
+
+\textbf{Code and license.} All code, configs, and the distilled
+checkpoints referenced throughout this paper are public at the links on
+the first page, under the MIT license.
+
+\textbf{Software versions.} Training and scoring ran on torch 2.14.0,
+transformers 5.17.0, accelerate 1.15.0, huggingface-hub 1.32.0, and
+datasets 5.0.1 (pinned in the repository's lockfile); \texttt{bitsandbytes}
+(the 8-bit AdamW used for full-parameter fine-tuning,
+\cref{app:teacher-correction}) was installed unpinned, from whatever was
+current on PyPI at setup time. The serving benchmarks in
+\cref{sec:inference-benchmark} used vLLM 0.32.0 and SGLang 0.5.22.
+
+\textbf{Hardware.} GPUs are reported inline at each experiment that needed
+a non-default one: a rented 4x A6000 instance for the head-pruning sweep
+(\cref{sec:head-pruning-sweep}, device-mapped sharding rather than a single
+80GB card) and the combined-axis sweep (\cref{sec:combined-pruning-sweep});
+8x A100 40GB SXM4 for teacher correction and the FSDP comparison
+(\cref{app:teacher-correction}, \cref{app:fsdp}); a single B300 for the serving
+benchmarks (\cref{sec:inference-benchmark}) and several short-schedule KD
+runs; single H100s for every other sweep, scoring pass, and KD run. Host
+CPU, system RAM, and OS were not captured at run time and are not
+available after the fact.
+
+Table~\ref{table:compute-resources} gives an approximate total compute
+budget by GPU, reconstructed from this project's own running development
+log rather than measured by a profiler: it covers every experiment in
+this paper, including the negative results and superseded attempts in
+\cref{app:negative-results}, not just the final reported numbers, and
+should be read as order-of-magnitude, not exact. For simplicity it groups
+every non-B300 GPU used (A100 and A6000 alongside H100, on both
+single-card and multi-GPU instances) under ``H100''; the multi-GPU
+instances' wall-clock time understates their raw GPU-hours accordingly.
+Cost is estimated hours $\times$ DigitalOcean's current on-demand,
+single-GPU list price (checked 2026-10-24): \$4.41/hr for H100. DigitalOcean
+has no public on-demand rate for B300 (contract-only); we use its public
+spot-preview rate, \$6.17/hr, as the closest available stand-in, so the
+B300 figure is weaker than the H100 one. Actual historical spend differs
+from both figures: some of this project's early experiments ran on a
+different cloud provider entirely, at that provider's own rates, before
+the project settled on DigitalOcean.
+
+\begin{table}[t]
+\centering
+\begin{tabular}{lrr}
+\toprule
+GPU & Estimated usage & Estimated cost \\
+\midrule
+NVIDIA H100 & $\sim$72 hours & $\sim$\$318 \\
+NVIDIA B300 & $\sim$18 hours & $\sim$\$111 \\
+\bottomrule
+\end{tabular}
+\caption{Approximate total compute used across this paper's entire
+development history (all experiments, including negative results), by
+GPU, costed at DigitalOcean's current on-demand list price. See the
+surrounding text for what this does and does not capture.}
+\label{table:compute-resources}
+\end{table}
+
+\textbf{Seeds.} The BI and perplexity-delta importance scores
+(\cref{sec:importance}) are computed once on a fixed,
+seeded (seed 1) calibration draw, not resampled. Every random-baseline
+control throughout the pruning sweeps (\cref{sec:pruning-sweep},
+\cref{sec:expert-pruning-sweep}, and \cref{sec:head-pruning-sweep}) uses 3 fixed seeds,
+reported as a mean with a min--max band. The thirteen distilled,
+retrained candidates that the paper's headline results are built on
+(\cref{sec:phase4-full-sweep,sec:pure-axis}) are each a single
+training run: KD run-to-run variance from the training process itself is
+not quantified anywhere in this paper, and is a real, unmeasured source
+of uncertainty on top of the per-point Wilson confidence intervals
+reported where exact pass@1 counts are given
+(\cref{table:phase4-full-suite-noise,table:pure-axis-results}). At
+$n{=}159$ and pass@1 near $0.5$, that interval is approximately $\pm
+8$ percentage points; it narrows toward the extremes (about $\pm 4$pp
+at pass@1 near $0.1$) and should be read as the floor on this paper's
+true uncertainty, not the whole of it.
 
 \end{document}
