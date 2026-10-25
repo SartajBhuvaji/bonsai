@@ -5,11 +5,18 @@ name = "qwen3-30b-a3b"
 
 [model]
 repo_id = "Qwen/Qwen3-30B-A3B-Base"
+# Tracks the Hub repo's main branch rather than a pinned commit SHA -- the
+# base model itself never changed during this project, so this was never a
+# real reproducibility risk in practice.
 revision = "main"
 
 [data]
 dataset_id = "bigcode/the-stack-dedup"
 data_dir = "data/typescript"
+# This file's documented default. Several individual phases drew their own
+# smaller, ad hoc calibration sample instead (e.g. 32-48 sequences for a
+# specific importance-scoring or pruning-sweep run) -- see the paper
+# (docs/latex/main.pdf) for the exact count a given result actually used.
 calibration_samples = 1024
 # Reserves the first of 71 shards (confirmed via bonsai.data.list_shards) for
 # calibration, the rest for retraining -- shard-level, not row-level, so the
@@ -93,4 +100,9 @@ retraining_shards = [
 ]
 
 [compute]
+# Informational only -- nothing in bonsai.config or the pipeline branches on
+# these two fields. They document which provider and GPU Droplet size
+# actually ran this project's experiments; see the README's Compute section
+# for the real provisioning tooling (tools/launch_do.sh, tools/do_status.sh).
 provider = "digitalocean"
+instance_type = "gpu-h100x1-80gb"
