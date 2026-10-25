@@ -54,21 +54,32 @@ Where a step produces something worth looking at, it gets a notebook under
 ## Compute
 
 Everything past baseline eval needs a rented GPU (see `plan.md`'s sizing table).
-Lambda Cloud, on demand:
+A DigitalOcean GPU Droplet, on demand. Two ways to get the box:
+
+**Already have one** (created by hand from the DO console/CLI):
 
 ```bash
-cp .env.example .env                       # LAMBDA_API_KEY, HF_TOKEN
-./tools/launch_lambda.sh                    # verifies the SSH key actually registered
-ssh -i ~/.ssh/lambda_bonsai ubuntu@<ip>
-git clone git@github.com:SartajBhuvaji/bonsai.git && cd bonsai
-./tools/setup_instance.sh                   # venv, deps, confirms GPU + Qwen3-MoE import
+cp .env.example .env                        # HF_TOKEN
+SSH_KEY=~/.ssh/id_ed25519 WITH_EVAL=1 ./tools/bootstrap_do_gpu.sh <droplet-ip>
+ssh -i ~/.ssh/id_ed25519 root@<droplet-ip>
 ./tools/gpu_env.sh                          # provenance block for whatever ran there
-./tools/launch_lambda.sh terminate <id>     # tear down when done
 ```
 
-`launch_lambda.sh capacity` lists instance types with available capacity and
-their price; override `INSTANCE_TYPE` once past the cheapest-instance smoke
-test the provisioning path is proven against first.
+**Provision one from the CLI** instead, with `launch_do.sh` (needs
+`DIGITALOCEAN_ACCESS_TOKEN` in `.env`):
+
+```bash
+cp .env.example .env                        # HF_TOKEN, DIGITALOCEAN_ACCESS_TOKEN
+./tools/launch_do.sh sizes                   # see where the default GPU size has capacity
+REGION=<region-from-above> ./tools/launch_do.sh launch
+# or add BOOTSTRAP=1 to also run bootstrap_do_gpu.sh once the Droplet is up
+./tools/launch_do.sh terminate <droplet-id>  # tear down when done -- this bills hourly
+```
+
+Either way, `bootstrap_do_gpu.sh` syncs this repo to the box over rsync,
+copies `.env`, and runs `setup_instance_do.sh` remotely (venv, deps, confirms
+GPU + Qwen3-MoE import) in one shot; `WITH_EVAL=1` also installs the eval
+extra plus Node.js and `tsc` for MultiPL-E's TypeScript tasks.
 
 ## Releases
 

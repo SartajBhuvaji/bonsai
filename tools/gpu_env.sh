@@ -15,7 +15,7 @@ json=0; [ "${1:-}" = "--json" ] && json=1
 
 # Which interpreter's torch to report. The ambient python is almost never the
 # one that served the benchmark: vLLM and SGLang each need their own venv, and
-# a Lambda Stack box ships a system torch that neither of them uses. Recording
+# the box's default venv ships a torch that neither of them uses. Recording
 # the wrong torch next to a throughput table is a provenance error, so point
 # this at the venv that actually ran the model.
 #   PYTHON=~/venvs/vllm/bin/python bash tools/gpu_env.sh --json
