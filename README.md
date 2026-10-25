@@ -134,6 +134,11 @@ copies `.env`, and runs `setup_instance_do.sh` remotely (venv, deps, confirms
 GPU + Qwen3-MoE import) in one shot; `WITH_EVAL=1` also installs the eval
 extra plus Node.js and `tsc` for MultiPL-E's TypeScript tasks.
 
+`do_status.sh` catches a Droplet left running: `./tools/do_status.sh status`
+lists every bonsai-tagged Droplet with elapsed time and running cost,
+`./tools/do_status.sh killall` tears all of them down at once (asks for
+confirmation unless `FORCE=1`).
+
 ## Releases
 
 Versioning is driven by PR labels. Every PR carries exactly one of `patch`,

@@ -145,6 +145,41 @@ def test_plot_metric_agreement_rejects_mismatched_shapes() -> None:
     raise AssertionError("expected ValueError for mismatched x/y shapes")
 
 
+def test_plot_metric_agreement_default_scale_is_linear() -> None:
+    fig = plot_metric_agreement(
+        torch.rand(24), torch.rand(24), x_label="BI", y_label="PPL delta", title="BI vs PPL"
+    )
+    ax = fig.axes[0]
+    assert ax.get_xscale() == "linear"
+    assert ax.get_yscale() == "linear"
+
+
+def test_plot_metric_agreement_log_scale_draws() -> None:
+    # x strictly positive (BI, as in real use); y includes a slightly
+    # negative value, the real-world case (a near-no-op layer's PPL delta)
+    # the symlog branch exists to handle without crashing or distorting
+    # the rest of the axis.
+    x = torch.rand(24) + 0.01
+    y = torch.rand(24)
+    y[0] = -0.0003
+    fig = plot_metric_agreement(
+        x, y, x_label="BI", y_label="PPL delta", title="BI vs PPL", log_scale=True
+    )
+    assert len(fig.axes) == 1
+
+
+def test_plot_metric_agreement_log_scale_sets_axis_scales() -> None:
+    x = torch.rand(24) + 0.01
+    y = torch.rand(24)
+    y[0] = -0.0003
+    fig = plot_metric_agreement(
+        x, y, x_label="BI", y_label="PPL delta", title="BI vs PPL", log_scale=True
+    )
+    ax = fig.axes[0]
+    assert ax.get_xscale() == "log"
+    assert ax.get_yscale() == "symlog"
+
+
 def test_plot_score_distribution_draws() -> None:
     fig = plot_score_distribution(torch.rand(6, 12), title="test", xlabel="score")
     assert len(fig.axes) == 1
