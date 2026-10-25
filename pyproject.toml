@@ -1,6 +1,6 @@
 [project]
 name = "bonsai"
-version = "1.0.5"
+version = "1.0.6"
 description = "Mixture-of-Experts Pruning for Optimizing Customer-Specific Inference"
 readme = "README.md"
 license = { text = "MIT" }
