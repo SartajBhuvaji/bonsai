@@ -106,8 +106,8 @@ Where a step produces something worth looking at, it gets a notebook under
 
 ## Compute
 
-Everything past baseline eval needs a rented GPU (see `plan.md`'s sizing table).
-A DigitalOcean GPU Droplet, on demand. Two ways to get the box:
+Everything past baseline eval needs a rented GPU. A DigitalOcean GPU
+Droplet, on demand. Two ways to get the box:
 
 **Already have one** (created by hand from the DO console/CLI):
 
