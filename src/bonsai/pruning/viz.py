@@ -103,7 +103,9 @@ def plot_pruning_sweep(
         label="baseline (0 pruned)",
     )
     for name, loss in (extra_hlines or {}).items():
-        ax.axhline(loss, color="#d03b3b", linewidth=1.2, linestyle="--", label=name)  # status: critical
+        ax.axhline(
+            loss, color="#d03b3b", linewidth=1.2, linestyle="--", label=name
+        )  # status: critical
 
     if log_scale:
         ax.set_yscale("log")
