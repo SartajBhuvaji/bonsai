@@ -96,10 +96,14 @@ def plot_pruning_sweep(
     ax.fill_between(counts, random_min, random_max, color=random_color, alpha=0.15, linewidth=0)
 
     ax.axhline(
-        baseline_loss, color="#7a869a", linewidth=1.0, linestyle=":", label="baseline (0 pruned)"
+        baseline_loss,
+        color="#c3c2b7",  # chart chrome: baseline / axis reference
+        linewidth=1.0,
+        linestyle=":",
+        label="baseline (0 pruned)",
     )
     for name, loss in (extra_hlines or {}).items():
-        ax.axhline(loss, color="#c0392b", linewidth=1.2, linestyle="--", label=name)
+        ax.axhline(loss, color="#d03b3b", linewidth=1.2, linestyle="--", label=name)  # status: critical
 
     if log_scale:
         ax.set_yscale("log")
@@ -165,7 +169,11 @@ def plot_combined_pruning_sweep(
         ax.bar(x + offset, losses, width=bar_width * 0.9, color=color, label=name)
 
     ax.axhline(
-        baseline_loss, color="#7a869a", linewidth=1.0, linestyle=":", label="baseline (0 pruned)"
+        baseline_loss,
+        color="#c3c2b7",  # chart chrome: baseline / axis reference
+        linewidth=1.0,
+        linestyle=":",
+        label="baseline (0 pruned)",
     )
 
     if log_scale:
@@ -239,7 +247,7 @@ def plot_axis_isolation(
 
     ax.axhline(
         baseline_pass_at_1,
-        color="#7a869a",
+        color="#c3c2b7",  # chart chrome: baseline / axis reference
         linewidth=1.0,
         linestyle=":",
         label="baseline (unpruned)",

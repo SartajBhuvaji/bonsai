@@ -191,8 +191,8 @@ def plot_layer_importance(
         xytext=(lowest, data[lowest] + 0.08 * span),
         ha="center",
         fontsize=8,
-        color="#4a4a4a",
-        arrowprops={"arrowstyle": "-", "color": "#7a869a", "linewidth": 0.8},
+        color="#52514e",  # chart chrome: secondary ink
+        arrowprops={"arrowstyle": "-", "color": "#898781", "linewidth": 0.8},  # muted (axis/labels)
     )
     fig.tight_layout()
     return fig
@@ -248,7 +248,13 @@ def plot_layer_summary(scores: dict[str, torch.Tensor]) -> Figure:
 
 
 def plot_metric_agreement(
-    x: torch.Tensor, y: torch.Tensor, *, x_label: str, y_label: str, title: str
+    x: torch.Tensor,
+    y: torch.Tensor,
+    *,
+    x_label: str,
+    y_label: str,
+    title: str,
+    log_scale: bool = False,
 ) -> Figure:
     """Scatter one per-layer metric against another, with Pearson correlation annotated.
 
@@ -259,6 +265,13 @@ def plot_metric_agreement(
     point is one layer; the two layers with the highest `y` are labeled
     directly, since those are usually the ones a reader most wants to
     identify by index.
+
+    `log_scale`: both metrics here are dominated by one or two outlier
+    layers (e.g. the first and last), which otherwise crush every other
+    point into a corner and leave the correlation unverifiable by eye. A
+    symmetric log scale spreads the bulk of the points out while still
+    handling the near-zero (occasionally slightly negative) values that
+    PPL delta can take.
     """
     if x.ndim != 1 or y.ndim != 1 or x.shape != y.shape:
         raise ValueError(
@@ -281,8 +294,21 @@ def plot_metric_agreement(
             xytext=(5, 5),
             textcoords="offset points",
             fontsize=8,
-            color="#4a4a4a",
+            color="#52514e",  # chart chrome: secondary ink
         )
+
+    if log_scale:
+        # x (BI) is strictly positive in practice: plain log. y (PPL delta)
+        # can sit at or slightly below zero for a near-no-op layer, so it
+        # needs symlog; the linear threshold is set well above that
+        # near-zero noise floor so those points collapse into one small
+        # region near zero instead of stretching the axis to fit them.
+        ax.set_xscale("log")
+        y_abs_sorted = np.sort(np.abs(y_np))
+        y_thresh = float(y_abs_sorted[len(y_abs_sorted) // 10]) or 1e-2
+        linthresh = max(y_thresh, 1e-2)
+        ax.set_yscale("symlog", linthresh=linthresh, linscale=0.3)
+        ax.set_ylim(bottom=-linthresh)
 
     ax.set_title(f"{title}\nPearson r = {correlation:.2f}", fontsize=11)
     ax.set_xlabel(x_label, fontsize=9)
@@ -363,7 +389,12 @@ def plot_expert_concentration(expert_scores: torch.Tensor) -> Figure:
         label="mean across layers",
     )
     ax.plot(
-        [0, 100], [0, 100], color="#7a869a", linewidth=1.0, linestyle="--", label="no concentration"
+        [0, 100],
+        [0, 100],
+        color="#c3c2b7",  # chart chrome: baseline / axis reference
+        linewidth=1.0,
+        linestyle="--",
+        label="no concentration",
     )
     ax.set_title("Expert importance concentration, per layer", fontsize=11)
     ax.set_xlabel("% of experts kept (highest-scoring first)", fontsize=9)
