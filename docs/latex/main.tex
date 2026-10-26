@@ -1433,7 +1433,30 @@ No. The closest is depth0/experts8: $0.704$ vs.\ baseline's $0.717$,
 count, which is a weak case for pruning at all if accuracy parity, not
 cost, is the goal. No candidate in this paper's thirteen-candidate
 sweep matches the unpruned teacher's raw accuracy on the target
-workload. That was never the actual bar: the question this project set
+workload.
+
+\textbf{Would more retraining data have closed the gap?} Plausibly, and
+this is the most likely untested lever, not GPU-hours alone. Every
+candidate here was retrained on the same fixed, $500$-step schedule
+(\cref{sec:phase4-short-schedule}), chosen specifically because
+validation loss on this project's $6{,}000$-sample TypeScript
+retraining pool peaks at step $199$--$259$ and measurably overfits past
+that point: simply running the existing schedule longer, on the same
+pool, already makes candidates worse, not better
+(\cref{app:negative-results}). The constraint is the pool, not the step
+count. \citet{minitron2024}'s own token-budget ablation (their Table 18)
+retrains the same pruned 8B candidate on $18.9$B vs.\ $94$B tokens with
+logit-only distillation and reports accuracy still climbing at the
+larger budget: MMLU $58.3 \to 62.8$, HellaSwag $73.8 \to 79.7$,
+HumanEval $26.2 \to 30.4$. Their final retrained models use $94$--$400$B
+tokens in total, several orders of magnitude more than the data pool
+available here. Closing this project's remaining accuracy gap most
+plausibly needs a larger, more diverse TypeScript retraining corpus,
+paired with a correspondingly longer schedule the current pool cannot
+support without overfitting first: untested here, and the clearest
+direction for future work.
+
+That was never the actual bar, though: the question this project set
 out to answer is whether a customer-specific model can be competitive
 in accuracy, cheaper to run, and at least as fast to serve as the
 general-purpose model it replaces: answered next.
