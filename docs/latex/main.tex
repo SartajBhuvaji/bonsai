@@ -134,11 +134,9 @@ weight in a dense model's MLP is applied to every token that passes through
 it. This is not true of a Mixture-of-Experts (MoE) model: an MoE layer
 routes each token to a small subset of experts (8 of 128, in the model we
 study here), so most of the model's parameters are never touched by any
-given token. More fundamentally, this model has no separate dense
-FFN for Minitron's width axis to prune at all: every one of its MLP
-parameters lives inside its experts. Expert pruning is therefore this
-model's structural stand-in for width, not a fourth axis alongside the
-original three, and it is the one axis neither source paper offers a
+given token. More fundamentally, this model has no separate dense FFN for
+Minitron's width axis to prune at all: expert pruning is this model's
+structural stand-in for width, the one axis neither source paper offers a
 formula for. This work asks what happens when the Minitron recipe is
 applied to a model with this property, and in particular, how to score the
 importance of this axis (expert pruning) that has no precedent in
@@ -1294,10 +1292,12 @@ Several design decisions remain open and are logged here rather than
 resolved prematurely:
 
 \begin{itemize}
-\item \textbf{A specific target layer count.} \Cref{sec:pruning-sweep}
-  characterizes the cost curve but does not commit to one candidate to
-  carry into later axis-combination and retraining: that choice depends
-  on a compute/accuracy tradeoff not yet made.
+\item \textbf{A specific target count per axis.} Each single-axis sweep
+  (depth \cref{sec:pruning-sweep}, experts \cref{sec:expert-pruning-sweep},
+  heads \cref{sec:head-pruning-sweep}) characterizes its own cost curve
+  but does not commit to one candidate to carry into axis-combination and
+  retraining: that choice depends on a compute/accuracy tradeoff made
+  later, not here.
 \item \textbf{Downstream-depth-pruning proxy.} \citet{minitron2024practice}'s
   preferred depth criterion ranks contiguous layer blocks by downstream-task
   accuracy after removal (Winogrande, in their case), not by BI or
@@ -1305,11 +1305,6 @@ resolved prematurely:
   MBPP-TS pass-rate on partially-pruned models is the direct analogue but
   expensive per candidate block, and a cheaper token-level-accuracy proxy is
   under consideration.
-\item \textbf{A specific target per-layer expert count.}
-  \Cref{sec:expert-pruning-sweep} characterizes the cost curve up to
-  $n=112$ of 128 but does not commit to one candidate to carry into later
-  axis-combination and retraining, for the same reason as the layer-count
-  question above.
 \item \textbf{Uniform vs.\ per-layer expert counts.} \Cref{sec:expert-pruning-sweep}'s
   sweep uses uniform expert counts per layer throughout, as a simplifying
   starting choice rather than one settled by confirmed evidence: scoping
@@ -1319,10 +1314,6 @@ resolved prematurely:
   neither claim has been independently re-verified by this project. Whether
   a per-layer search would do meaningfully better than uniform on this
   model remains untested here directly.
-\item \textbf{A specific target per-group head count.}
-  \Cref{sec:head-pruning-sweep} characterizes the cost curve across all 7
-  valid per-key/value-group counts but does not commit to one candidate,
-  for the same reason as the two target-count questions above.
 \item \textbf{Free (non-uniform-per-group) head selection.}
   \Cref{sec:head-pruning-sweep}'s GQA constraint requires the same count
   pruned from every key/value group in a layer; whether a free per-head
@@ -1378,9 +1369,6 @@ resolved prematurely:
   project with this many independent GPU runs over this much time, not
   a confirmed second instance.
 \end{itemize}
-
-No results are reported for these open questions; they are listed to make
-the project's actual state legible, not to imply an answer.
 
 \section{Conclusion and Recommendation}
 \label{sec:conclusion}
