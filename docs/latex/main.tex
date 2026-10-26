@@ -134,11 +134,9 @@ weight in a dense model's MLP is applied to every token that passes through
 it. This is not true of a Mixture-of-Experts (MoE) model: an MoE layer
 routes each token to a small subset of experts (8 of 128, in the model we
 study here), so most of the model's parameters are never touched by any
-given token. More fundamentally, this model has no separate dense
-FFN for Minitron's width axis to prune at all: every one of its MLP
-parameters lives inside its experts. Expert pruning is therefore this
-model's structural stand-in for width, not a fourth axis alongside the
-original three, and it is the one axis neither source paper offers a
+given token. More fundamentally, this model has no separate dense FFN for
+Minitron's width axis to prune at all: expert pruning is this model's
+structural stand-in for width, the one axis neither source paper offers a
 formula for. This work asks what happens when the Minitron recipe is
 applied to a model with this property, and in particular, how to score the
 importance of this axis (expert pruning) that has no precedent in
@@ -208,6 +206,21 @@ teacher correction (lightly fine-tuning the teacher on the actual
 distillation data before pruning) and a downstream-task-based depth-pruning
 criterion using contiguous-block removal, evaluated on Llama 3.1 8B and
 Mistral NeMo 12B.
+
+\textbf{Domain-specific pruning.} Specializing a general-purpose model for
+a narrow deployment pattern, rather than compressing it uniformly, is an
+active direction independent of architecture or pruning criterion.
+\citet{finescope2025} select domain-relevant calibration data with a
+sparse autoencoder, prune a dense model under domain-specific
+constraints, then recover accuracy via self-distillation on that same
+curated data. \citet{scalinglaws2026} fit empirical scaling laws for
+task-specific distillation after structural pruning, with dataset size,
+compression ratio, supervision format, and pruning schedule as explicit
+variables, finding that supervision format (chain-of-thought vs.\ plain)
+is the strongest lever for recovering the general knowledge pruning
+erases. Neither addresses Mixture-of-Experts models or which axis to
+prune; this project's TypeScript-as-customer-workload framing applies
+the same domain-specialization idea to the one axis neither covers.
 
 \textbf{Expert pruning in MoE models.} Neither Minitron paper addresses
 Mixture-of-Experts models. REAP \cite{reap2025} scores expert importance as
@@ -1279,10 +1292,12 @@ Several design decisions remain open and are logged here rather than
 resolved prematurely:
 
 \begin{itemize}
-\item \textbf{A specific target layer count.} \Cref{sec:pruning-sweep}
-  characterizes the cost curve but does not commit to one candidate to
-  carry into later axis-combination and retraining: that choice depends
-  on a compute/accuracy tradeoff not yet made.
+\item \textbf{A specific target count per axis.} Each single-axis sweep
+  (depth \cref{sec:pruning-sweep}, experts \cref{sec:expert-pruning-sweep},
+  heads \cref{sec:head-pruning-sweep}) characterizes its own cost curve
+  but does not commit to one candidate to carry into axis-combination and
+  retraining: that choice depends on a compute/accuracy tradeoff made
+  later, not here.
 \item \textbf{Downstream-depth-pruning proxy.} \citet{minitron2024practice}'s
   preferred depth criterion ranks contiguous layer blocks by downstream-task
   accuracy after removal (Winogrande, in their case), not by BI or
@@ -1290,11 +1305,6 @@ resolved prematurely:
   MBPP-TS pass-rate on partially-pruned models is the direct analogue but
   expensive per candidate block, and a cheaper token-level-accuracy proxy is
   under consideration.
-\item \textbf{A specific target per-layer expert count.}
-  \Cref{sec:expert-pruning-sweep} characterizes the cost curve up to
-  $n=112$ of 128 but does not commit to one candidate to carry into later
-  axis-combination and retraining, for the same reason as the layer-count
-  question above.
 \item \textbf{Uniform vs.\ per-layer expert counts.} \Cref{sec:expert-pruning-sweep}'s
   sweep uses uniform expert counts per layer throughout, as a simplifying
   starting choice rather than one settled by confirmed evidence: scoping
@@ -1304,10 +1314,6 @@ resolved prematurely:
   neither claim has been independently re-verified by this project. Whether
   a per-layer search would do meaningfully better than uniform on this
   model remains untested here directly.
-\item \textbf{A specific target per-group head count.}
-  \Cref{sec:head-pruning-sweep} characterizes the cost curve across all 7
-  valid per-key/value-group counts but does not commit to one candidate,
-  for the same reason as the two target-count questions above.
 \item \textbf{Free (non-uniform-per-group) head selection.}
   \Cref{sec:head-pruning-sweep}'s GQA constraint requires the same count
   pruned from every key/value group in a layer; whether a free per-head
@@ -1363,9 +1369,6 @@ resolved prematurely:
   project with this many independent GPU runs over this much time, not
   a confirmed second instance.
 \end{itemize}
-
-No results are reported for these open questions; they are listed to make
-the project's actual state legible, not to imply an answer.
 
 \section{Conclusion and Recommendation}
 \label{sec:conclusion}
@@ -1433,7 +1436,33 @@ No. The closest is depth0/experts8: $0.704$ vs.\ baseline's $0.717$,
 count, which is a weak case for pruning at all if accuracy parity, not
 cost, is the goal. No candidate in this paper's thirteen-candidate
 sweep matches the unpruned teacher's raw accuracy on the target
-workload. That was never the actual bar: the question this project set
+workload.
+
+\textbf{Would more retraining data have closed the gap?} Plausibly, and
+this is the most likely untested lever, not GPU-hours alone. Every
+candidate here was retrained on the same fixed, $500$-step schedule
+(\cref{sec:phase4-short-schedule}), chosen specifically because
+validation loss on this project's $6{,}000$-sample TypeScript
+retraining pool peaks at step $199$--$259$ and measurably overfits past
+that point: simply running the existing schedule longer, on the same
+pool, already makes candidates worse, not better
+(\cref{app:negative-results}). The constraint is the pool, not the step
+count. \citet{minitron2024}'s own token-budget ablation (their Table 18)
+retrains the same pruned 8B candidate on $18.9$B vs.\ $94$B tokens with
+logit-only distillation and reports accuracy still climbing at the
+larger budget: MMLU $58.3 \to 62.8$, HellaSwag $73.8 \to 79.7$,
+HumanEval $26.2 \to 30.4$. Their final retrained models use $94$--$400$B
+tokens in total, several orders of magnitude more than the data pool
+available here. Dataset size is also one of the explicit variables in
+\citet{scalinglaws2026}'s scaling laws for task-specific distillation
+after structural pruning, alongside compression ratio and supervision
+format, in a setting close in spirit to this one; closing this
+project's remaining accuracy gap most plausibly needs a larger, more
+diverse TypeScript retraining corpus, paired with a correspondingly
+longer schedule the current pool cannot support without overfitting
+first: untested here, and the clearest direction for future work.
+
+That was never the actual bar, though: the question this project set
 out to answer is whether a customer-specific model can be competitive
 in accuracy, cheaper to run, and at least as fast to serve as the
 general-purpose model it replaces: answered next.
@@ -1466,6 +1495,7 @@ This is an independent research project with no external funding.
 \bibliography{references}
 \bibliographystyle{icml2025}
 
+\clearpage
 \appendix
 \section{Approaches That Did Not Work}
 \label{app:negative-results}
