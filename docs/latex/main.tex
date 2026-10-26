@@ -209,6 +209,21 @@ distillation data before pruning) and a downstream-task-based depth-pruning
 criterion using contiguous-block removal, evaluated on Llama 3.1 8B and
 Mistral NeMo 12B.
 
+\textbf{Domain-specific pruning.} Specializing a general-purpose model for
+a narrow deployment pattern, rather than compressing it uniformly, is an
+active direction independent of architecture or pruning criterion.
+\citet{finescope2025} select domain-relevant calibration data with a
+sparse autoencoder, prune a dense model under domain-specific
+constraints, then recover accuracy via self-distillation on that same
+curated data. \citet{scalinglaws2026} fit empirical scaling laws for
+task-specific distillation after structural pruning, with dataset size,
+compression ratio, supervision format, and pruning schedule as explicit
+variables, finding that supervision format (chain-of-thought vs.\ plain)
+is the strongest lever for recovering the general knowledge pruning
+erases. Neither addresses Mixture-of-Experts models or which axis to
+prune; this project's TypeScript-as-customer-workload framing applies
+the same domain-specialization idea to the one axis neither covers.
+
 \textbf{Expert pruning in MoE models.} Neither Minitron paper addresses
 Mixture-of-Experts models. REAP \cite{reap2025} scores expert importance as
 a gate-weighted expert-output norm, averaged over each expert's routed
@@ -1450,11 +1465,14 @@ logit-only distillation and reports accuracy still climbing at the
 larger budget: MMLU $58.3 \to 62.8$, HellaSwag $73.8 \to 79.7$,
 HumanEval $26.2 \to 30.4$. Their final retrained models use $94$--$400$B
 tokens in total, several orders of magnitude more than the data pool
-available here. Closing this project's remaining accuracy gap most
-plausibly needs a larger, more diverse TypeScript retraining corpus,
-paired with a correspondingly longer schedule the current pool cannot
-support without overfitting first: untested here, and the clearest
-direction for future work.
+available here. Dataset size is also one of the explicit variables in
+\citet{scalinglaws2026}'s scaling laws for task-specific distillation
+after structural pruning, alongside compression ratio and supervision
+format, in a setting close in spirit to this one; closing this
+project's remaining accuracy gap most plausibly needs a larger, more
+diverse TypeScript retraining corpus, paired with a correspondingly
+longer schedule the current pool cannot support without overfitting
+first: untested here, and the clearest direction for future work.
 
 That was never the actual bar, though: the question this project set
 out to answer is whether a customer-specific model can be competitive
